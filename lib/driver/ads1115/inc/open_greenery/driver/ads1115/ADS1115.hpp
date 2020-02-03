@@ -1,6 +1,7 @@
 #ifndef ADS1115_HPP
 #define ADS1115_HPP
 
+#include <chrono>
 #include <cstdint>
 
 namespace open_greenery
@@ -19,12 +20,17 @@ public:
         SCL = 0x4B // The ADDR pin connected to the SCL
     };
 
-    enum class OS : std::uint16_t// Operational status
+    enum class OS_W : std::uint16_t// Operational status. Single-conversion control
     {
         DISABLE = 0x0000,// Write: Set to disable a single-conversion
         SINGLE  = 0x8000,// Write: Set to start a single-conversion
-        BUSY    = 0x0000,// Read: Bit = 0 when conversion is in progress
-        NOTBUSY = 0x8000 // Read: Bit = 1 when device is not performing a conversion
+    };
+
+    enum class OS_R : std::uint8_t// Operational status
+    {
+        BUSY    = 0x00,// Read: Bit = 0 when conversion is in progress
+        NOTBUSY = 0x80,// Read: Bit = 1 when device is not performing a conversion
+        MASK    = 0x80
     };
 
     enum class MUX : std::uint16_t// Input multiplexer configuration
@@ -106,22 +112,23 @@ public:
         COMP_QUE cq     = COMP_QUE::NONE;
 
         Config(const Address _adr);
+        std::uint16_t bitmask() const;
     };
 
-    enum class Channel : std::uint8_t {A0, A1, A2, A3};
+    enum class Register : std::uint8_t {CONFIG = 0x01, CONVERSION = 0x00};
 
     ADS1115(const Address _adr);
 
     ADS1115(const Config _cfg);
 
-    std::int16_t read(const Channel _ch);
+    std::int16_t read(const MUX _ch) const;
 
-    Config cfg() const;
+    Config config() const;
+
+    void setConfig(const Config _cfg);
 
 private:
-    std::uint16_t cfgRegs() const;
-
-    std::uint16_t channelMask(const Channel _ch) const;
+    std::chrono::milliseconds conversionDuration(const DR _dr) const;
 
     int m_i2c_dev;
     Config m_cfg;
