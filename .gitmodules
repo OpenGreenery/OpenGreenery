@@ -4,3 +4,6 @@
 [submodule "tools"]
 	path = tools
 	url = https://github.com/raspberrypi/tools.git
+[submodule "lib/third-party/SQLiteCpp"]
+	path = lib/third-party/SQLiteCpp
+	url = https://github.com/SRombauts/SQLiteCpp
