@@ -25,5 +25,5 @@ target_link_libraries( sensor_sample    analog_sensor )
 
 # Build database sample
 add_executable( db_sample    db_sample.cpp )
-target_link_libraries( db_sample    SQLiteCpp
-                                    analog_sensor )
+target_link_libraries( db_sample    analog_sensor
+                                    database )
