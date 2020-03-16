@@ -5,7 +5,8 @@ project( sample )
 
 # Build ADC sample
 add_executable( adc_sample    adc_sample.cpp )
-target_link_libraries( adc_sample    adc )
+target_link_libraries( adc_sample    adc
+                                     spdlog )
 
 # Build GPIO sample
 add_executable( gpio_sample    gpio_sample.cpp )
