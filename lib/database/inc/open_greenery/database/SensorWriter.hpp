@@ -1,11 +1,10 @@
 #ifndef SENSOR_WRITER_HPP
 #define SENSOR_WRITER_HPP
 
-#include <chrono>
 #include <cstdint>
-#include <memory>
-#include <string>
-#include "SQLiteCpp/SQLiteCpp.h"
+#include <SQLiteCpp/SQLiteCpp.h>
+#include <QDateTime>
+#include "Table.hpp"
 
 namespace open_greenery
 {
@@ -15,12 +14,13 @@ namespace database
 class SensorWriter
 {
 public:
-    SensorWriter(std::shared_ptr<SQLite::Database> _db, const std::string _table_name);
+    SensorWriter(const Table _table);
 
     void write(const std::uint16_t _data);
+    void write(const QDateTime timestamp, const std::uint16_t _data);
 private:
-    const std::shared_ptr<SQLite::Database> m_db;
-    const std::string m_table_name;
+    void write(const char * time, const std::uint16_t _data);
+    const Table m_table;
 };
 
 }
