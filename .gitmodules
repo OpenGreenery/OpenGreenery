@@ -1,9 +1,6 @@
 [submodule "lib/third-party/wiringPi/WiringPi"]
 	path = lib/third-party/wiringPi/WiringPi
 	url = https://github.com/WiringPi/WiringPi.git
-[submodule "tools"]
-	path = tools
-	url = https://github.com/raspberrypi/tools.git
 [submodule "lib/third-party/SQLiteCpp"]
 	path = lib/third-party/SQLiteCpp
 	url = https://github.com/SRombauts/SQLiteCpp
