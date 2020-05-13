@@ -14,7 +14,7 @@ SensorWriter::SensorWriter(std::shared_ptr<SQLite::Database> _db, const std::str
     m_db->exec("CREATE TABLE IF NOT EXISTS "+_table_name+" (time DATETIME PRIMARY KEY NOT NULL, value INTEGER NOT NULL)");
 }
 
-void SensorWriter::write(const std::uint16_t _data)
+void SensorWriter::write(const std::int16_t _data)
 {
     SQLite::Transaction transaction(*m_db);
     int rv = m_db->exec("INSERT INTO "+m_table_name+

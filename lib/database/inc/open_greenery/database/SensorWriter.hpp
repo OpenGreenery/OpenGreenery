@@ -17,7 +17,7 @@ class SensorWriter
 public:
     SensorWriter(std::shared_ptr<SQLite::Database> _db, const std::string _table_name);
 
-    void write(const std::uint16_t _data);
+    void write(const std::int16_t _data);
 private:
     const std::shared_ptr<SQLite::Database> m_db;
     const std::string m_table_name;

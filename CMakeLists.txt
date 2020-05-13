@@ -5,8 +5,4 @@ project( open_greenery )
 
 add_subdirectory( lib )
 add_subdirectory( sample )
-
-add_executable( soil_moisture    soil_moisture.cpp )
-target_link_libraries( soil_moisture    analog_sensor
-                                        database
-                                        spdlog )
+add_subdirectory( services )
