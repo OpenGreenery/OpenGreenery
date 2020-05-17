@@ -5,3 +5,4 @@ project( open_greenery )
 
 add_subdirectory( lib )
 add_subdirectory( sample )
+add_subdirectory( services )

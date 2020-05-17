@@ -20,3 +20,5 @@ set( CMAKE_PREFIX_PATH    /usr/lib/arm-linux-gnueabihf/cmake )
 
 set( CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra" )
 set( CMAKE_CXX_STANDARD_REQUIRED    ON )
+
+set( LIBC    /usr/arm-linux-gnueabihf/usr/arm-linux-gnueabihf/lib/libc.so )# workaround for ld that can't find libc.so
