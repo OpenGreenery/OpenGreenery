@@ -45,5 +45,10 @@ void SensorWriter::write(const char * time, const std::uint16_t _data)
     transaction.commit();
 }
 
+Table SensorWriter::table() const
+{
+    return m_table;
+}
+
 }
 }

@@ -19,5 +19,10 @@ Table::Table(const std::shared_ptr<SQLite::Database> _database, const std::strin
     }
 }
 
+bool Table::valid() const
+{
+    return database->tableExists(name);
+}
+
 }
 }

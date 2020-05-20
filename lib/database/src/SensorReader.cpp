@@ -42,5 +42,10 @@ std::vector<SensorData> SensorReader::read(const QDateTime from, const QDateTime
     return rv;
 }
 
+Table SensorReader::table() const
+{
+    return m_table;
+}
+
 }
 }

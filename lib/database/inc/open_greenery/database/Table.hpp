@@ -12,6 +12,8 @@ struct Table
 {
     Table(const std::shared_ptr<SQLite::Database> _database, const std::string _name);
 
+    bool valid() const;
+
     const std::shared_ptr<SQLite::Database> database;
     const std::string name;
 };

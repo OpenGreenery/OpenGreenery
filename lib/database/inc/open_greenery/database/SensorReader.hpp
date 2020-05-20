@@ -17,6 +17,8 @@ public:
     SensorReader(const Table _table);
 
     std::vector<SensorData> read(const QDateTime from, const QDateTime to);
+
+    Table table() const;
 private:
     const Table m_table;
 };
