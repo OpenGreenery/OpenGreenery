@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <QDateTime>
-#include "SensorData.hpp"
+#include "SensorRecord.hpp"
 #include "Table.hpp"
 
 namespace open_greenery
@@ -16,7 +16,7 @@ class SensorReader
 public:
     SensorReader(const Table _table);
 
-    std::vector<SensorData> read(const QDateTime _from, const QDateTime _to);
+    std::vector<SensorRecord> read(const QDateTime _from, const QDateTime _to);
 
     Table table() const;
 private:

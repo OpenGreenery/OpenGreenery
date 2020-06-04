@@ -1,5 +1,5 @@
-#ifndef SENSOR_DATA_HPP
-#define SENSOR_DATA_HPP
+#ifndef SENSOR_RECORD_HPP
+#define SENSOR_RECORD_HPP
 
 #include <cstdint>
 #include <QDateTime>
@@ -9,7 +9,7 @@ namespace open_greenery
 namespace database
 {
 
-struct SensorData
+struct SensorRecord
 {
     QDateTime timestamp;
     std::int16_t value;
@@ -18,4 +18,4 @@ struct SensorData
 }
 }
 
-#endif //SENSOR_DATA_HPP
+#endif //SENSOR_RECORD_HPP
