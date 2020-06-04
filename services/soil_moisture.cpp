@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <string>
 #include <thread>
 #include "open_greenery/adc/ADCFactory.hpp"
@@ -24,10 +25,10 @@ int main ()
 {
     try
     {
-        const std::array<SampleData, 4> sample_data{{{og::driver::ADS1115::MUX::SINGLE_0, "A0"},
-                                                            {og::driver::ADS1115::MUX::SINGLE_1, "A1"},
-                                                            {og::driver::ADS1115::MUX::SINGLE_2, "A2"},
-                                                            {og::driver::ADS1115::MUX::SINGLE_3, "A3"}}};
+        const std::array<SampleData, 4> sample_data {{{og::driver::ADS1115::MUX::SINGLE_0, "A0"},
+                                                      {og::driver::ADS1115::MUX::SINGLE_1, "A1"},
+                                                      {og::driver::ADS1115::MUX::SINGLE_2, "A2"},
+                                                      {og::driver::ADS1115::MUX::SINGLE_3, "A3"}}};
         std::array<ChannelEntities, 4> entities;
         og::adc::ADCFactory &adc_factory = og::adc::ADCFactory::getInstance();
 
@@ -67,7 +68,8 @@ int main ()
             entity->sensor = std::make_unique<og::sensor::AnalogSensor>(entity->adc_reader, period);
 
             // Database sensor writer saves data to the table
-            entity->db_writer = std::make_unique<og::database::SensorWriter>(db, entity_data->db_table_name);
+            og::database::Table table (db, entity_data->db_table_name);
+            entity->db_writer = std::make_unique<og::database::SensorWriter>(table);
 
             // Transfer notificator to the sensor publisher
             entity->sensor->subscribe(make_notificator(*(entity->db_writer), entity_data->db_table_name));
