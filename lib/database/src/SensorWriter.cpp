@@ -14,14 +14,14 @@ SensorWriter::SensorWriter(const Table _table)
         " (time DATETIME PRIMARY KEY NOT NULL, value INTEGER NOT NULL)");
 }
 
-void SensorWriter::write(const std::uint16_t _data)
+void SensorWriter::write(const std::int16_t _data)
 {
     write("now", _data);
 }
 
-void SensorWriter::write(const QDateTime timestamp, const std::uint16_t _data)
+void SensorWriter::write(const QDateTime _timestamp, const std::int16_t _data)
 {
-    const auto time = timestamp.toTimeSpec(Qt::UTC)
+    const auto time = _timestamp.toTimeSpec(Qt::UTC)
                                .toString("yyyy-MM-dd hh:mm:ss")
                                .toStdString()
                                .c_str();
@@ -29,13 +29,13 @@ void SensorWriter::write(const QDateTime timestamp, const std::uint16_t _data)
     write(time, _data);
 }
 
-void SensorWriter::write(const char * time, const std::uint16_t _data)
+void SensorWriter::write(const char * _time, const std::int16_t _data)
 {
     const auto data_str = std::to_string(_data);
     SQLite::Transaction transaction(*m_table.database);
 
     int rv = m_table.database->exec("INSERT INTO " + m_table.name + " VALUES "+
-            "((SELECT strftime('%Y-%m-%d %H:%M:%f', '" + time + "')), " + data_str + ")");
+            "((SELECT strftime('%Y-%m-%d %H:%M:%f', '" + _time + "')), " + data_str + ")");
 
     if (rv != 1)
     {

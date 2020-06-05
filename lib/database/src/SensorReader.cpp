@@ -10,7 +10,7 @@ SensorReader::SensorReader(const Table _table)
     :m_table(_table)
 {}
 
-std::vector<SensorData> SensorReader::read(const QDateTime from, const QDateTime to)
+std::vector<SensorData> SensorReader::read(const QDateTime _from, const QDateTime _to)
 {
     auto utc_str = [](const QDateTime & _dt) -> std::string
     {
@@ -21,8 +21,8 @@ std::vector<SensorData> SensorReader::read(const QDateTime from, const QDateTime
 
     const std::string strftime_format ("'%Y-%m-%d %H:%M:%f'");
     SQLite::Statement query(*m_table.database, "SELECT * FROM "+m_table.name+" WHERE "+
-        "(time > strftime("+strftime_format+", '"+utc_str(from)+"') AND "+
-        "time < strftime("+strftime_format+", '"+utc_str(to)+"'));");
+        "(time > strftime("+strftime_format+", '"+utc_str(_from)+"') AND "+
+        "time < strftime("+strftime_format+", '"+utc_str(_to)+"'));");
 
     std::vector<SensorData> rv;
     while (query.executeStep())
@@ -34,7 +34,7 @@ std::vector<SensorData> SensorReader::read(const QDateTime from, const QDateTime
         utc_dt.setTimeSpec(Qt::UTC);// SQLite stores datetime in UTC
 
         auto local_dt = utc_dt.toLocalTime();
-        rv.push_back({local_dt, std::uint16_t(std::atoi(value))});
+        rv.push_back({local_dt, std::int16_t(std::atoi(value))});
     }
     query.reset();
 

@@ -12,7 +12,7 @@ namespace database
 struct SensorData
 {
     QDateTime timestamp;
-    std::uint16_t data;
+    std::int16_t value;
 };
 
 }
