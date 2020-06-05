@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <QDateTime>
+#include "SensorRecord.hpp"
 #include "Table.hpp"
 
 namespace open_greenery
@@ -17,6 +18,7 @@ public:
     SensorWriter(const Table _table);
 
     void write(const std::int16_t _data);
+    void write(const SensorRecord _record);
     void write(const QDateTime _timestamp, const std::int16_t _data);
 
     Table table() const;

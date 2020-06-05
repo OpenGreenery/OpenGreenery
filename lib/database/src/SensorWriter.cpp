@@ -19,6 +19,11 @@ void SensorWriter::write(const std::int16_t _data)
     write("now", _data);
 }
 
+void SensorWriter::write(const SensorRecord _record)
+{
+    write(_record.timestamp, _record.value);
+}
+
 void SensorWriter::write(const QDateTime _timestamp, const std::int16_t _data)
 {
     const auto time = _timestamp.toTimeSpec(Qt::UTC)

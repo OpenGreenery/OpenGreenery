@@ -10,7 +10,7 @@ SensorReader::SensorReader(const Table _table)
     :m_table(_table)
 {}
 
-std::vector<SensorData> SensorReader::read(const QDateTime _from, const QDateTime _to)
+std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to)
 {
     auto utc_str = [](const QDateTime & _dt) -> std::string
     {
@@ -24,7 +24,7 @@ std::vector<SensorData> SensorReader::read(const QDateTime _from, const QDateTim
         "(time > strftime("+strftime_format+", '"+utc_str(_from)+"') AND "+
         "time < strftime("+strftime_format+", '"+utc_str(_to)+"'));");
 
-    std::vector<SensorData> rv;
+    std::vector<SensorRecord> rv;
     while (query.executeStep())
     {
         const char * timestamp = query.getColumn("time");
