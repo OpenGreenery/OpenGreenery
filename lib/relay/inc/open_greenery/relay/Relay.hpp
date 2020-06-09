@@ -23,6 +23,8 @@ public:
 
     bool enabled() const;
 
+    void toggle();
+
 private:
     bool m_enabled;
     std::shared_ptr<open_greenery::gpio::OutputGPIOctl> m_gpio;

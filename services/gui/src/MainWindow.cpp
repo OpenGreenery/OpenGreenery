@@ -1,5 +1,6 @@
 #include "open_greenery/gui/MainWindow.hpp"
 #include "open_greenery/gui/page/MultipleCharts.hpp"
+#include "open_greenery/gui/page/Configurations.hpp"
 #include <QDebug>
 
 namespace open_greenery::gui
@@ -8,8 +9,9 @@ namespace open_greenery::gui
 MainWindow::MainWindow(std::function<void()> _cb_quit_app)
     : m_window_main(),
     m_cb_quit_app(_cb_quit_app),
-    m_topbar(static_cast<IAppQuit *>(this)),
-    m_page()
+    m_topbar(static_cast<IAppQuit *>(this), static_cast<IPageControl *>(this)),
+    m_page_soil(),
+    m_page_config()
 {
     auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/soil_moisture.db3", SQLite::OPEN_READONLY);
     qDebug() << "SQLite database file " << QString::fromStdString(db->getFilename()) << " opened successfully";
@@ -35,11 +37,13 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
     {
         chart.update(date_from, date_to);
     }
-    m_page = new open_greenery::gui::page::MultipleCharts(std::move(soil_moisture_charts));
+    m_page_soil = std::make_unique<open_greenery::gui::page::MultipleCharts>(std::move(soil_moisture_charts));
+    m_page_config = std::make_unique<open_greenery::gui::page::Configurations>();
 
     auto main_layout = new QVBoxLayout();
     main_layout->addLayout(m_topbar.layout());
-    main_layout->addWidget(m_page->widget());
+//    main_layout->addWidget(m_page_soil->widget());
+    main_layout->addWidget(m_page_config->widget());
 
     auto main_wdg = new QWidget();
     main_wdg->setLayout(main_layout);
@@ -51,6 +55,16 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
 void MainWindow::quit()
 {
     m_cb_quit_app();
+}
+
+void MainWindow::showConfigurations()
+{
+    qDebug() << "MainWindow::showConfigurations()";
+}
+
+void MainWindow::showMultipleCharts()
+{
+    qDebug() << "MainWindow::showMultipleCharts()";
 }
 
 }

@@ -35,5 +35,17 @@ bool Relay::enabled() const
     return m_enabled;
 }
 
+void Relay::toggle()
+{
+    if (enabled())
+    {
+        disable();
+    }
+    else
+    {
+        enable();
+    }
+}
+
 }
 }

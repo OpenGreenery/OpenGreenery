@@ -8,7 +8,8 @@ find_package( Qt5 REQUIRED COMPONENTS    Core
 add_library( ${PROJECT_NAME}_impl    src/MainWindow.cpp
                                      src/Topbar.cpp
                                      src/page/DateValueChart.cpp
-                                     src/page/MultipleCharts.cpp )
+                                     src/page/MultipleCharts.cpp
+                                     src/page/Configurations.cpp )
 target_include_directories( ${PROJECT_NAME}_impl    PUBLIC inc )
 target_link_libraries( ${PROJECT_NAME}_impl    ${LIBC}
                                                database
