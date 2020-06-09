@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <QtWidgets/QMainWindow>
+#include <QStackedLayout>
 #include <QBoxLayout>
 #include "open_greenery/gui/Topbar.hpp"
 #include "open_greenery/gui/IAppQuit.hpp"
@@ -27,6 +28,7 @@ private:
     QMainWindow m_window_main;
     std::function<void()> m_cb_quit_app;
     Topbar m_topbar;
+    QStackedLayout * m_page_layout;
     std::unique_ptr<IPage> m_page_soil;
     std::unique_ptr<IPage> m_page_config;
 };

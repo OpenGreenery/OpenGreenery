@@ -22,7 +22,7 @@ void DateValueChart::update(const QDateTime & _from, const QDateTime & _to)
 
     auto series = new QtCharts::QSplineSeries();
 
-    for (const auto moisture_data : m_reader.read(_from, _to))
+    for (const auto & moisture_data : m_reader.read(_from, _to))
     {
         series->append(moisture_data.timestamp.toMSecsSinceEpoch(), moisture_data.value);
     }

@@ -10,8 +10,7 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
     : m_window_main(),
     m_cb_quit_app(_cb_quit_app),
     m_topbar(static_cast<IAppQuit *>(this), static_cast<IPageControl *>(this)),
-    m_page_soil(),
-    m_page_config()
+    m_page_layout(new QStackedLayout())
 {
     auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/soil_moisture.db3", SQLite::OPEN_READONLY);
     qDebug() << "SQLite database file " << QString::fromStdString(db->getFilename()) << " opened successfully";
@@ -42,8 +41,11 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
 
     auto main_layout = new QVBoxLayout();
     main_layout->addLayout(m_topbar.layout());
-//    main_layout->addWidget(m_page_soil->widget());
-    main_layout->addWidget(m_page_config->widget());
+    main_layout->addLayout(m_page_layout);
+//    main_layout->addWidget(m_page_config->widget());
+
+    m_page_layout->addWidget(m_page_soil->widget());
+    m_page_layout->addWidget(m_page_config->widget());
 
     auto main_wdg = new QWidget();
     main_wdg->setLayout(main_layout);
@@ -59,12 +61,12 @@ void MainWindow::quit()
 
 void MainWindow::showConfigurations()
 {
-    qDebug() << "MainWindow::showConfigurations()";
+    m_page_layout->setCurrentIndex(1);
 }
 
 void MainWindow::showMultipleCharts()
 {
-    qDebug() << "MainWindow::showMultipleCharts()";
+    m_page_layout->setCurrentIndex(0);
 }
 
 }
