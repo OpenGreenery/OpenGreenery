@@ -25,3 +25,7 @@ target_link_libraries( sensor_sample    analog_sensor )
 add_executable( db_sample    db_sample.cpp )
 target_link_libraries( db_sample    analog_sensor
                                     database )
+
+# Build database sample
+add_executable( db_irig_cfg_sample    db_irig_cfg.cpp )
+target_link_libraries( db_irig_cfg_sample    database )

@@ -10,7 +10,7 @@ namespace database
 
 struct Table
 {
-    Table(const std::shared_ptr<SQLite::Database> _database, const std::string _name);
+    Table(std::shared_ptr<SQLite::Database> _database, std::string _name);
 
     bool valid() const;
 

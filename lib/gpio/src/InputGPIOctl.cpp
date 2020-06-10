@@ -1,6 +1,5 @@
 #include "open_greenery/gpio/InputGPIOctl.hpp"
 #include <wiringPi.h>
-#include <iostream>
 
 namespace open_greenery
 {

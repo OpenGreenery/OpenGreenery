@@ -3,24 +3,20 @@
 
 #include <vector>
 #include <QDateTime>
+#include "DatabaseEntity.hpp"
 #include "SensorRecord.hpp"
-#include "Table.hpp"
 
 namespace open_greenery
 {
 namespace database
 {
 
-class SensorReader
+class SensorReader : public DatabaseEntity
 {
 public:
     SensorReader(const Table _table);
 
     std::vector<SensorRecord> read(const QDateTime _from, const QDateTime _to);
-
-    Table table() const;
-private:
-    const Table m_table;
 };
 
 }

@@ -51,7 +51,7 @@ int main ()
     if (table.valid())
     {
         og::database::SensorReader reader(table);
-        std::vector<og::database::SensorData> res = reader.read(from, to);
+        std::vector<og::database::SensorRecord> res = reader.read(from, to);
         for (const auto pair : res)
         {
             const auto [dt, val] = pair;

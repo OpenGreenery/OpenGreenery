@@ -7,7 +7,7 @@ namespace database
 {
 
 SensorReader::SensorReader(const Table _table)
-    :m_table(_table)
+    :DatabaseEntity(std::move(_table))
 {}
 
 std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to)
@@ -20,7 +20,7 @@ std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateT
     };
 
     const std::string strftime_format ("'%Y-%m-%d %H:%M:%f'");
-    SQLite::Statement query(*m_table.database, "SELECT * FROM "+m_table.name+" WHERE "+
+    SQLite::Statement query(*table().database, "SELECT * FROM "+table().name+" WHERE "+
         "(time > strftime("+strftime_format+", '"+utc_str(_from)+"') AND "+
         "time < strftime("+strftime_format+", '"+utc_str(_to)+"'));");
 
@@ -40,11 +40,6 @@ std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateT
 
     rv.shrink_to_fit();
     return rv;
-}
-
-Table SensorReader::table() const
-{
-    return m_table;
 }
 
 }

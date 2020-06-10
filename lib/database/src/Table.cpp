@@ -5,15 +5,15 @@ namespace open_greenery
 namespace database
 {
 
-Table::Table(const std::shared_ptr<SQLite::Database> _database, const std::string _name)
-    :database(_database),
-    name(_name)
+Table::Table(std::shared_ptr<SQLite::Database> _database, std::string _name)
+    :database(std::move(_database)),
+    name(std::move(_name))
 {
-    if (!_database)
+    if (!database)
     {
         throw std::logic_error("Database ptr is null");
     }
-    if (_name.empty())
+    if (name.empty())
     {
         throw std::logic_error("Table name is empty");
     }
