@@ -33,7 +33,7 @@ int main ()
         og::adc::ADCFactory &adc_factory = og::adc::ADCFactory::getInstance();
 
         // Open database file
-        auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/soil_moisture.db3",
+        auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/open_greenery.db3",
                                                      SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
         std::cout << "SQLite database file " << db->getFilename() << " opened successfully" << std::endl;
 

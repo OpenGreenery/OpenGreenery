@@ -12,7 +12,7 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
     m_topbar(static_cast<IAppQuit *>(this), static_cast<IPageControl *>(this)),
     m_page_layout(new QStackedLayout())
 {
-    auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/soil_moisture.db3", SQLite::OPEN_READONLY);
+    auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/open_greenery.db3", SQLite::OPEN_READONLY);
     qDebug() << "SQLite database file " << QString::fromStdString(db->getFilename()) << " opened successfully";
 
     open_greenery::database::Table db_tables [] {{db, "A0"},
