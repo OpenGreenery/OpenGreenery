@@ -4,10 +4,8 @@
 namespace open_greenery::gui::page
 {
 
-
 Configurations::Configurations()
-    :m_main_widget(new QWidget())//,
-    //m_light_relay({2, open_greenery::gpio::Pinout::WIRING_PI})
+    :m_main_widget(new QWidget())
 {
     auto b_light = new QPushButton();
     b_light->setText("Light");
@@ -34,6 +32,6 @@ void Configurations::toggleLight()
         system("gpio write 2 1");
         m_light_state = true;
     }
-//    m_light_relay.toggle();
+
 }
 }

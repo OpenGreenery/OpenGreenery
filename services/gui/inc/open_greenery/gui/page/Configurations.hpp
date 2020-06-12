@@ -3,7 +3,6 @@
 
 #include <QPushButton>
 #include "open_greenery/gui/IPage.hpp"
-//#include "open_greenery/relay/Relay.hpp"
 
 namespace open_greenery::gui::page
 {
@@ -21,7 +20,6 @@ private slots:
 private:
     QWidget * m_main_widget;
     bool m_light_state {};
-//    open_greenery::relay::Relay m_light_relay;
 };
 
 }
