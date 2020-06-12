@@ -55,6 +55,7 @@ std::vector<IrrigationConfigRecord> IrrigationConfigReader::read(const std::stri
         };
         rv.push_back(std::move(rec));
     }
+    query.reset();
 
     rv.shrink_to_fit();
     return rv;

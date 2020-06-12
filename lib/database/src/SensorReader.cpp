@@ -42,5 +42,23 @@ std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateT
     return rv;
 }
 
+SensorRecord SensorReader::readLast()
+{
+    std::string str_query = "SELECT * FROM "
+            + table().name
+            + " WHERE time == (SELECT MAX(time) FROM "
+            + table().name
+            +")";
+    SQLite::Statement query(*table().database, str_query);
+    query.executeStep();
+    const char * timestamp = query.getColumn("time");
+    const char * value = query.getColumn("value");
+
+    auto utc_dt = QDateTime::fromString(QString(timestamp), "yyyy-MM-dd hh:mm:ss.zzz");
+    utc_dt.setTimeSpec(Qt::UTC);// SQLite stores datetime in UTC
+
+    return {utc_dt.toLocalTime(), std::int16_t(std::atoi(value))};
+}
+
 }
 }

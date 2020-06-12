@@ -17,6 +17,7 @@ public:
     SensorReader(const Table _table);
 
     std::vector<SensorRecord> read(const QDateTime _from, const QDateTime _to);
+    SensorRecord readLast();
 };
 
 }
