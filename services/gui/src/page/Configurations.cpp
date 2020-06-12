@@ -13,6 +13,7 @@ Configurations::Configurations()
     auto layout = new QVBoxLayout();
     layout->addWidget(b_light);
     m_main_widget->setLayout(layout);
+    system("gpio mode 2 out");
 }
 
 QWidget * Configurations::widget()

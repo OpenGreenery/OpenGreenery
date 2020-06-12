@@ -51,7 +51,7 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
     main_wdg->setLayout(main_layout);
     m_window_main.setWindowTitle("OpenGreenery");
     m_window_main.setCentralWidget(main_wdg);
-    m_window_main.show();
+    m_window_main.showFullScreen();
 }
 
 void MainWindow::quit()
