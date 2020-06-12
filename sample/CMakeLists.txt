@@ -28,4 +28,5 @@ target_link_libraries( db_sample    analog_sensor
 
 # Build database sample
 add_executable( db_irig_cfg_sample    db_irig_cfg.cpp )
-target_link_libraries( db_irig_cfg_sample    database )
+target_link_libraries( db_irig_cfg_sample    database
+                                             gpio )
