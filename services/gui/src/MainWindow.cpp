@@ -30,7 +30,7 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
         }
     }
 
-    const QDateTime date_from = QDateTime::currentDateTime().addMonths(-1);// Month ago
+    const QDateTime date_from = QDateTime::currentDateTime().addDays(-7);// Week ago
     const QDateTime date_to = QDateTime::currentDateTime();
     for (auto & chart : soil_moisture_charts)
     {
