@@ -10,7 +10,38 @@ if( NOT Threads_FOUND )
 endif()
 
 set( SOURCES WiringPi/wiringPi )
-FILE( GLOB SRC_FILES    ${SOURCES}/*.c )
+set( SRC_FILES    ${SOURCES}/piHiPri.c
+				  ${SOURCES}/wiringPiSPI.c
+				  ${SOURCES}/mcp23s17.c
+				  ${SOURCES}/mcp23016.c
+				  ${SOURCES}/max31855.c
+				  ${SOURCES}/mcp4802.c
+				  ${SOURCES}/wiringShift.c
+				  ${SOURCES}/wiringPiI2C.c
+				  ${SOURCES}/mcp3004.c
+				  ${SOURCES}/htu21d.c
+				  ${SOURCES}/softPwm.c
+				  ${SOURCES}/mcp23s08.c
+				  ${SOURCES}/sn3218.c
+				  ${SOURCES}/rht03.c
+				  ${SOURCES}/bmp180.c
+				  ${SOURCES}/pseudoPins.c
+				  ${SOURCES}/pcf8591.c
+				  ${SOURCES}/wiringPi.c
+				  ${SOURCES}/max5322.c
+				  ${SOURCES}/mcp23008.c
+				  ${SOURCES}/mcp3422.c
+				  ${SOURCES}/mcp23017.c
+				  ${SOURCES}/softTone.c
+				  ${SOURCES}/ads1115.c
+				  ${SOURCES}/mcp3002.c
+				  ${SOURCES}/drcSerial.c
+				  ${SOURCES}/ds18b20.c
+				  ${SOURCES}/drcNet.c
+				  ${SOURCES}/pcf8574.c
+				  ${SOURCES}/wiringSerial.c
+				  ${SOURCES}/piThread.c
+				  ${SOURCES}/sr595.c )
 add_library( ${PROJECT_NAME}    SHARED ${SRC_FILES})
 target_include_directories( ${PROJECT_NAME}    PUBLIC ${SOURCES} )
 
