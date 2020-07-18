@@ -1,10 +1,8 @@
-#include "open_greenery/database/SensorWriter.hpp"
+#include <open_greenery/database/SensorWriter.hpp>
 #include <exception>
 #include <functional>
 
-namespace open_greenery
-{
-namespace database
+namespace open_greenery::database
 {
 
 SensorWriter::SensorWriter(Table _table)
@@ -19,7 +17,7 @@ void SensorWriter::write(const std::int16_t _data)
     write("now", _data);
 }
 
-void SensorWriter::write(const SensorRecord _record)
+void SensorWriter::write(const open_greenery::dataflow::SensorRecord _record)
 {
     write(_record.timestamp, _record.value);
 }
@@ -27,9 +25,9 @@ void SensorWriter::write(const SensorRecord _record)
 void SensorWriter::write(const QDateTime _timestamp, const std::int16_t _data)
 {
     const auto time = _timestamp.toTimeSpec(Qt::UTC)
-                               .toString("yyyy-MM-dd hh:mm:ss")
-                               .toStdString()
-                               .c_str();
+                                .toString("yyyy-MM-dd hh:mm:ss")
+                                .toStdString()
+                                .c_str();
 
     write(time, _data);
 }
@@ -50,5 +48,4 @@ void SensorWriter::write(const char * _time, const std::int16_t _data)
     transaction.commit();
 }
 
-}
 }

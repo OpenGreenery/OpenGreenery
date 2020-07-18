@@ -4,9 +4,7 @@
 #include <cstdint>
 #include <QDateTime>
 
-namespace open_greenery
-{
-namespace database
+namespace open_greenery::dataflow
 {
 
 struct SensorRecord
@@ -15,7 +13,6 @@ struct SensorRecord
     std::int16_t value;
 };
 
-}
 }
 
 #endif //SENSOR_RECORD_HPP

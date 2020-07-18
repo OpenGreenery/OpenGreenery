@@ -3,9 +3,7 @@
 
 #include <SQLiteCpp/SQLiteCpp.h>
 
-namespace open_greenery
-{
-namespace database
+namespace open_greenery::database
 {
 
 struct Table
@@ -18,7 +16,6 @@ struct Table
     const std::string name;
 };
 
-}
 }
 
 #endif //TABLE_HPP

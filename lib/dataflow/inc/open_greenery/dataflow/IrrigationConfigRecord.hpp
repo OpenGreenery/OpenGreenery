@@ -2,10 +2,10 @@
 #define IRRIGATION_CONFIG_RECORD_HPP
 
 #include <chrono>
-#include "open_greenery/gpio/PinId.hpp"
-#include "SensorReader.hpp"
+#include <string>
+#include <open_greenery/gpio/PinId.hpp>
 
-namespace open_greenery::database
+namespace open_greenery::dataflow
 {
 
 struct IrrigationConfigRecord
@@ -15,7 +15,7 @@ struct IrrigationConfigRecord
     std::int16_t wet;
     std::uint16_t watering_volume;
     std::chrono::seconds watering_period;
-    open_greenery::database::SensorReader soil_moisture_reader;
+    std::string soil_moisture_sensor;
 };
 
 }

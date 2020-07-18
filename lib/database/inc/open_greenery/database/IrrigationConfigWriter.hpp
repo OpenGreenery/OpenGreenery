@@ -2,17 +2,19 @@
 #define IRRIGATION_CONFIG_WRITER_HPP
 
 #include "DatabaseEntity.hpp"
-#include "IrrigationConfigRecord.hpp"
+#include <open_greenery/dataflow/IrrigationConfigRecord.hpp>
+#include <open_greenery/dataflow/IIrrigationConfigDataReceiver.hpp>
 
 namespace open_greenery::database
 {
 
-class IrrigationConfigWriter : public DatabaseEntity
+class IrrigationConfigWriter : public DatabaseEntity,
+                               public open_greenery::dataflow::IIrrigationDataReceiver
 {
 public:
     IrrigationConfigWriter(Table _table);
 
-    void write(IrrigationConfigRecord _record);
+    void write(open_greenery::dataflow::IrrigationConfigRecord _record) override;
 };
 
 }

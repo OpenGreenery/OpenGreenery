@@ -5,27 +5,25 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <QDateTime>
 #include "DatabaseEntity.hpp"
-#include "SensorRecord.hpp"
+#include <open_greenery/dataflow/ISensorDataReceiver.hpp>
 
-namespace open_greenery
-{
-namespace database
+namespace open_greenery::database
 {
 
-class SensorWriter : public DatabaseEntity
+class SensorWriter : public DatabaseEntity,
+                     public open_greenery::dataflow::ISensorDataReceiver
 {
 public:
     SensorWriter(Table _table);
 
-    void write(const std::int16_t _data);
-    void write(const SensorRecord _record);
-    void write(const QDateTime _timestamp, const std::int16_t _data);
+    void write(std::int16_t _data) override;
+    void write(open_greenery::dataflow::SensorRecord _record) override;
+    void write(QDateTime _timestamp, std::int16_t _data) override;
 
 private:
-    void write(const char * _time, const std::int16_t _data);
+    void write(const char * _time, std::int16_t _data);
 };
 
-}
 }
 
 #endif //SENSOR_WRITER_HPP

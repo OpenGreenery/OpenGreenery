@@ -8,7 +8,7 @@ namespace open_greenery::database
 
 class DatabaseEntity
 {
-public:
+protected:
     DatabaseEntity(Table _table);
 
     Table table() const;

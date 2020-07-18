@@ -1,16 +1,14 @@
-#include "open_greenery/database/SensorReader.hpp"
+#include <open_greenery/database/SensorReader.hpp>
 #include <SQLiteCpp/VariadicBind.h>
 
-namespace open_greenery
-{
-namespace database
+namespace open_greenery::database
 {
 
 SensorReader::SensorReader(const Table _table)
     :DatabaseEntity(std::move(_table))
 {}
 
-std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to)
+std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to)
 {
     auto utc_str = [](const QDateTime & _dt) -> std::string
     {
@@ -24,7 +22,7 @@ std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateT
         "(time > strftime("+strftime_format+", '"+utc_str(_from)+"') AND "+
         "time < strftime("+strftime_format+", '"+utc_str(_to)+"'));");
 
-    std::vector<SensorRecord> rv;
+    std::vector<open_greenery::dataflow::SensorRecord> rv;
     while (query.executeStep())
     {
         const char * timestamp = query.getColumn("time");
@@ -42,7 +40,7 @@ std::vector<SensorRecord> SensorReader::read(const QDateTime _from, const QDateT
     return rv;
 }
 
-SensorRecord SensorReader::readLast()
+open_greenery::dataflow::SensorRecord SensorReader::readLast()
 {
     std::string str_query = "SELECT * FROM "
             + table().name
@@ -60,5 +58,4 @@ SensorRecord SensorReader::readLast()
     return {utc_dt.toLocalTime(), std::int16_t(std::atoi(value))};
 }
 
-}
 }

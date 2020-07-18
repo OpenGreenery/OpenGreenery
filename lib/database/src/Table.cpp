@@ -1,8 +1,6 @@
 #include <open_greenery/database/Table.hpp>
 
-namespace open_greenery
-{
-namespace database
+namespace open_greenery::database
 {
 
 Table::Table(std::shared_ptr<SQLite::Database> _database, std::string _name)
@@ -24,5 +22,4 @@ bool Table::valid() const
     return database->tableExists(name);
 }
 
-}
 }

@@ -7,12 +7,12 @@ IrrigationConfigReader::IrrigationConfigReader(Table _table)
         : DatabaseEntity(std::move(_table))
 {}
 
-std::vector<IrrigationConfigRecord> IrrigationConfigReader::read()
+std::vector<open_greenery::dataflow::IrrigationConfigRecord> IrrigationConfigReader::read()
 {
     return read("SELECT * FROM "+table().name);
 }
 
-IrrigationConfigRecord IrrigationConfigReader::read(open_greenery::gpio::PinId _pin)
+open_greenery::dataflow::IrrigationConfigRecord IrrigationConfigReader::read(open_greenery::gpio::PinId _pin)
 {
     const auto pin = std::to_string(_pin.cast_to(open_greenery::gpio::Pinout::WIRING_PI).pin);
     const auto db_data = read("SELECT * FROM "+table().name+" WHERE pump_pin == "+pin);
@@ -29,10 +29,10 @@ IrrigationConfigRecord IrrigationConfigReader::read(open_greenery::gpio::PinId _
     return db_data.front();
 }
 
-std::vector<IrrigationConfigRecord> IrrigationConfigReader::read(const std::string & _query)
+std::vector<open_greenery::dataflow::IrrigationConfigRecord> IrrigationConfigReader::read(const std::string & _query)
 {
     SQLite::Statement query {*table().database, _query};
-    std::vector<IrrigationConfigRecord> rv;
+    std::vector<open_greenery::dataflow::IrrigationConfigRecord> rv;
     while (query.executeStep())
     {
         const char * pump_pin = query.getColumn("pump_pin");
@@ -45,13 +45,13 @@ std::vector<IrrigationConfigRecord> IrrigationConfigReader::read(const std::stri
         auto to_uint = [](const char * _str){return std::strtoul(_str, nullptr, 10);};
         auto to_int = [](const char * _str){return std::strtol(_str, nullptr, 10);};
 
-        IrrigationConfigRecord rec = {
+        open_greenery::dataflow::IrrigationConfigRecord rec = {
                 {std::uint8_t(to_uint(pump_pin)), open_greenery::gpio::Pinout::WIRING_PI},
                 std::int16_t(to_int(dry_level)),
                 std::int16_t(to_int(wet_level)),
                 std::uint16_t(to_uint(watering_volume_ml)),
                 std::chrono::seconds(to_uint(watering_period_sec)),
-                {{table().database, soil_moisture_sensor}}
+                soil_moisture_sensor
         };
         rv.push_back(std::move(rec));
     }
