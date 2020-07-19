@@ -2,7 +2,7 @@
 #define STATE_HPP
 
 #include <cstdint>
-#include <open_greenery/database/IrrigationConfigRecord.hpp>
+#include <open_greenery/dataflow/IrrigationConfigRecord.hpp>
 #include "SystemState.hpp"
 
 namespace open_greenery::irrigation
@@ -15,13 +15,13 @@ public:
     virtual SystemState state() = 0;
 
 protected:
-    State(open_greenery::database::IrrigationConfigRecord _config);
+    State(open_greenery::dataflow::IrrigationConfigRecord _config);
     virtual ~State() = default;
 
-    const open_greenery::database::IrrigationConfigRecord & config() const;
+    const open_greenery::dataflow::IrrigationConfigRecord & config() const;
 
 private:
-    open_greenery::database::IrrigationConfigRecord m_config;
+    open_greenery::dataflow::IrrigationConfigRecord m_config;
 };
 
 }

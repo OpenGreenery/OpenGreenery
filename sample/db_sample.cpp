@@ -5,7 +5,7 @@
 #include "open_greenery/adc/ADCFactory.hpp"
 #include "open_greenery/database/SensorReader.hpp"
 #include "open_greenery/database/SensorWriter.hpp"
-#include "open_greenery/sensor/AnalogSensor.hpp"
+#include "open_greenery/sensor/AnalogSensorPublisher.hpp"
 
 namespace og = open_greenery;
 
@@ -18,21 +18,22 @@ int main ()
     constexpr auto period = std::chrono::milliseconds(500);
 
     // Publisher of ADC readers data each 0.5 sec
-    og::sensor::AnalogSensor a0(adc_reader, period);
+    og::sensor::AnalogSensorPublisher a0(adc_reader, period);
 
     // Open database file
     auto db = std::make_shared<SQLite::Database>("/tmp/sensor_data.db3", SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
     std::cout << "SQLite database file " << db->getFilename() << " opened successfully" << std::endl;
 
     const og::database::Table table(db, "A0");// Declare the database table for sensor data
-    og::database::SensorWriter writer(table);// Database sensor writer saves data to the table
+    // Database sensor writer saves data to the table
+    std::unique_ptr<og::dataflow::ISensorDataReceiver> receiver = std::make_unique<og::database::SensorWriter>(table);
 
     // Notificator that saves sensor data to the database
-    og::sensor::AnalogSensor::Notificator ntr = [&writer](const std::int16_t _val)
+    og::sensor::AnalogSensorPublisher::Notificator ntr = [&receiver](const std::int16_t _val)
     {
         try
         {
-            writer.write(_val);
+            receiver->write(_val);
             std::cout << "ADC value [" << _val << "] successfully saved" << std::endl;
         }
         catch (std::exception &e)
@@ -48,11 +49,12 @@ int main ()
     std::this_thread::sleep_for(std::chrono::seconds(3));
     a0.disable();
 
+    // Read saved to the DB data
     if (table.valid())
     {
-        og::database::SensorReader reader(table);
-        std::vector<og::database::SensorRecord> res = reader.read(from, to);
-        for (const auto pair : res)
+        std::unique_ptr<og::dataflow::ISensorDataProvider> provider =
+                std::make_unique<og::database::SensorReader>(table);
+        for (const auto & pair : provider->read(from, to))
         {
             const auto [dt, val] = pair;
             qDebug() << dt << " | " << val;

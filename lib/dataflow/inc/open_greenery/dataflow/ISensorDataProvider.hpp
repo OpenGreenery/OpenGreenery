@@ -11,8 +11,7 @@ namespace open_greenery::dataflow
 class ISensorDataProvider
 {
 public:
-    virtual std::vector<SensorRecord> read(QDateTime _from, QDateTime _to) = 0;
-    virtual SensorRecord readLast() = 0;
+    virtual std::vector<SensorRecord> read(QDateTime _from, QDateTime _to) const = 0;
 
     ISensorDataProvider() = default;
     virtual ~ISensorDataProvider() = default;

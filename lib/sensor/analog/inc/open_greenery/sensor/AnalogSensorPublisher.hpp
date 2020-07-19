@@ -8,24 +8,24 @@
 #include <memory>
 #include <mutex>
 #include <thread>
-#include "open_greenery/adc/IADCReader.hpp"
+#include <open_greenery/dataflow/ISensorReadProvider.hpp>
 
 namespace open_greenery
 {
 namespace sensor
 {
 
-class AnalogSensor
+class AnalogSensorPublisher
 {
 public:
     using Notificator = std::function<void(std::int16_t)>;
 
-    AnalogSensor(std::shared_ptr<open_greenery::adc::IADCReader> _reader);
-    AnalogSensor(std::shared_ptr<open_greenery::adc::IADCReader> _reader,
-                 const std::chrono::milliseconds period);
-    AnalogSensor(const AnalogSensor &) = delete;
-    AnalogSensor & operator =(const AnalogSensor &) = delete;
-    ~AnalogSensor();
+    AnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _provider);
+    AnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _provider,
+                          const std::chrono::milliseconds period);
+    AnalogSensorPublisher(const AnalogSensorPublisher &) = delete;
+    AnalogSensorPublisher & operator =(const AnalogSensorPublisher &) = delete;
+    ~AnalogSensorPublisher();
 
     void subscribe(Notificator _notificator);
     void unsubscribe(Notificator _notificator);
@@ -37,7 +37,7 @@ private:
     void notify(const std::int16_t _val) const;
     void update(const std::chrono::milliseconds period) const;
 
-    std::shared_ptr<open_greenery::adc::IADCReader> m_reader;
+    std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> m_sensor_provider;
     std::thread m_thread;
     std::atomic_bool m_thread_continue;
     std::list<Notificator> m_notificators;

@@ -5,7 +5,7 @@ namespace open_greenery
 namespace adc
 {
 
-ADS1115Reader::ADS1115Reader(ogd::ADS1115 & _adc, ogd::ADS1115::MUX _mux)
+ADS1115Reader::ADS1115Reader(ogdr::ADS1115 & _adc, ogdr::ADS1115::MUX _mux)
     :m_adc(_adc),
     m_mux(_mux)
 {}

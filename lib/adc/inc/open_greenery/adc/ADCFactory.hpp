@@ -4,15 +4,16 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include "IADCReader.hpp"
-#include "open_greenery/driver/ads1115/ADS1115.hpp"
+#include <open_greenery/dataflow/ISensorReadProvider.hpp>
+#include <open_greenery/driver/ads1115/ADS1115.hpp>
 
 namespace open_greenery
 {
 namespace adc
 {
 
-namespace ogd = open_greenery::driver;
+namespace ogdf = open_greenery::dataflow;
+namespace ogdr = open_greenery::driver;
 
 class ADCFactory
 {
@@ -22,18 +23,18 @@ public:
     ADCFactory(const ADCFactory &) = delete;
     ADCFactory & operator=(ADCFactory &) = delete;
 
-    std::shared_ptr<IADCReader> getReader(const ogd::ADS1115::Address _adr,
-                                          const ogd::ADS1115::MUX _mux);
+    std::shared_ptr<ogdf::ISensorReadProvider> getReader(const ogdr::ADS1115::Address _adr,
+                                          const ogdr::ADS1115::MUX _mux);
 
 private:
     ADCFactory() = default;
 
     struct ADS1115Storage
     {
-        std::unique_ptr<ogd::ADS1115> adc;
-        std::map<ogd::ADS1115::MUX, std::shared_ptr<IADCReader>> readers;
+        std::unique_ptr<ogdr::ADS1115> adc;
+        std::map<ogdr::ADS1115::MUX, std::shared_ptr<ogdf::ISensorReadProvider>> readers;
     };
-    std::map<ogd::ADS1115::Address, ADS1115Storage> m_ads1115;
+    std::map<ogdr::ADS1115::Address, ADS1115Storage> m_ads1115;
 };
 
 }

@@ -9,7 +9,7 @@ namespace open_greenery::irrigation
 class WetState final : public State
 {
 public:
-    WetState(open_greenery::database::IrrigationConfigRecord _config);
+    WetState(open_greenery::dataflow::IrrigationConfigRecord _config);
 
     SystemState handleSoilMoisture(std::int16_t _moisture) override;
     SystemState state() override;

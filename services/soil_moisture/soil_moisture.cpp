@@ -4,15 +4,15 @@
 #include <thread>
 #include "open_greenery/adc/ADCFactory.hpp"
 #include "open_greenery/database/SensorWriter.hpp"
-#include "open_greenery/sensor/AnalogSensor.hpp"
+#include "open_greenery/sensor/AnalogSensorPublisher.hpp"
 
 namespace og = open_greenery;
 
 struct ChannelEntities
 {
-    std::shared_ptr<og::adc::IADCReader> adc_reader;
-    std::unique_ptr<og::sensor::AnalogSensor> sensor;
-    std::unique_ptr<og::database::SensorWriter> db_writer;
+    std::shared_ptr<og::dataflow::ISensorReadProvider> sensor_read_provider;
+    std::unique_ptr<og::sensor::AnalogSensorPublisher> sensor_publisher;
+    std::unique_ptr<og::dataflow::ISensorDataReceiver> sensor_data_receiver;
 };
 
 struct SampleData
@@ -30,7 +30,7 @@ int main ()
                                                       {og::driver::ADS1115::MUX::SINGLE_2, "A2"},
                                                       {og::driver::ADS1115::MUX::SINGLE_3, "A3"}}};
         std::array<ChannelEntities, 4> entities;
-        og::adc::ADCFactory &adc_factory = og::adc::ADCFactory::getInstance();
+        og::adc::ADCFactory & adc_factory = og::adc::ADCFactory::getInstance();
 
         // Open database file
         auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/open_greenery.db3",
@@ -38,14 +38,14 @@ int main ()
         std::cout << "SQLite database file " << db->getFilename() << " opened successfully" << std::endl;
 
         // Notificator that saves sensor data to the database
-        auto make_notificator = [](og::database::SensorWriter &writer, std::string logline)
-                -> og::sensor::AnalogSensor::Notificator
+        auto make_notificator = [](og::dataflow::ISensorDataReceiver & receiver, std::string logline)
+                -> og::sensor::AnalogSensorPublisher::Notificator
         {
-            return [&writer, logline](const std::int16_t _val)
+            return [&receiver, logline](const std::int16_t _val)
             {
                 try
                 {
-                    writer.write(_val);
+                    receiver.write(_val);
                     std::cout << logline << " = " << _val << std::endl;
                 }
                 catch (std::exception &e)
@@ -61,18 +61,18 @@ int main ()
         {
             // ADS1115 address
             constexpr og::driver::ADS1115::Address adc_addr = og::driver::ADS1115::Address::GND;
-            entity->adc_reader = adc_factory.getReader(adc_addr, entity_data->channel);
+            entity->sensor_read_provider = adc_factory.getReader(adc_addr, entity_data->channel);
 
             // Sensor publisher calls notificators with ADC readers data each minute
             constexpr auto period = std::chrono::minutes(1);
-            entity->sensor = std::make_unique<og::sensor::AnalogSensor>(entity->adc_reader, period);
+            entity->sensor_publisher = std::make_unique<og::sensor::AnalogSensorPublisher>(entity->sensor_read_provider, period);
 
             // Database sensor writer saves data to the table
             og::database::Table table (db, entity_data->db_table_name);
-            entity->db_writer = std::make_unique<og::database::SensorWriter>(table);
+            entity->sensor_data_receiver = std::make_unique<og::database::SensorWriter>(table);
 
             // Transfer notificator to the sensor publisher
-            entity->sensor->subscribe(make_notificator(*(entity->db_writer), entity_data->db_table_name));
+            entity->sensor_publisher->subscribe(make_notificator(*(entity->sensor_data_receiver), entity_data->db_table_name));
         }
 
         // Pause main thread; Sensor publisher continues save ADC data via SensorWriter in the Notificator

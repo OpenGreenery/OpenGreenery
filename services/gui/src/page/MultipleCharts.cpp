@@ -7,7 +7,7 @@ namespace open_greenery::gui::page
 
 MultipleCharts::MultipleCharts(std::vector<DateValueChart> _charts)
     :m_main_widget(new QWidget),
-    m_charts(_charts)
+    m_charts(std::move(_charts))
 {
     auto charts_layout = new QGridLayout();
 

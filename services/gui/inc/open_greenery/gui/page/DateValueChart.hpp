@@ -4,7 +4,7 @@
 #include <memory>
 #include <QChartView>
 #include <QDateTime>
-#include "open_greenery/database/SensorReader.hpp"
+#include "open_greenery/dataflow/ISensorDataProvider.hpp"
 
 namespace open_greenery::gui::page
 {
@@ -12,14 +12,14 @@ namespace open_greenery::gui::page
 class DateValueChart
 {
 public:
-    DateValueChart(open_greenery::database::SensorReader _reader, const QString & _title);
+    DateValueChart(std::unique_ptr<open_greenery::dataflow::ISensorDataProvider> _provider, const QString & _title);
 
     void update();
     void update(const QDateTime & _from, const QDateTime & _to);
 
     QtCharts::QChartView * chartView() const;
 private:
-    open_greenery::database::SensorReader m_reader;
+    std::unique_ptr<open_greenery::dataflow::ISensorDataProvider> m_sensor_provider;
     QDateTime m_current_from, m_current_to;
     QtCharts::QChartView * m_chart_view;
     const QString m_title;

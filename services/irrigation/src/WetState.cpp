@@ -5,7 +5,7 @@
 namespace open_greenery::irrigation
 {
 
-WetState::WetState(open_greenery::database::IrrigationConfigRecord _config)
+WetState::WetState(open_greenery::dataflow::IrrigationConfigRecord _config)
     :State(std::move(_config))
 {}
 

@@ -2,13 +2,17 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <open_greenery/database/SensorReader.hpp>
 #include <open_greenery/database/IrrigationConfigReader.hpp>
 #include <open_greenery/pump/Pump.hpp>
 #include <open_greenery/irrigation/DryState.hpp>
 #include <open_greenery/irrigation/WetState.hpp>
+#include <SQLiteCpp/SQLiteCpp.h>
 
 constexpr open_greenery::gpio::PinId PUMP_PIN {0, open_greenery::gpio::Pinout::WIRING_PI};
 namespace ogirig = open_greenery::irrigation;
+namespace ogdb = open_greenery::database;
+namespace ogdf = open_greenery::dataflow;
 using namespace std::chrono_literals;
 
 int main()
@@ -16,15 +20,15 @@ int main()
     auto db = std::make_shared<SQLite::Database>("/home/pi/og/db/open_greenery.db3", SQLite::OPEN_READONLY);
     std::cout << "SQLite database file " << db->getFilename() << " opened successfully" << std::endl;
 
-    open_greenery::database::IrrigationConfigReader cfg_reader ({db, "IrrigationConfig"});
+    ogdb::IrrigationConfigReader cfg_reader ({db, "IrrigationConfig"});
     auto config = cfg_reader.read(PUMP_PIN);
     std::cout << "Pump pin: " << config.pin.pin << std::endl
             << "Dry level: " << config.dry << " Wet level: " << config.wet << std::endl
             << "Watering volume: " << config.watering_volume << " ml" << std::endl
             << "Watering period: " << config.watering_period.count() << std::endl
-            << "Soil moisture sensor: " << config.soil_moisture_reader.table().name << std::endl;
+            << "Soil moisture sensor: " << config.soil_moisture_sensor << std::endl;
 
-    auto UpdateMoisture = [](open_greenery::database::SensorReader _reader,
+    auto UpdateMoisture = [](const ogdf::ISensorReadProvider & _provider,
             std::atomic_int16_t & _moisture,
             std::chrono::seconds _period)
     {
@@ -32,7 +36,7 @@ int main()
         {
             try
             {
-                _moisture = _reader.readLast().value;
+                _moisture = _provider.read();
             }
             catch (const SQLite::Exception & _ex)
             {
@@ -44,12 +48,12 @@ int main()
         }
     };
 
-
+    ogdb::SensorReader soil_moisture_provider ({db, config.soil_moisture_sensor});
     std::atomic_int16_t current_soil_moisture {};
     std::cout << "Irrigation Controller: prepared memory for moisture data" << std::endl;
     std::thread soil_moisture_update_thr (
             UpdateMoisture,
-            config.soil_moisture_reader,
+            std::ref(soil_moisture_provider),
             std::ref(current_soil_moisture),
             1s
         );

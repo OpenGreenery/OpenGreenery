@@ -1,9 +1,7 @@
 #include "open_greenery/adc/ADCFactory.hpp"
 #include "open_greenery/adc/ADS1115Reader.hpp"
 
-namespace open_greenery
-{
-namespace adc
+namespace open_greenery::adc
 {
 
 ADCFactory & ADCFactory::getInstance()
@@ -12,20 +10,20 @@ ADCFactory & ADCFactory::getInstance()
     return instance;
 }
 
-std::shared_ptr<IADCReader> ADCFactory::getReader(const ogd::ADS1115::Address _adr,
-                                                  const ogd::ADS1115::MUX _mux)
+std::shared_ptr<ogdf::ISensorReadProvider> ADCFactory::getReader(const ogdr::ADS1115::Address _adr,
+                                                  const ogdr::ADS1115::MUX _mux)
 {
     if (m_ads1115.find(_adr) == m_ads1115.end())
     {
         m_ads1115[_adr] = ADS1115Storage();
     }
     ADS1115Storage & storage = m_ads1115[_adr];
-    std::unique_ptr<ogd::ADS1115> & adc = storage.adc;
-    std::map<ogd::ADS1115::MUX, std::shared_ptr<IADCReader>> & readers = storage.readers;
+    std::unique_ptr<ogdr::ADS1115> & adc = storage.adc;
+    std::map<ogdr::ADS1115::MUX, std::shared_ptr<ogdf::ISensorReadProvider>> & readers = storage.readers;
 
     if (!adc)
     {
-        adc = std::make_unique<ogd::ADS1115>(_adr);
+        adc = std::make_unique<ogdr::ADS1115>(_adr);
     }
 
     if (readers.find(_mux) == readers.end())
@@ -36,5 +34,4 @@ std::shared_ptr<IADCReader> ADCFactory::getReader(const ogd::ADS1115::Address _a
     return readers[_mux];
 }
 
-}
 }

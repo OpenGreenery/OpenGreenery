@@ -8,7 +8,7 @@ SensorReader::SensorReader(const Table _table)
     :DatabaseEntity(std::move(_table))
 {}
 
-std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to)
+std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to) const
 {
     auto utc_str = [](const QDateTime & _dt) -> std::string
     {
@@ -40,7 +40,7 @@ std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDat
     return rv;
 }
 
-open_greenery::dataflow::SensorRecord SensorReader::readLast()
+std::int16_t SensorReader::read() const
 {
     std::string str_query = "SELECT * FROM "
             + table().name
@@ -49,13 +49,8 @@ open_greenery::dataflow::SensorRecord SensorReader::readLast()
             +")";
     SQLite::Statement query(*table().database, str_query);
     query.executeStep();
-    const char * timestamp = query.getColumn("time");
     const char * value = query.getColumn("value");
-
-    auto utc_dt = QDateTime::fromString(QString(timestamp), "yyyy-MM-dd hh:mm:ss.zzz");
-    utc_dt.setTimeSpec(Qt::UTC);// SQLite stores datetime in UTC
-
-    return {utc_dt.toLocalTime(), std::int16_t(std::atoi(value))};
+    return std::int16_t(std::atoi(value));
 }
 
 }

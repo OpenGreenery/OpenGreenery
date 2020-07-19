@@ -1,6 +1,8 @@
+#include <open_greenery/database/SensorReader.hpp>
 #include "open_greenery/gui/MainWindow.hpp"
 #include "open_greenery/gui/page/MultipleCharts.hpp"
 #include "open_greenery/gui/page/Configurations.hpp"
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <QDebug>
 
 namespace open_greenery::gui
@@ -25,7 +27,7 @@ MainWindow::MainWindow(std::function<void()> _cb_quit_app)
         if (db_table.valid())
         {
             soil_moisture_charts.emplace_back(
-                    open_greenery::database::SensorReader(db_table),
+                    std::make_unique<open_greenery::database::SensorReader>(db_table),
                     QString::fromStdString(db_table.name+" soil moisture"));
         }
     }

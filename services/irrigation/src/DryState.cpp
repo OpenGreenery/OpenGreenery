@@ -4,7 +4,7 @@
 namespace open_greenery::irrigation
 {
 
-open_greenery::irrigation::DryState::DryState(open_greenery::database::IrrigationConfigRecord _config,
+open_greenery::irrigation::DryState::DryState(open_greenery::dataflow::IrrigationConfigRecord _config,
                                               open_greenery::pump::Pump & _pump)
     :State(std::move(_config)),
     m_pump(_pump)

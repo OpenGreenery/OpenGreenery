@@ -11,8 +11,7 @@ add_library( ${PROJECT_NAME}_impl    src/MainWindow.cpp
                                      src/page/MultipleCharts.cpp
                                      src/page/Configurations.cpp )
 target_include_directories( ${PROJECT_NAME}_impl    PUBLIC inc )
-target_link_libraries( ${PROJECT_NAME}_impl    ${LIBC}
-                                               database
+target_link_libraries( ${PROJECT_NAME}_impl    database
                                                analog_sensor
                                                Qt5::Core
                                                Qt5::Widgets
