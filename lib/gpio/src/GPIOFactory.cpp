@@ -1,4 +1,5 @@
 #include "open_greenery/gpio/GPIOFactory.hpp"
+#include <stdexcept>
 
 namespace open_greenery
 {
