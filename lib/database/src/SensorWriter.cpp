@@ -24,12 +24,11 @@ void SensorWriter::write(const open_greenery::dataflow::SensorRecord _record)
 
 void SensorWriter::write(const QDateTime _timestamp, const std::int16_t _data)
 {
-    const auto time = _timestamp.toTimeSpec(Qt::UTC)
-                                .toString("yyyy-MM-dd hh:mm:ss")
-                                .toStdString()
-                                .c_str();
+    const auto time_utc_str = _timestamp.toTimeSpec(Qt::UTC)
+                              .toString("yyyy-MM-dd hh:mm:ss")
+                              .toStdString();
 
-    write(time, _data);
+    write(time_utc_str.c_str(), _data);
 }
 
 void SensorWriter::write(const char * _time, const std::int16_t _data)

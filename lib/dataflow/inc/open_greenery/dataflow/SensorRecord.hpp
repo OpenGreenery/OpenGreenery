@@ -11,6 +11,16 @@ struct SensorRecord
 {
     QDateTime timestamp;
     std::int16_t value;
+
+    bool operator == (const SensorRecord & r) const
+    {
+        return (timestamp == r.timestamp) && (value == r.value);
+    }
+
+    bool operator != (const SensorRecord & r) const
+    {
+        return !(*this==r);
+    }
 };
 
 }

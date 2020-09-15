@@ -12,5 +12,6 @@ target_include_directories( ${PROJECT_NAME}    PUBLIC inc
                                                PUBLIC ${LIBS}/gpio/inc )
 find_package( Qt5 REQUIRED COMPONENTS    Core )
 target_link_libraries( ${PROJECT_NAME}    dataflow
+                                          gpio
                                           SQLiteCpp
                                           Qt5::Core )
