@@ -2,12 +2,13 @@
 #include <iostream>
 #include <SQLiteCpp/Exception.h>
 #include <open_greenery/irrigation/IrrigationController.hpp>
+#include <open_greenery/dataflow/IOptionalSensorReadProvider.hpp>
 
 namespace open_greenery::irrigation
 {
 
 IrrigationController::IrrigationController(open_greenery::dataflow::IrrigationConfigRecord _cfg,
-                                           std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _sensor_reader,
+                                           std::shared_ptr<open_greenery::dataflow::IOptionalSensorReadProvider> _sensor_reader,
                                            std::shared_ptr<open_greenery::pump::IPump> _pump)
     :m_cfg(std::move(_cfg)),
     m_sensor_reader(std::move(_sensor_reader)),
@@ -40,7 +41,7 @@ void IrrigationController::stop()
 
 void IrrigationController::IrrigationThreadFunc()
 {
-    std::int16_t soil_moisture;
+    std::optional<std::int16_t> soil_moisture;
     try
     {
         soil_moisture = m_sensor_reader->read();
@@ -52,7 +53,12 @@ void IrrigationController::IrrigationThreadFunc()
         return;
     }
 
-    m_state_machine_context->handleSoilMoisture(soil_moisture);
+    if (!soil_moisture.has_value())
+    {
+        return;
+    }
+
+    m_state_machine_context->handleSoilMoisture(soil_moisture.value());
 }
 
 }
