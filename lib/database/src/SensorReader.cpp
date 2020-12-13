@@ -40,8 +40,9 @@ std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDat
     return rv;
 }
 
-std::int16_t SensorReader::read() const
+std::optional<std::int16_t> SensorReader::read() const
 {
+    //TODO: Return empty optional if table is empty
     std::string str_query = "SELECT * FROM "
             + table().name
             + " WHERE time == (SELECT MAX(time) FROM "
@@ -50,7 +51,9 @@ std::int16_t SensorReader::read() const
     SQLite::Statement query(*table().database, str_query);
     query.executeStep();
     const char * value = query.getColumn("value");
-    return std::int16_t(std::atoi(value));
+    std::optional<std::int16_t> rv;
+    rv = std::stoi(value);
+    return rv;
 }
 
 }
