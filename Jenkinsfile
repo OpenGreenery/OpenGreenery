@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-                sh 'docker run --rm -v og-artifacts:/var/og-artifacts --name "og-build_${BRANCH_NAME}-${BUILD_NUMBER}" -e "BRANCH=jenkins-build" -e "COPYPATH=tests/tests" og-build'
+                sh 'docker run --rm -v og-artifacts:/var/og-artifacts --name "og-build_${BRANCH_NAME}-${BUILD_NUMBER}" -e "BRANCH=${BRANCH_NAME}" -e "COPYPATH=tests/tests" og-build'
             }
         }
         
