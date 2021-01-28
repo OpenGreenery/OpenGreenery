@@ -12,7 +12,10 @@ IrrigationController::IrrigationController(open_greenery::dataflow::IrrigationCo
     :m_cfg(std::move(_cfg)),
     m_sensor_reader(std::move(_sensor_reader)),
     m_state_machine_context(std::make_unique<Context>(m_cfg, std::move(_pump)))
-{}
+{
+    assert(_sensor_reader != nullptr);
+    assert(_pump != nullptr);
+}
 
 IrrigationController::~IrrigationController()
 {
