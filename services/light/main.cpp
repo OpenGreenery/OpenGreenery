@@ -7,6 +7,7 @@
 #include <open_greenery/light/CurrentTimeProvider.hpp>
 #include <open_greenery/relay/Relay.hpp>
 
+constexpr auto DATABASE_PATH {"/home/pi/og/db/open_greenery.db3"};
 static std::unique_ptr<open_greenery::light::LightController> s_controller;
 
 void signalHandler(int signal)
@@ -34,12 +35,15 @@ int main()
     const QTime DAY_END_TIME (22, 00);
     const open_greenery::dataflow::light::LightConfigRecord config {DAY_START_TIME, DAY_END_TIME};
 
+    // database
+    auto db = std::make_shared<SQLite::Database>(DATABASE_PATH, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+
     // manual control
-    auto ctl_reader = std::make_shared<open_greenery::database::light::ControlReader>();
-    auto ctl_handled_writer = std::make_shared<open_greenery::database::light::ControlHandledWriter>();
+    auto ctl_reader = std::make_shared<open_greenery::database::light::ControlReader>(db);
+    auto ctl_handled_writer = std::make_shared<open_greenery::database::light::ControlHandledWriter>(db);
 
     // light status
-    auto status_writer = std::make_shared<open_greenery::database::light::StatusWriter>();
+    auto status_writer = std::make_shared<open_greenery::database::light::StatusWriter>(db);
 
     // time provider
     auto time_provider = std::make_shared<open_greenery::light::CurrentTimeProvider>();
