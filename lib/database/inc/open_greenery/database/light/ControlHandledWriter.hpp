@@ -14,9 +14,6 @@ public:
     explicit ControlHandledWriter(std::shared_ptr<SQLite::Database> _database);
 
     void handled() override;
-
-private:
-    std::shared_ptr<SQLite::Database> m_database;
 };
 
 }

@@ -67,3 +67,59 @@ TEST_F(LightDaoTest, DefaultConfigurationValues)
     EXPECT_EQ(is_enabled, 0);
     EXPECT_STREQ(control, "handled");
 }
+
+TEST_F(LightDaoTest, StatusReceiver)
+{
+    std::map<bool, std::string> expected {
+            {true, "1"},
+            {false, "0"}
+    };
+
+    SQLite::Statement query(*db, "SELECT is_enabled AS status_in_db FROM light WHERE user_id = 0;");
+
+    for (const auto & [is_enabled_input, expected_status_in_db]: expected)
+    {
+        status_receiver_->set(is_enabled_input);
+
+        query.executeStep();
+        const std::string actual_status_in_db = query.getColumn("status_in_db");
+        query.reset();
+
+        EXPECT_EQ(expected_status_in_db, actual_status_in_db);
+    }
+}
+
+TEST_F(LightDaoTest, ControlProvider)
+{
+    std::map<std::string, std::optional<ogdfl::Control>> expected {
+            {"enable", {ogdfl::Control::ENABLE}},
+            {"disable", {ogdfl::Control::DISABLE}},
+            {"toggle", {ogdfl::Control::TOGGLE}},
+            {"handled", {}}
+    };
+
+    SQLite::Statement update_query(*db, "UPDATE light SET control = ? WHERE user_id = 0;");
+
+    for (const auto & [value_in_db, expected_control]: expected)
+    {
+        update_query.bind(1, value_in_db);
+        update_query.exec();
+
+        const auto actual_control = control_provider_->get();
+        EXPECT_EQ(actual_control, expected_control);
+
+        update_query.reset();
+    }
+}
+
+TEST_F(LightDaoTest, ControlHandledReceiver)
+{
+    db->exec("UPDATE light SET control = 'enable' WHERE user_id = 0;");
+    const auto current_ctl = control_provider_->get();
+    ASSERT_TRUE(current_ctl.has_value());
+    ASSERT_EQ(current_ctl.value(), ogdfl::Control::ENABLE);
+
+    control_handled_receiver_->handled();
+    const std::string actual_value_in_db = db->execAndGet("SELECT control FROM light WHERE user_id = 0;");
+    EXPECT_EQ(actual_value_in_db, "handled");
+}

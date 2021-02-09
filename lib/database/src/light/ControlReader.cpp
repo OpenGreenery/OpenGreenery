@@ -16,7 +16,7 @@ std::optional<ogdfl::Control> ControlReader::get()
     // TODO: Remove hardcoded user_id
     const std::string str_query = "SELECT control FROM light WHERE user_id = 0;";
     SQLite::Statement query(*m_database, str_query);
-    query.exec();
+    query.executeStep();
     const std::string control = query.getColumn("control");
 
     if (control == "enable")

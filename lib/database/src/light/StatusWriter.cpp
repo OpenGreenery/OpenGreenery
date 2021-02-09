@@ -14,7 +14,7 @@ void StatusWriter::set(bool _is_enabled)
     SQLite::Transaction transaction(*m_database);
 
     // TODO: Remove hardcoded user_id
-    const auto query = std::string("UPDATE light SET status = ") + (_is_enabled ? "1" : "0") + "WHERE user_id = 0;";
+    const auto query = std::string("UPDATE light SET is_enabled = ") + (_is_enabled ? "1" : "0") + " WHERE user_id = 0;";
     m_database->exec(query);
 
     transaction.commit();
