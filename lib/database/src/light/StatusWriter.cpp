@@ -1,14 +1,23 @@
 #include "open_greenery/database/light/StatusWriter.hpp"
-#include <QtDebug>
-#include <QTime>
+#include <SQLiteCpp/Transaction.h>
+#include <utility>
 
 namespace open_greenery::database::light
 {
 
+StatusWriter::StatusWriter(std::shared_ptr<SQLite::Database> _database)
+    :LightDAO(std::move(_database))
+{}
+
 void StatusWriter::set(bool _is_enabled)
 {
-    // TODO: Write flag to DB instead of log
-    qDebug() << QTime::currentTime().toString() << "light status: " << (_is_enabled ? "ENABLED" : "DISABLED");
+    SQLite::Transaction transaction(*m_database);
+
+    // TODO: Remove hardcoded user_id
+    const auto query = std::string("UPDATE light SET status = ") + (_is_enabled ? "1" : "0") + "WHERE user_id = 0;";
+    m_database->exec(query);
+
+    transaction.commit();
 }
 
 }

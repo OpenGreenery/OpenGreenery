@@ -6,6 +6,7 @@ enable_testing()
 
 set( SRCS    main.cpp
              lib/database/DatabaseTest.cpp
+             lib/database/light/LigthDaoTest.cpp
              lib/relay/RelayTest.cpp )
 
 add_executable( ${PROJECT_NAME}    ${SRCS} )
