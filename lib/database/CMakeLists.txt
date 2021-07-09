@@ -5,7 +5,11 @@ set( SOURCES    src/DatabaseEntity.cpp
                 src/IrrigationConfigWriter.cpp
                 src/SensorReader.cpp
                 src/SensorWriter.cpp
-                src/Table.cpp)
+                src/Table.cpp
+                src/light/ControlHandledWriter.cpp
+                src/light/ControlReader.cpp
+                src/light/LightDao.cpp
+                src/light/StatusWriter.cpp )
 
 add_library( ${PROJECT_NAME}    ${SOURCES} )
 target_include_directories( ${PROJECT_NAME}    PUBLIC inc

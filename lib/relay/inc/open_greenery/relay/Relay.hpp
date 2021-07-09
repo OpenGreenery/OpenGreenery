@@ -2,6 +2,7 @@
 #define RELAY_HPP
 
 #include <memory>
+#include "IRelay.hpp"
 #include "open_greenery/gpio/IOutputPin.hpp"
 
 namespace open_greenery
@@ -9,20 +10,20 @@ namespace open_greenery
 namespace relay
 {
 
-class Relay
+class Relay : public IRelay
 {
 public:
     Relay(std::shared_ptr<open_greenery::gpio::IOutputPin> _pin);
 
-    ~Relay();
+    ~Relay() override;
 
-    void enable();
+    void enable() override;
 
-    void disable();
+    void disable() override;
 
-    bool enabled() const;
+    bool enabled() const override;
 
-    void toggle();
+    void toggle() override;
 
 private:
     bool m_enabled;
