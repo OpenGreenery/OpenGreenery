@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGreenery.WebApp", "OpenGreenery.WebApp\OpenGreenery.WebApp.csproj", "{8EDF352A-8A8B-4A1E-A2A8-2EE57139496E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{3F64E590-8A13-4F4A-A08B-7ECA44378C6D}"
+ProjectSection(SolutionItems) = preProject
+	.dockerignore = .dockerignore
+	Dockerfile.WebApp = Dockerfile.WebApp
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{6343E287-3DFA-420E-8497-C87073D430D5}"
+ProjectSection(SolutionItems) = preProject
+	..\..\.github\workflows\ci.yml = ..\..\.github\workflows\ci.yml
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{C6CE2F05-E6EC-457E-A1BF-0D4F28F8FBF6}"
+ProjectSection(SolutionItems) = preProject
+	..\shared\protos\greet.proto = ..\shared\protos\greet.proto
+EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8EDF352A-8A8B-4A1E-A2A8-2EE57139496E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF352A-8A8B-4A1E-A2A8-2EE57139496E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF352A-8A8B-4A1E-A2A8-2EE57139496E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF352A-8A8B-4A1E-A2A8-2EE57139496E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal

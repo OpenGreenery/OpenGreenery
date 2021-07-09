@@ -1,0 +1,61 @@
+﻿@inherits LayoutComponentBase
+
+@inject Blazored.LocalStorage.ILocalStorageService _localStorage
+
+<MudThemeProvider Theme="@_currentTheme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" Edge="Edge.End" OnClick="@ThemeToggle"/>
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6" Class="mt-1" Align="Align.Center">
+                <MudIcon Icon="fas fa-seedling" Color="Color.Success"></MudIcon>
+                <span class="pl-2">OpenGreenery</span>
+            </MudText>
+        </MudDrawerHeader>
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = true;
+    NamedMudTheme _currentTheme = GreeneryThemes.Light;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var themeName = await _localStorage.GetItemAsStringAsync("theme");
+
+        if (string.IsNullOrEmpty(themeName))
+        {
+            themeName = GreeneryThemes.Light.Name;
+            await _localStorage.SetItemAsStringAsync("theme", themeName);
+        }
+
+        _currentTheme = GreeneryThemes.Instances[themeName];
+        StateHasChanged();
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    async Task ThemeToggle()
+    {
+        _currentTheme =
+            _currentTheme == GreeneryThemes.Light
+                ? GreeneryThemes.Dark
+                : GreeneryThemes.Light;
+
+        await _localStorage.SetItemAsStringAsync("theme", _currentTheme.Name);
+    }
+}
