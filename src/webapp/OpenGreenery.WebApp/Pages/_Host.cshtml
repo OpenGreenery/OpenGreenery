@@ -16,8 +16,16 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
     <link href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" rel="stylesheet">
+    <script>
+        function setThemeCookie() {
+            var theme = localStorage.getItem("theme")
+            if (theme != undefined) {
+                document.cookie = "theme=" + theme
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="setThemeCookie()">
     <component type="typeof(App)" render-mode="ServerPrerendered" />
 
     <div id="blazor-error-ui">

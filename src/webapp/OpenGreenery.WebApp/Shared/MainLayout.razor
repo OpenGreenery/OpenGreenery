@@ -1,6 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Http
+@inherits LayoutComponentBase
 
 @inject Blazored.LocalStorage.ILocalStorageService _localStorage
+@inject IHttpContextAccessor _httpContextAccessor
 
 <MudThemeProvider Theme="@_currentTheme"/>
 <MudDialogProvider/>
@@ -43,14 +45,14 @@
     bool _themeLoaded = false;
     NamedMudTheme _currentTheme = GreeneryThemes.Light;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnInitialized()
     {
-        var themeName = await _localStorage.GetItemAsStringAsync("theme");
+        var context = _httpContextAccessor.HttpContext;
+        var themeName = context?.Request.Cookies["theme"];
 
-        if (string.IsNullOrEmpty(themeName))
+        if (string.IsNullOrWhiteSpace(themeName))
         {
             themeName = GreeneryThemes.Light.Name;
-            await _localStorage.SetItemAsStringAsync("theme", themeName);
         }
 
         _currentTheme = GreeneryThemes.Instances[themeName];

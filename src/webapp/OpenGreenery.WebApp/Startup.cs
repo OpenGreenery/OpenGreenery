@@ -27,6 +27,8 @@ namespace OpenGreenery.WebApp
             services.AddServerSideBlazor();
             services.AddBlazoredLocalStorage();
             services.AddMudServices();
+
+            services.AddHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
