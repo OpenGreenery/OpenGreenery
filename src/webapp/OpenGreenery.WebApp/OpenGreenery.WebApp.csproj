@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\..\shared\protos\greet.proto" GrpcServices="Server" />
+        <Protobuf Include="..\..\shared\protos\*.proto" ProtoRoot="../../shared/protos" GrpcServices="Server" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +17,10 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css" />
       <_ContentIncludedByDefault Remove="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services" />
     </ItemGroup>
 
 </Project>

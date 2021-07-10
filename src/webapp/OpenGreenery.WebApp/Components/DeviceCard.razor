@@ -1,0 +1,45 @@
+﻿<MudCard Class="max">
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Variant="Variant.Outlined" Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Inbox"/>
+            </MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">@Name</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudTooltip Text="Configure">
+                <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
+            </MudTooltip>
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudText>
+            Status:
+            @switch (Status)
+            {
+                case DeviceStatus.Online:
+                    <MudChip Icon="@Icons.Material.Filled.Circle" IconColor="Color.Success">online</MudChip>
+                    break;
+                case DeviceStatus.Offline:
+                    <MudChip Icon="@Icons.Material.Filled.Circle" IconColor="Color.Default">offline</MudChip>
+                    break;
+            }
+        </MudText>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    public enum DeviceStatus
+    {
+        Online,
+        Offline
+    }
+
+    [Parameter]
+    public DeviceStatus Status { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+}

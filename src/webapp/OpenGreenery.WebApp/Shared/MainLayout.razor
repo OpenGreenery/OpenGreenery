@@ -6,28 +6,41 @@
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
-<MudLayout>
-    <MudAppBar Elevation="1" Color="Color.Primary">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" Edge="Edge.End" OnClick="@ThemeToggle"/>
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.h6" Class="mt-1" Align="Align.Center">
-                <MudIcon Icon="fas fa-seedling" Color="Color.Success"></MudIcon>
-                <span class="pl-2">OpenGreenery</span>
-            </MudText>
-        </MudDrawerHeader>
-        <NavMenu/>
-    </MudDrawer>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
-</MudLayout>
+@* TODO: Preloader animation *@
+@if (_themeLoaded)
+{
+    <MudLayout>
+        <MudAppBar Elevation="1" Color="Color.Primary">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudSpacer />
+            <MudTooltip Text="Toggle dark mode">
+                <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="@ThemeToggle" />
+            </MudTooltip>
+            <MudMenu Direction="Direction.Right" OffsetY="true" Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Size="Size.Large" Class="mud-icon-button-edge-end">
+                <ChildContent>
+                    <MudMenuItem>Profile</MudMenuItem>
+                    <MudMenuItem>Sign Out</MudMenuItem>
+                </ChildContent>
+            </MudMenu>
+        </MudAppBar>
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+            <MudDrawerHeader>
+                <MudText Typo="Typo.h6" Class="mt-1" Align="Align.Center">
+                    <MudIcon Icon="fas fa-seedling" Color="Color.Success"></MudIcon>
+                    <span class="pl-2">OpenGreenery</span>
+                </MudText>
+            </MudDrawerHeader>
+            <NavMenu/>
+        </MudDrawer>
+        <MudMainContent>
+            @Body
+        </MudMainContent>
+    </MudLayout>
+}
 
 @code {
     bool _drawerOpen = true;
+    bool _themeLoaded = false;
     NamedMudTheme _currentTheme = GreeneryThemes.Light;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -42,6 +55,7 @@
 
         _currentTheme = GreeneryThemes.Instances[themeName];
         StateHasChanged();
+        _themeLoaded = true;
     }
 
     void DrawerToggle()

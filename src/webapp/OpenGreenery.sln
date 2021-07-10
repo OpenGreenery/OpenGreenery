@@ -15,7 +15,8 @@ EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protos", "Protos", "{C6CE2F05-E6EC-457E-A1BF-0D4F28F8FBF6}"
 ProjectSection(SolutionItems) = preProject
-	..\shared\protos\greet.proto = ..\shared\protos\greet.proto
+	..\shared\protos\common.proto = ..\shared\protos\common.proto
+	..\shared\protos\actions.proto = ..\shared\protos\actions.proto
 EndProjectSection
 EndProject
 Global
