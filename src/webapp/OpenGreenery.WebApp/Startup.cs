@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
-using OpenGreenery.WebApp.Services;
 
 namespace OpenGreenery.WebApp
 {
@@ -50,7 +49,7 @@ namespace OpenGreenery.WebApp
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GreeterService>();
+                // endpoints.MapGrpcService<GreeterService>();
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
