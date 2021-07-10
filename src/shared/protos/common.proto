@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package opengreenery.common;
+option csharp_namespace = "OpenGreenery.Protobuf";
+
+enum FeatureType {
+  FEATURE_TYPE_SOIL_IRRIGATION = 0;
+  FEATURE_TYPE_VENTILATION = 1;
+  FEATURE_TYPE_LIGHT = 2;
+}
+
+enum SoilIrrigationMode {
+  SOIL_IRRIGATION_PERIODIC = 0;
+  SOIL_IRRIGATION_MOISTURE = 1;
+}
+
+enum LightMode {
+  LIGHT_MODE_AUTO = 0;
+  LIGHT_MODE_MANUAL = 1;
+}
+
+enum LightState {
+  LIGHT_STATE_ENABLED = 0;
+  LIGHT_STATE_DISABLED = 1;
+}
+
+enum VentilationState {
+  VENTILATION_STATE_ENABLED = 0;
+  VENTILATION_STATE_DISABLED = 1;
+}
+
+message Empty {}
