@@ -62,6 +62,11 @@ message VentilationConfiguration {
   message Manual {
     opengreenery.common.LightState state = 1;
   }
+  opengreenery.common.LightMode mode = 1;
+  oneof configuration {
+    Auto auto = 2;
+    Manual manual = 3;
+  }
 }
 
 message LightConfiguration {
@@ -71,6 +76,11 @@ message LightConfiguration {
   }
   message Manual {
     opengreenery.common.VentilationState state = 1;
+  }
+  opengreenery.common.VentilationMode mode = 1;
+  oneof configuration {
+    Auto auto = 2;
+    Manual manual = 3;
   }
 }
 

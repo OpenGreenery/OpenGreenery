@@ -24,6 +24,11 @@ enum LightState {
   LIGHT_STATE_DISABLED = 1;
 }
 
+enum VentilationMode {
+  VENTILATION_MODE_AUTO = 0;
+  VENTILATION_MODE_MANUAL = 1;
+}
+
 enum VentilationState {
   VENTILATION_STATE_ENABLED = 0;
   VENTILATION_STATE_DISABLED = 1;
