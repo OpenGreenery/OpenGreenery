@@ -6,7 +6,6 @@ set( SOURCES    src/DatabaseEntity.cpp
                 src/SensorReader.cpp
                 src/SensorWriter.cpp
                 src/Table.cpp
-                src/light/ControlHandledWriter.cpp
                 src/light/ControlReader.cpp
                 src/light/LightDao.cpp
                 src/light/StatusWriter.cpp )

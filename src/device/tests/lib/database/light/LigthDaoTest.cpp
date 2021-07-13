@@ -2,7 +2,6 @@
 #include <memory>
 #include <SQLiteCpp/Database.h>
 
-#include <open_greenery/database/light/ControlHandledWriter.hpp>
 #include <open_greenery/database/light/ControlReader.hpp>
 #include <open_greenery/database/light/StatusWriter.hpp>
 
@@ -18,7 +17,6 @@ protected:
 
         status_receiver_ = std::make_unique<ogdbl::StatusWriter>(db);
         control_provider_ = std::make_unique<ogdbl::ControlReader>(db);
-        control_handled_receiver_ = std::make_unique<ogdbl::ControlHandledWriter>(db);
     }
 
     void TearDown() override
@@ -31,7 +29,6 @@ protected:
     std::shared_ptr<SQLite::Database> db;
     std::unique_ptr<ogdfl::IStatusReceiver> status_receiver_;
     std::unique_ptr<ogdfl::IManualControlProvider> control_provider_;
-    std::unique_ptr<ogdfl::IControlHandledReceiver> control_handled_receiver_;
 };
 
 TEST_F(LightDaoTest, TableCreated)
@@ -110,16 +107,4 @@ TEST_F(LightDaoTest, ControlProvider)
 
         update_query.reset();
     }
-}
-
-TEST_F(LightDaoTest, ControlHandledReceiver)
-{
-    db->exec("UPDATE light SET control = 'enable' WHERE user_id = 0;");
-    const auto current_ctl = control_provider_->get();
-    ASSERT_TRUE(current_ctl.has_value());
-    ASSERT_EQ(current_ctl.value(), ogdfl::Control::ENABLE);
-
-    control_handled_receiver_->handled();
-    const std::string actual_value_in_db = db->execAndGet("SELECT control FROM light WHERE user_id = 0;");
-    EXPECT_EQ(actual_value_in_db, "handled");
 }
