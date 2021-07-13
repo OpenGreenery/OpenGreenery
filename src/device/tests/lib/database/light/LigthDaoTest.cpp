@@ -30,7 +30,7 @@ protected:
 
     std::shared_ptr<SQLite::Database> db;
     std::unique_ptr<ogdfl::IStatusReceiver> status_receiver_;
-    std::unique_ptr<ogdfl::IControlProvider> control_provider_;
+    std::unique_ptr<ogdfl::IManualControlProvider> control_provider_;
     std::unique_ptr<ogdfl::IControlHandledReceiver> control_handled_receiver_;
 };
 

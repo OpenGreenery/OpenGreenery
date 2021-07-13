@@ -2,13 +2,13 @@
 #define OPEN_GREENERY_CONTROLREADER_HPP
 
 #include "LightDao.hpp"
-#include "open_greenery/dataflow/light/IControlProvider.hpp"
+#include "open_greenery/dataflow/light/IManualControlProvider.hpp"
 #include <SQLiteCpp/Database.h>
 
 namespace open_greenery::database::light
 {
 
-class ControlReader : public LightDAO, public open_greenery::dataflow::light::IControlProvider
+class ControlReader : public LightDAO, public open_greenery::dataflow::light::IManualControlProvider
 {
 public:
     explicit ControlReader(std::shared_ptr<SQLite::Database> _database);

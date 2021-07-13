@@ -8,13 +8,13 @@ namespace open_greenery::dataflow::light
 
 enum class Control: std::uint8_t {ENABLE, DISABLE, TOGGLE};
 
-class IControlProvider
+class IManualControlProvider
 {
 public:
     virtual std::optional<Control> get() = 0;
 
-    IControlProvider() = default;
-    virtual ~IControlProvider() = default;
+    IManualControlProvider() = default;
+    virtual ~IManualControlProvider() = default;
 };
 
 }

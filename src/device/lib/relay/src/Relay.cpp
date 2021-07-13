@@ -1,4 +1,6 @@
 #include "open_greenery/relay/Relay.hpp"
+#include <stdexcept>
+
 
 namespace open_greenery
 {
@@ -20,6 +22,7 @@ Relay::Relay(std::shared_ptr<ogio::IOutputPin> _pin)
 
 Relay::~Relay()
 {
+    // FIXME: Virtual method invocation in destructor
     disable();
 }
 
