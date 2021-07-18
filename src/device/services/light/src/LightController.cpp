@@ -28,6 +28,9 @@ LightController::LightController(std::shared_ptr<open_greenery::relay::IRelay> _
     assert(m_manual_control_provider);
     assert(m_mode_provider);
     assert(m_status_receiver);
+
+    m_current_mode = ogl::Mode::MANUAL;
+    m_current_config = {QTime(), QTime()};
 }
 
 LightController::~LightController()
@@ -86,17 +89,17 @@ void LightController::handleAutomaticControl()
     }
 
     const auto current_time = m_current_time_provider->get();
-    if (is_event(current_time, m_current_config.day_start))
+    if (is_event(current_time, m_current_config.day_start) && !m_relay->enabled())
     {
         m_relay->enable();
+        // Inform receiver about status update
+        m_status_receiver->set(m_relay->enabled());
     }
-    else if (is_event(current_time, m_current_config.day_end))
+    if (is_event(current_time, m_current_config.day_end) && m_relay->enabled())
     {
         m_relay->disable();
+        m_status_receiver->set(m_relay->enabled());
     }
-
-    // Inform receiver about status
-    m_status_receiver->set(m_relay->enabled());
 }
 
 void LightController::handleManualControl()

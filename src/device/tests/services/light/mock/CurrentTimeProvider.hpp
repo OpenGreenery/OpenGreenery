@@ -9,17 +9,16 @@ namespace open_greenery::tests::services::light::mock
 class CurrentTimeProvider : public open_greenery::dataflow::light::ICurrentTimeProvider
 {
 public:
-    /// Configures mock to provide new time every get() call
-    /// \param start_time Time from which mock stars
-    /// \param minutes_delta Time delta in minutes which will be added to previous returned
-    CurrentTimeProvider(QTime start_time, int minutes_delta);
+    CurrentTimeProvider(); // 00:00
+    explicit CurrentTimeProvider(QTime start_time);
+
+    void set(QTime new_time);
 
     // ICurrentTimeProvider
     QTime get() override;
 
 private:
     QTime m_current_time;
-    unsigned int m_minutes_delta;
 };
 
 }
