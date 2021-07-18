@@ -1,5 +1,4 @@
 #include <csignal>
-#include <open_greenery/database/light/ControlHandledWriter.hpp>
 #include <open_greenery/database/light/ControlReader.hpp>
 #include <open_greenery/database/light/StatusWriter.hpp>
 #include <open_greenery/gpio/OutputGPIOctl.hpp>
@@ -19,6 +18,28 @@ void signalHandler(int signal)
     exit(signal);
 }
 
+template <class Interface, typename ProvideT>
+class OnceOptionalProvider : public Interface
+{
+public:
+    /// Temporary stub of provider that returns data only once
+    /// \param data Data which will be provided
+    // TODO: Implement providers for data/control from user
+    explicit OnceOptionalProvider(ProvideT data)
+        :m_data_to_provide(data) {}
+
+    // Interface
+    std::optional<ProvideT> get() override
+    {
+        auto rv = m_data_to_provide;
+        m_data_to_provide.reset();
+        return rv;
+    }
+
+private:
+    std::optional<ProvideT> m_data_to_provide;
+};
+
 int main()
 {
     signal(SIGTERM, signalHandler);
@@ -34,29 +55,36 @@ int main()
     const QTime DAY_START_TIME (8, 00);
     const QTime DAY_END_TIME (22, 00);
     const open_greenery::dataflow::light::LightConfigRecord config {DAY_START_TIME, DAY_END_TIME};
-
-    // database
-    auto db = std::make_shared<SQLite::Database>(DATABASE_PATH, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
-
-    // manual control
-    auto ctl_reader = std::make_shared<open_greenery::database::light::ControlReader>(db);
-    auto ctl_handled_writer = std::make_shared<open_greenery::database::light::ControlHandledWriter>(db);
-
-    // light status
-    auto status_writer = std::make_shared<open_greenery::database::light::StatusWriter>(db);
+    auto config_provider =
+            std::make_shared<OnceOptionalProvider<
+                    open_greenery::dataflow::light::IConfigProvider,
+                    open_greenery::dataflow::light::LightConfigRecord>>(config);
 
     // time provider
     auto time_provider = std::make_shared<open_greenery::light::CurrentTimeProvider>();
+
+    // database
+    auto db = std::make_shared<SQLite::Database>(DATABASE_PATH, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+    // manual control
+    auto ctl_reader = std::make_shared<open_greenery::database::light::ControlReader>(db);
+    // light status
+    auto status_writer = std::make_shared<open_greenery::database::light::StatusWriter>(db);
+
+    // mode provider
+    auto mode_provider =
+            std::make_shared<OnceOptionalProvider<
+                    open_greenery::dataflow::light::IModeProvider,
+                    open_greenery::dataflow::light::Mode>>(open_greenery::dataflow::light::Mode::MANUAL);
 
 
     // light controller
     s_controller = std::make_unique<open_greenery::light::LightController>(
             light_relay,
-            config,
+            config_provider,
+            time_provider,
             ctl_reader,
-            ctl_handled_writer,
-            status_writer,
-            time_provider
+            mode_provider,
+            status_writer
         );
     s_controller->start();
 
