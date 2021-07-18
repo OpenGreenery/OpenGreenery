@@ -8,10 +8,10 @@ set( SRCS    main.cpp
              lib/database/DatabaseTest.cpp
              lib/database/light/LigthDaoTest.cpp
              lib/relay/RelayTest.cpp
-             services/light/mock/EmptyCurrentTimeProvider.cpp
-             services/light/mock/EmptyCurrentTimeProvider.hpp
+             services/light/mock/CurrentTimeProvider.cpp
+             services/light/mock/OptionalProvider.hpp
              services/light/mock/Relay.cpp
-             services/light/mock/Relay.hpp
+             services/light/mock/StatusReceiver.cpp
              services/light/LightTest.cpp )
 
 add_executable( ${PROJECT_NAME}    ${SRCS} )

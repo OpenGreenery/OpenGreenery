@@ -70,8 +70,6 @@ void LightController::LightServiceThreadFunc()
     }
     // Handle manual control commands in both modes
     handleManualControl();
-    // Inform receiver about status
-    m_status_receiver->set(m_relay->enabled());
 }
 
 void LightController::handleAutomaticControl()
@@ -96,6 +94,9 @@ void LightController::handleAutomaticControl()
     {
         m_relay->disable();
     }
+
+    // Inform receiver about status
+    m_status_receiver->set(m_relay->enabled());
 }
 
 void LightController::handleManualControl()
