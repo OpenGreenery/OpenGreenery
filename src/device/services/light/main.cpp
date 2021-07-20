@@ -7,7 +7,8 @@
 #include <open_greenery/relay/Relay.hpp>
 
 constexpr auto DATABASE_PATH {"/home/pi/og/db/open_greenery.db3"};
-static std::unique_ptr<open_greenery::light::LightController> s_controller;
+static std::optional<open_greenery::light::LightController> s_controller;
+static std::optional<open_greenery::tools::FinishFuture> s_controller_finish;
 
 void signalHandler(int signal)
 {
@@ -78,7 +79,7 @@ int main()
 
 
     // light controller
-    s_controller = std::make_unique<open_greenery::light::LightController>(
+    s_controller.emplace(
             light_relay,
             config_provider,
             time_provider,
@@ -86,8 +87,12 @@ int main()
             mode_provider,
             status_writer
         );
-    s_controller->start();
+    s_controller_finish = s_controller->start();
+    if (s_controller_finish->valid())
+    {
+        s_controller_finish->wait();  // Execute service until termination signal
+    }
 
-    while (true) {} // Execute service until termination signal
+
     return 0;
 }

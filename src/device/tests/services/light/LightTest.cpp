@@ -35,7 +35,21 @@ protected:
                                                               manual_control_provider_mock,
                                                               mode_provider_mock,
                                                               status_receiver_mock);
-        controller->start();
+        controller_finish = controller->start();
+    }
+
+    void TearDown() override
+    {
+        if (!controller)
+        {
+            return;
+        }
+
+        controller->stop();
+        if (controller_finish->valid())
+        {
+            controller_finish->wait();
+        }
     }
 
     void waitForHandling(std::chrono::milliseconds duration = DEFAULT_HANDLING_TIME)
@@ -52,6 +66,7 @@ protected:
     std::shared_ptr<mock::StatusReceiver> status_receiver_mock;
 
     std::unique_ptr<ogl::LightController> controller;
+    std::optional<open_greenery::tools::FinishFuture> controller_finish;
     static constexpr std::chrono::milliseconds DEFAULT_HANDLING_TIME {150ms};
 };
 

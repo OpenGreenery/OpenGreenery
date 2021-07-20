@@ -29,7 +29,7 @@ public:
     void subscribe(Notificator _notificator) override;
     void unsubscribe(Notificator _notificator) override;
 
-    void start() override;
+    open_greenery::tools::FinishFuture start() override;
     void stop() override;
 
 protected:

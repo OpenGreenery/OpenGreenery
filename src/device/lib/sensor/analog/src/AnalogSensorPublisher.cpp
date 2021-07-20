@@ -29,21 +29,24 @@ void AnalogSensorPublisher::unsubscribe(Notificator _notificator)
     m_notificators.remove_if(predicate);
 }
 
-void AnalogSensorPublisher::start()
+open_greenery::tools::FinishFuture AnalogSensorPublisher::start()
 {
     if (!m_reading_thr)
     {
         m_reading_thr.emplace([this]{notify(m_sensor_provider->read());}, m_period);
     }
-    m_reading_thr->start();
+    return m_reading_thr->start();
 }
 
 void AnalogSensorPublisher::stop()
 {
-    if (m_reading_thr)
+    if (!m_reading_thr)  // Nothing to stop
     {
-        m_reading_thr->stop();
+        return;
     }
+
+    m_reading_thr->stop();
+    m_reading_thr.reset();
 }
 
 void AnalogSensorPublisher::notify(std::int16_t _val) const

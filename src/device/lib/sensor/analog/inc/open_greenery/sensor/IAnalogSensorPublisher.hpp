@@ -15,7 +15,7 @@ public:
     virtual void subscribe(Notificator _notificator) = 0;
     virtual void unsubscribe(Notificator _notificator) = 0;
 
-    virtual void start() = 0;
+    virtual open_greenery::tools::FinishFuture start() = 0;
     virtual void stop() = 0;
 
     IAnalogSensorPublisher() = default;

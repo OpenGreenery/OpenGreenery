@@ -19,7 +19,7 @@ IrrigationController::~IrrigationController()
     stop();
 }
 
-void IrrigationController::start()
+open_greenery::tools::FinishFuture IrrigationController::start()
 {
     if (!m_irrigation_thr)
     {
@@ -27,15 +27,18 @@ void IrrigationController::start()
                 std::bind(&IrrigationController::IrrigationThreadFunc, this), m_cfg.watering_period
             );
     }
-    m_irrigation_thr->start();
+    return m_irrigation_thr->start();
 }
 
 void IrrigationController::stop()
 {
-    if (m_irrigation_thr)
+    if (!m_irrigation_thr)
     {
-        m_irrigation_thr->stop();
+        return;
     }
+
+    m_irrigation_thr->stop();
+    m_irrigation_thr.reset();
 }
 
 void IrrigationController::IrrigationThreadFunc()
