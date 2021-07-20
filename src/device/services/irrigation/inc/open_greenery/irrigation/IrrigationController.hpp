@@ -20,7 +20,7 @@ public:
                          std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _sensor_reader,
                          std::shared_ptr<open_greenery::pump::IPump> _pump);
     ~IrrigationController();
-    void start();
+    open_greenery::tools::FinishFuture start();
     void stop();
 
 private:

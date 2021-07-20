@@ -38,7 +38,7 @@ LightController::~LightController()
     stop();
 }
 
-void LightController::start()
+open_greenery::tools::FinishFuture LightController::start()
 {
     if (!m_service_thr)
     {
@@ -47,15 +47,18 @@ void LightController::start()
                 THREAD_PERIOD
         );
     }
-    m_service_thr->start();
+    return m_service_thr->start();
 }
 
 void LightController::stop()
 {
-    if (m_service_thr)
+    if (!m_service_thr)
     {
-        m_service_thr->stop();
+        return;
     }
+
+    m_service_thr->stop();
+    m_service_thr.reset();
 }
 
 void LightController::LightServiceThreadFunc()

@@ -24,7 +24,7 @@ public:
                     std::shared_ptr<open_greenery::dataflow::light::IStatusReceiver> _status_receiver);
 
     ~LightController();
-    void start();
+    open_greenery::tools::FinishFuture start();
     void stop();
 
 private:
