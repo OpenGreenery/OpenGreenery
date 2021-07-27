@@ -12,8 +12,8 @@ service LightProxy {
 
 message ConfigResponse {
   // msecs since start of day
-  optional int64 day_start = 1;
-  optional int64 day_end = 2;
+  optional int32 day_start = 1;
+  optional int32 day_end = 2;
 }
 
 message ManualControlResponse {

@@ -6,10 +6,9 @@
 namespace open_greenery::rpc::light
 {
 
-
-::grpc::Status LightProxyServer::GetConfig(::grpc::ServerContext *context,
-                                           const ::google::protobuf::Empty *request,
-                                           ::open_greenery::rpc::light::ConfigResponse *response)
+::grpc::Status LightProxyServer::GrpcService::GetConfig(::grpc::ServerContext * context,
+                                                        const ::google::protobuf::Empty * request,
+                                                        ConfigResponse * response)
 {
     std::ignore = context;
     std::ignore = request;
@@ -26,9 +25,9 @@ namespace open_greenery::rpc::light
     return {}; // OK
 }
 
-::grpc::Status LightProxyServer::GetManualControl(::grpc::ServerContext *context,
-                                                  const ::google::protobuf::Empty *request,
-                                                  ::open_greenery::rpc::light::ManualControlResponse *response)
+::grpc::Status LightProxyServer::GrpcService::GetManualControl(::grpc::ServerContext * context,
+                                                               const ::google::protobuf::Empty * request,
+                                                               ManualControlResponse * response)
 {
     std::ignore = context;
     std::ignore = request;
@@ -37,13 +36,13 @@ namespace open_greenery::rpc::light
         switch (*m_manual_control)
         {
             case open_greenery::dataflow::light::Control::ENABLE:
-                response->set_control(open_greenery::rpc::light::ManualControlResponse::CONTROL_ENABLE);
+                response->set_control(ManualControlResponse::CONTROL_ENABLE);
                 break;
             case open_greenery::dataflow::light::Control::DISABLE:
-                response->set_control(open_greenery::rpc::light::ManualControlResponse::CONTROL_DISABLE);
+                response->set_control(ManualControlResponse::CONTROL_DISABLE);
                 break;
             case open_greenery::dataflow::light::Control::TOGGLE:
-                response->set_control(open_greenery::rpc::light::ManualControlResponse::CONTROL_TOGGLE);
+                response->set_control(ManualControlResponse::CONTROL_TOGGLE);
                 break;
             default:
                 assert(false && "Unknown light::Control type");
@@ -56,9 +55,9 @@ namespace open_greenery::rpc::light
     return {}; // OK
 }
 
-::grpc::Status LightProxyServer::GetMode(::grpc::ServerContext *context,
-                                         const ::google::protobuf::Empty *request,
-                                         ::open_greenery::rpc::light::ModeResponse *response)
+::grpc::Status LightProxyServer::GrpcService::GetMode(::grpc::ServerContext * context,
+                                                      const ::google::protobuf::Empty * request,
+                                                      ModeResponse * response)
 {
     std::ignore = context;
     std::ignore = request;
@@ -67,10 +66,10 @@ namespace open_greenery::rpc::light
         switch (*m_mode)
         {
             case open_greenery::dataflow::light::Mode::MANUAL:
-                response->set_mode(open_greenery::rpc::light::ModeResponse::MODE_MANUAL);
+                response->set_mode(ModeResponse::MODE_MANUAL);
                 break;
             case open_greenery::dataflow::light::Mode::AUTO:
-                response->set_mode(open_greenery::rpc::light::ModeResponse::MODE_AUTO);
+                response->set_mode(ModeResponse::MODE_AUTO);
                 break;
             default:
                 assert(false && "Unknown light::Mode type");
@@ -79,9 +78,9 @@ namespace open_greenery::rpc::light
     return {}; // OK
 }
 
-::grpc::Status LightProxyServer::SetStatus(::grpc::ServerContext *context,
-                                           const ::open_greenery::rpc::light::StatusReport *request,
-                                           ::google::protobuf::Empty *response)
+::grpc::Status LightProxyServer::GrpcService::SetStatus(::grpc::ServerContext * context,
+                                                        const StatusReport * request,
+                                                        ::google::protobuf::Empty * response)
 {
     std::ignore = context;
     std::ignore = response;
@@ -89,26 +88,59 @@ namespace open_greenery::rpc::light
     return {}; // OK
 }
 
-void LightProxyServer::set(open_greenery::dataflow::light::LightConfigRecord record)
+void LightProxyServer::GrpcService::set(open_greenery::dataflow::light::LightConfigRecord record)
 {
     m_config = record;
 }
 
-void LightProxyServer::set(open_greenery::dataflow::light::Control control)
+void LightProxyServer::GrpcService::set(open_greenery::dataflow::light::Control control)
 {
     m_manual_control = control;
 }
 
-void LightProxyServer::set(open_greenery::dataflow::light::Mode mode)
+void LightProxyServer::GrpcService::set(open_greenery::dataflow::light::Mode mode)
 {
     m_mode = mode;
 }
 
-std::optional<bool> LightProxyServer::get()
+std::optional<bool> LightProxyServer::GrpcService::get()
 {
     auto rv = m_status;
     m_status.reset();
     return rv;
+}
+
+LightProxyServer::LightProxyServer(const std::string & host)
+{
+    ::grpc::ServerBuilder builder;
+    builder.AddListeningPort(host, ::grpc::InsecureServerCredentials());
+    builder.RegisterService(&m_service);
+    m_server = builder.BuildAndStart();
+}
+
+void LightProxyServer::set(open_greenery::dataflow::light::LightConfigRecord record)
+{
+    m_service.set(record);
+}
+
+void LightProxyServer::set(open_greenery::dataflow::light::Control control)
+{
+    m_service.set(control);
+}
+
+void LightProxyServer::set(open_greenery::dataflow::light::Mode mode)
+{
+    m_service.set(mode);
+}
+
+std::optional<bool> LightProxyServer::get()
+{
+    return m_service.get();
+}
+
+void LightProxyServer::wait()
+{
+    m_server->Wait();
 }
 
 }

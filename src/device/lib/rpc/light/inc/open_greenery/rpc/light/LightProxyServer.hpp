@@ -2,6 +2,11 @@
 #define LIGHTPROXYSERVER_HPP
 
 #include <optional>
+#include <grpc/grpc.h>
+#include <grpcpp/security/server_credentials.h>
+#include <grpcpp/server.h>
+#include <grpcpp/server_builder.h>
+#include <grpcpp/server_context.h>
 #include <open_greenery/dataflow/light/IConfigReceiver.hpp>
 #include <open_greenery/dataflow/light/IManualControlReceiver.hpp>
 #include <open_greenery/dataflow/light/IModeReceiver.hpp>
@@ -12,25 +17,13 @@ namespace open_greenery::rpc::light
 {
 
 class LightProxyServer :
-        public LightProxy::Service,
         public open_greenery::dataflow::light::IConfigReceiver,
         public open_greenery::dataflow::light::IManualControlReceiver,
         public open_greenery::dataflow::light::IModeReceiver,
         public open_greenery::dataflow::light::IStatusProvider
 {
-    // LightProxy::Service gRPC
-    ::grpc::Status GetConfig(::grpc::ServerContext * context,
-                             const ::google::protobuf::Empty * request,
-                             ::open_greenery::rpc::light::ConfigResponse * response) override;
-    ::grpc::Status GetManualControl(::grpc::ServerContext * context,
-                                    const ::google::protobuf::Empty * request,
-                                    ::open_greenery::rpc::light::ManualControlResponse * response) override;
-    ::grpc::Status GetMode(::grpc::ServerContext * context,
-                           const ::google::protobuf::Empty * request,
-                           ::open_greenery::rpc::light::ModeResponse * response) override;
-    ::grpc::Status SetStatus(::grpc::ServerContext * context,
-                             const ::open_greenery::rpc::light::StatusReport * request,
-                             ::google::protobuf::Empty * response) override;
+public:
+    explicit LightProxyServer(const std::string & host);
 
     // IConfigReceiver
     void set(open_greenery::dataflow::light::LightConfigRecord record) override;
@@ -44,11 +37,39 @@ class LightProxyServer :
     // IStatusProvider
     std::optional<bool> get() override;
 
+    void wait();
+
 private:
-    std::optional<open_greenery::dataflow::light::LightConfigRecord> m_config;
-    std::optional<open_greenery::dataflow::light::Control> m_manual_control;
-    std::optional<open_greenery::dataflow::light::Mode> m_mode;
-    std::optional<bool> m_status;
+    class GrpcService : public LightProxy::Service
+    {
+    public:
+        // LightProxy::Service gRPC
+        ::grpc::Status GetConfig(::grpc::ServerContext * context,
+                                 const ::google::protobuf::Empty * request,
+                                 ::open_greenery::rpc::light::ConfigResponse * response) override;
+        ::grpc::Status GetManualControl(::grpc::ServerContext * context,
+                                        const ::google::protobuf::Empty * request,
+                                        ::open_greenery::rpc::light::ManualControlResponse * response) override;
+        ::grpc::Status GetMode(::grpc::ServerContext * context,
+                               const ::google::protobuf::Empty * request,
+                               ::open_greenery::rpc::light::ModeResponse * response) override;
+        ::grpc::Status SetStatus(::grpc::ServerContext * context,
+                                 const ::open_greenery::rpc::light::StatusReport * request,
+                                 ::google::protobuf::Empty * response) override;
+
+        void set(open_greenery::dataflow::light::LightConfigRecord record);
+        void set(open_greenery::dataflow::light::Control control);
+        void set(open_greenery::dataflow::light::Mode mode);
+        std::optional<bool> get();
+    private:
+        std::optional<open_greenery::dataflow::light::LightConfigRecord> m_config;
+        std::optional<open_greenery::dataflow::light::Control> m_manual_control;
+        std::optional<open_greenery::dataflow::light::Mode> m_mode;
+        std::optional<bool> m_status;
+    };
+
+    GrpcService m_service;
+    std::unique_ptr<::grpc::Server> m_server;
 };
 
 }
