@@ -20,6 +20,7 @@ class LightProxyServer :
 {
 public:
     explicit LightProxyServer(const std::string & host);
+    ~LightProxyServer();
 
     // IConfigReceiver
     void set(open_greenery::dataflow::light::LightConfigRecord record) override;
@@ -34,6 +35,8 @@ public:
     std::optional<bool> get() override;
 
     void wait();
+
+    void shutdown();
 
 private:
     class GrpcService : public LightProxy::Service

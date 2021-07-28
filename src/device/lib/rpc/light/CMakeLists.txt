@@ -37,8 +37,7 @@ add_library(rpc_light
         ${light_proto_srcs}
         ${light_proto_hdrs}
         ${SRCS})
-target_include_directories(rpc_light PUBLIC inc)
-target_include_directories(rpc_light PRIVATE ${PROTOC_GEN})
+target_include_directories(rpc_light PUBLIC inc ${PROTOC_GEN})
 target_link_libraries(rpc_light
         ${_REFLECTION}
         ${_GRPC_GRPCPP}

@@ -118,6 +118,11 @@ LightProxyServer::LightProxyServer(const std::string & host)
     m_server = builder.BuildAndStart();
 }
 
+LightProxyServer::~LightProxyServer()
+{
+    shutdown();
+}
+
 void LightProxyServer::set(open_greenery::dataflow::light::LightConfigRecord record)
 {
     m_service.set(record);
@@ -141,6 +146,11 @@ std::optional<bool> LightProxyServer::get()
 void LightProxyServer::wait()
 {
     m_server->Wait();
+}
+
+void LightProxyServer::shutdown()
+{
+    m_server->Shutdown();
 }
 
 }
