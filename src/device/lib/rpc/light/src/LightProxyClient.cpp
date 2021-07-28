@@ -1,12 +1,16 @@
 #include "open_greenery/rpc/light/LightProxyClient.hpp"
 
 #include <utility>
+#include <grpcpp/create_channel.h>
+#include <grpcpp/channel.h>
+#include "light.grpc.pb.h"
 
 namespace open_greenery::rpc::light
 {
 
-LightProxyClient::LightProxyClient(std::shared_ptr<::grpc::Channel> channel)
-        :m_stub(LightProxy::NewStub(channel)) {}
+LightProxyClient::LightProxyClient(const std::string & host)
+        :m_channel(grpc::CreateChannel(host, grpc::InsecureChannelCredentials())),
+        m_stub(LightProxy::NewStub(m_channel)) {}
 
 
 LightProxyClient::StubUser::StubUser(std::shared_ptr<LightProxy::Stub> stub)

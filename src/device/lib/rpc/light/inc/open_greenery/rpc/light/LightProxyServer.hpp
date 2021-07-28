@@ -2,11 +2,7 @@
 #define LIGHTPROXYSERVER_HPP
 
 #include <optional>
-#include <grpc/grpc.h>
-#include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server.h>
-#include <grpcpp/server_builder.h>
-#include <grpcpp/server_context.h>
 #include <open_greenery/dataflow/light/IConfigReceiver.hpp>
 #include <open_greenery/dataflow/light/IManualControlReceiver.hpp>
 #include <open_greenery/dataflow/light/IModeReceiver.hpp>

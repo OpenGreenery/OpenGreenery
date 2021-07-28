@@ -1,6 +1,6 @@
 #include "open_greenery/rpc/light/LightProxyServer.hpp"
 #include <cassert>
-#include <optional>
+#include <grpcpp/server_builder.h>
 
 
 namespace open_greenery::rpc::light

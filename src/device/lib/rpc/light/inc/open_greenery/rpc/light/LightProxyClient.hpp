@@ -2,11 +2,6 @@
 #define LIGHT_PROXY_CLIENT_HPP
 
 #include <memory>
-#include <grpc/grpc.h>
-#include <grpcpp/security/server_credentials.h>
-#include <grpcpp/server.h>
-#include <grpcpp/server_builder.h>
-#include <grpcpp/server_context.h>
 #include <open_greenery/dataflow/light/IConfigProvider.hpp>
 #include <open_greenery/dataflow/light/IManualControlProvider.hpp>
 #include <open_greenery/dataflow/light/IModeProvider.hpp>
@@ -19,7 +14,7 @@ namespace open_greenery::rpc::light
 class LightProxyClient
 {
 public:
-    explicit LightProxyClient(std::shared_ptr<::grpc::Channel> channel);
+    explicit LightProxyClient(const std::string & host);
 
     class ConfigProvider;
     class ManualControlProvider;
@@ -35,6 +30,7 @@ protected:
     class StubUser;
 
 private:
+    std::shared_ptr<grpc::Channel> m_channel;
     std::shared_ptr<LightProxy::Stub> m_stub;
 
     std::shared_ptr<ConfigProvider> m_config_provider;
