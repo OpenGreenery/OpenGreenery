@@ -20,7 +20,7 @@ protected:
         client = std::make_shared<ogrpcl::LightProxyClient>(HOST);
         server = std::make_shared<ogrpcl::LightProxyServer>(HOST);
         control_provider = client->getManualControlProvider();
-        config_receiver = server;
+        control_receiver = server;
         config_provider = client->getConfigProvider();
         config_receiver = server;
         mode_provider = client->getModeProvider();

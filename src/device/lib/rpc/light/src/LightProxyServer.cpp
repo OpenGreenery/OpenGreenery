@@ -16,6 +16,7 @@ namespace open_greenery::rpc::light
     {
         response->set_day_start(m_config->day_start.msecsSinceStartOfDay());
         response->set_day_end(m_config->day_end.msecsSinceStartOfDay());
+        m_config.reset();
     }
     else
     {
@@ -47,6 +48,7 @@ namespace open_greenery::rpc::light
             default:
                 assert(false && "Unknown light::Control type");
         }
+        m_manual_control.reset();
     }
     else
     {
@@ -74,6 +76,7 @@ namespace open_greenery::rpc::light
             default:
                 assert(false && "Unknown light::Mode type");
         }
+        m_mode.reset();
     }
     return {}; // OK
 }
