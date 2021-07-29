@@ -1,6 +1,5 @@
 #include <csignal>
-#include <open_greenery/database/light/ControlReader.hpp>
-#include <open_greenery/database/light/StatusWriter.hpp>
+#include <open_greenery/rpc/light/LightProxyClient.hpp>
 #include <open_greenery/gpio/OutputGPIOctl.hpp>
 #include <open_greenery/light/LightController.hpp>
 #include <open_greenery/light/CurrentTimeProvider.hpp>
@@ -19,28 +18,6 @@ void signalHandler(int signal)
     exit(signal);
 }
 
-template <class Interface, typename ProvideT>
-class OnceOptionalProvider : public Interface
-{
-public:
-    /// Temporary stub of provider that returns data only once
-    /// \param data Data which will be provided
-    // TODO: Implement providers for data/control from user
-    explicit OnceOptionalProvider(ProvideT data)
-        :m_data_to_provide(data) {}
-
-    // Interface
-    std::optional<ProvideT> get() override
-    {
-        auto rv = m_data_to_provide;
-        m_data_to_provide.reset();
-        return rv;
-    }
-
-private:
-    std::optional<ProvideT> m_data_to_provide;
-};
-
 int main()
 {
     signal(SIGTERM, signalHandler);
@@ -52,30 +29,20 @@ int main()
     auto light_pin = open_greenery::gpio::GPIOFactory::getInstance().getOutputGPIOctl(LIGHT_PIN_ID);
     auto light_relay = std::make_shared<open_greenery::relay::Relay>(light_pin);
 
-    // config
-    const QTime DAY_START_TIME (8, 00);
-    const QTime DAY_END_TIME (22, 00);
-    const open_greenery::dataflow::light::LightConfigRecord config {DAY_START_TIME, DAY_END_TIME};
-    auto config_provider =
-            std::make_shared<OnceOptionalProvider<
-                    open_greenery::dataflow::light::IConfigProvider,
-                    open_greenery::dataflow::light::LightConfigRecord>>(config);
-
     // time provider
     auto time_provider = std::make_shared<open_greenery::light::CurrentTimeProvider>();
 
-    // database
-    auto db = std::make_shared<SQLite::Database>(DATABASE_PATH, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
-    // manual control
-    auto ctl_reader = std::make_shared<open_greenery::database::light::ControlReader>(db);
-    // light status
-    auto status_writer = std::make_shared<open_greenery::database::light::StatusWriter>(db);
-
+    // rpc client
+    constexpr char RPC_HOST [] {"localhost:81"};
+    open_greenery::rpc::light::LightProxyClient rpc_client (RPC_HOST);
+    // config provider
+    auto config_provider = rpc_client.getConfigProvider();
+    // manual control provider
+    auto ctl_reader = rpc_client.getManualControlProvider();
     // mode provider
-    auto mode_provider =
-            std::make_shared<OnceOptionalProvider<
-                    open_greenery::dataflow::light::IModeProvider,
-                    open_greenery::dataflow::light::Mode>>(open_greenery::dataflow::light::Mode::MANUAL);
+    auto mode_provider = rpc_client.getModeProvider();
+    // light status
+    auto status_writer = rpc_client.getStatusReceiver();
 
 
     // light controller

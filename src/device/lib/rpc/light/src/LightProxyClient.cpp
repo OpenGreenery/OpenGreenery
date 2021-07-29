@@ -73,6 +73,7 @@ std::optional<open_greenery::dataflow::light::Control> LightProxyClient::ManualC
                 return {open_greenery::dataflow::light::Control::TOGGLE};
             default:
                 assert(false && "Unknown light::control type");
+                return {};
         }
     }
     else
@@ -107,6 +108,7 @@ std::optional<open_greenery::dataflow::light::Mode> LightProxyClient::ModeProvid
                 return {open_greenery::dataflow::light::Mode::MANUAL};
             default:
                 assert(false && "Unknown light::Mode type");
+                return {};
         }
     }
     else
