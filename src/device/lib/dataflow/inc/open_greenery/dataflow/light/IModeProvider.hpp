@@ -2,11 +2,10 @@
 #define I_MODE_PROVIDER_HPP
 
 #include <optional>
+#include "Mode.hpp"
 
 namespace open_greenery::dataflow::light
 {
-
-enum class Mode: std::uint8_t {AUTO, MANUAL};
 
 class IModeProvider
 {

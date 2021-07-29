@@ -2,11 +2,10 @@
 #define I_CONTROL_PROVIDER_HPP
 
 #include <optional>
+#include "Control.hpp"
 
 namespace open_greenery::dataflow::light
 {
-
-enum class Control: std::uint8_t {ENABLE, DISABLE, TOGGLE};
 
 class IManualControlProvider
 {
