@@ -1,5 +1,7 @@
 project( tests )
 
+add_subdirectory(mock)
+
 enable_testing()
 
 set( SRCS    main.cpp
@@ -14,10 +16,15 @@ set( SRCS    main.cpp
              services/light/LightTest.cpp )
 
 add_executable( ${PROJECT_NAME}    ${SRCS} )
-target_link_libraries( ${PROJECT_NAME}    gtest
-                                          gmock
-                                          database
-                                          dataflow
-                                          relay
-                                          rpc
-                                          og-light_impl )
+target_link_libraries( ${PROJECT_NAME}
+        gtest
+        og-mock
+        database
+        dataflow
+        relay
+        rpc
+        og-light_impl
+)
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})
