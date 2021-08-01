@@ -5,7 +5,6 @@
 #include <open_greenery/light/CurrentTimeProvider.hpp>
 #include <open_greenery/relay/Relay.hpp>
 
-constexpr auto DATABASE_PATH {"/home/pi/og/db/open_greenery.db3"};
 static std::optional<open_greenery::light::LightController> s_controller;
 static std::optional<open_greenery::tools::FinishFuture> s_controller_finish;
 
