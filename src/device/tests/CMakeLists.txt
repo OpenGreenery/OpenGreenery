@@ -5,6 +5,7 @@ add_subdirectory(mock)
 enable_testing()
 
 set( SRCS    main.cpp
+             integration/light-service_rpc-lib/LightRpcTest.cpp
              lib/database/DatabaseTest.cpp
              lib/database/light/LigthDaoTest.cpp
              lib/relay/RelayTest.cpp
