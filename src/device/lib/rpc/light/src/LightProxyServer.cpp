@@ -148,11 +148,13 @@ std::optional<bool> LightProxyServer::get()
 
 void LightProxyServer::wait()
 {
+    assert(m_server && "LightProxyServer wait: server is nullptr");
     m_server->Wait();
 }
 
 void LightProxyServer::shutdown()
 {
+    assert(m_server && "LightProxyServer shutdown: server is nullptr");
     m_server->Shutdown();
 }
 

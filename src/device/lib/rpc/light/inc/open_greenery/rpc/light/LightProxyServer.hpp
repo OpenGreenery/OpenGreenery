@@ -20,7 +20,7 @@ class LightProxyServer :
 {
 public:
     explicit LightProxyServer(const std::string & host);
-    ~LightProxyServer();
+    ~LightProxyServer() override;
 
     // IConfigReceiver
     void set(open_greenery::dataflow::light::LightConfigRecord record) override;
