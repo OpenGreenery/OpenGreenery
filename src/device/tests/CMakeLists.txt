@@ -8,6 +8,7 @@ set( SRCS    main.cpp
              integration/light-service_rpc-lib/LightRpcTest.cpp
              lib/database/DatabaseTest.cpp
              lib/database/light/LigthDaoTest.cpp
+             lib/pump/PumpTest.cpp
              lib/relay/RelayTest.cpp
              lib/rpc/light/LightProxy.cpp
              services/light/mock/CurrentTimeProvider.cpp
@@ -22,6 +23,7 @@ target_link_libraries( ${PROJECT_NAME}
         og-mock
         database
         dataflow
+        pump
         relay
         rpc
         og-light_impl

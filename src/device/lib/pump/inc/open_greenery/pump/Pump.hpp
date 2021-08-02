@@ -1,11 +1,11 @@
 #ifndef PUMP_HPP
 #define PUMP_HPP
 
+#include "IPump.hpp"
 #include <chrono>
 #include <cstdint>
-#include "open_greenery/gpio/PinId.hpp"
-#include "open_greenery/relay/Relay.hpp"
-#include "IPump.hpp"
+#include <memory>
+#include "open_greenery/relay/IRelay.hpp"
 
 namespace open_greenery::pump
 {
@@ -13,16 +13,14 @@ namespace open_greenery::pump
 class Pump : public IPump
 {
 public:
-    Pump(const open_greenery::gpio::PinId _pin);
+    explicit Pump(std::shared_ptr<open_greenery::relay::IRelay> _relay);
+    
+    void water(std::chrono::milliseconds _dur) override;
 
-    ~Pump() override;
-
-    void water(const std::chrono::milliseconds _dur) override;
-
-    void water(const std::uint16_t _vol_ml) override;
+    void water(std::uint16_t _vol_ml) override;
 
 private:
-    open_greenery::relay::Relay m_relay;
+    std::shared_ptr<open_greenery::relay::IRelay> m_relay;
 };
 
 }
