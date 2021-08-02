@@ -1,4 +1,5 @@
 #include "open_greenery/pump/Pump.hpp"
+#include <cassert>
 #include <thread>
 #include <open_greenery/gpio/GPIOFactory.hpp>
 
@@ -9,21 +10,17 @@ namespace pump
 
 namespace ogio = open_greenery::gpio;
 
-Pump::Pump(ogio::PinId _pin)
-// TODO: Use dependency injection. Get pointer to Pump interface.
-        : m_relay(ogio::GPIOFactory::getInstance().getOutputGPIOctl({_pin.pin, _pin.pinout}))
-{}
-
-Pump::~Pump()
+Pump::Pump(std::shared_ptr<open_greenery::relay::IRelay> _relay)
+        : m_relay(std::move(_relay))
 {
-    m_relay.disable();
+    assert(m_relay && "Relay is nullptr");
 }
 
 void Pump::water(const std::chrono::milliseconds _dur)
 {
-    m_relay.enable();
+    m_relay->enable();
     std::this_thread::sleep_for(_dur);
-    m_relay.disable();
+    m_relay->disable();
 }
 
 void Pump::water(const std::uint16_t _vol_ml)
