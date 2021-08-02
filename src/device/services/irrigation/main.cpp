@@ -4,6 +4,8 @@
 #include <forward_list>
 #include <open_greenery/database/SensorReader.hpp>
 #include <open_greenery/database/IrrigationConfigReader.hpp>
+#include <open_greenery/gpio/GPIOFactory.hpp>
+#include <open_greenery/relay/Relay.hpp>
 #include <open_greenery/pump/Pump.hpp>
 #include <open_greenery/irrigation/IrrigationController.hpp>
 
@@ -57,7 +59,11 @@ int main()
         std::shared_ptr<ogdf::ISensorReadProvider> soil_moisture_reader =
                 std::make_shared<ogdb::SensorReader>(ogdb::Table(db, cfg.soil_moisture_sensor));
         std::shared_ptr<og::pump::IPump> pump =
-                std::make_shared<og::pump::Pump>(cfg.pin);
+            std::make_shared<og::pump::Pump>(
+                    std::make_shared<og::relay::Relay>(
+                        og::gpio::GPIOFactory::getInstance().getOutputGPIOctl(cfg.pin)
+                    )
+                );
 
         auto & ctl = s_controllers.emplace_front(cfg, soil_moisture_reader, pump);
         ctl.start();
