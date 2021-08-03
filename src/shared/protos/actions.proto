@@ -1,10 +1,9 @@
 syntax = "proto3";
 
-package opengreenery.services;
+package open_greenery.services;
 option csharp_namespace = "OpenGreenery.Protobuf";
 
 import "common.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
 
@@ -15,39 +14,41 @@ service OpenGreeneryService {
 
 // GetConfiguration
 message GetConfigurationReply {
-  repeated GetAreaConfigurationReply areas = 1;
-}
-message GetAreaConfigurationReply {
-  string area_id = 1;
-  SoilIrrigationConfiguration soil_irrigation = 2;
-  VentilationConfiguration ventilation = 3;
-  LightConfiguration light = 4;
+  SoilIrrigationConfiguration soil_irrigation = 1;
+  VentilationConfiguration ventilation = 2;
+  LightConfiguration light = 3;
 }
 
 // ConfigurationUpdateFeed
 message ConfigurationUpdateReply {
-  string area_id = 1;
-  opengreenery.common.FeatureType type = 2;
+  open_greenery.common.FeatureType type = 1;
   oneof feature {
-    SoilIrrigationConfiguration soil_irrigation = 3;
-    VentilationConfiguration ventilation = 4;
-    LightConfiguration light = 5;
+    SoilIrrigationConfiguration soil_irrigation = 2;
+    VentilationConfiguration ventilation = 3;
+    LightConfiguration light = 4;
   }
 }
 
 // Shared
 message SoilIrrigationConfiguration {
+  repeated SoilIrrigationAreaConfigutation areas = 1;
+}
+
+message SoilIrrigationAreaConfigutation
+{
   message Periodic {
     google.protobuf.Duration period = 1;
-    double watering_volume = 2;
+    uint32 watering_volume_ml = 2;
   }
   message Moisture {
     double dry_level = 1;
     double wet_level = 2;
     google.protobuf.Duration watering_period = 3;
-    double watering_volume = 4;
+    uint32 watering_volume_ml = 4;
   }
-  opengreenery.common.SoilIrrigationMode mode = 1;
+
+  string area_id = 1;
+  open_greenery.common.SoilIrrigationMode mode = 1;
   oneof configuration {
     Periodic periodic = 2;
     Moisture moisture = 3;
@@ -56,32 +57,22 @@ message SoilIrrigationConfiguration {
 
 message VentilationConfiguration {
   message Auto {
-    google.protobuf.Timestamp enabling_time = 1;
-    google.protobuf.Timestamp disabling_time = 2;
+    google.protobuf.Duration enabling_time = 1;
+    google.protobuf.Duration disabling_time = 2;
   }
-  message Manual {
-    opengreenery.common.LightState state = 1;
-  }
-  opengreenery.common.LightMode mode = 1;
-  oneof configuration {
-    Auto auto = 2;
-    Manual manual = 3;
-  }
+  open_greenery.common.LightMode mode = 1;
+  open_greenery.common.LightState state = 2;
+  optional Auto auto_configuration = 3;
 }
 
 message LightConfiguration {
   message Auto {
-    google.protobuf.Timestamp enabling_time = 1;
-    google.protobuf.Timestamp disabling_time = 2;
+    google.protobuf.Duration enabling_time = 1;
+    google.protobuf.Duration disabling_time = 2;
   }
-  message Manual {
-    opengreenery.common.VentilationState state = 1;
-  }
-  opengreenery.common.VentilationMode mode = 1;
-  oneof configuration {
-    Auto auto = 2;
-    Manual manual = 3;
-  }
+  open_greenery.common.VentilationMode mode = 1;
+  open_greenery.common.VentilationState = 2;
+  optional Auto auto_configuration = 3;
 }
 
 
