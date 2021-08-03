@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package opengreenery.common;
+package open_greenery.common;
 option csharp_namespace = "OpenGreenery.Protobuf";
 
 enum FeatureType {
@@ -33,5 +33,3 @@ enum VentilationState {
   VENTILATION_STATE_ENABLED = 0;
   VENTILATION_STATE_DISABLED = 1;
 }
-
-message Empty {}
