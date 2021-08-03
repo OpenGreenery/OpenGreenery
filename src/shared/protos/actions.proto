@@ -16,6 +16,7 @@ service OpenGreeneryService {
 
 message DeviceStatus {
   repeated SoilMoistureStatus soil_moisture_statuses = 1;
+  open_greenery.common.LightState light_status = 2;
 }
 
 message SoilMoistureStatus {
