@@ -7,7 +7,7 @@
 #include "State.hpp"
 #include "StateName.hpp"
 
-namespace open_greenery::irrigation
+namespace open_greenery::irrigation::moisture
 {
 
 class Context final : IState

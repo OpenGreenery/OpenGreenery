@@ -17,7 +17,7 @@ void SensorWriter::write(const std::int16_t _data)
     write("now", _data);
 }
 
-void SensorWriter::write(const open_greenery::dataflow::SensorRecord _record)
+void SensorWriter::write(const open_greenery::dataflow::irrigation::SensorRecord _record)
 {
     write(_record.timestamp, _record.value);
 }

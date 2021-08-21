@@ -54,7 +54,7 @@ int main ()
     {
         std::unique_ptr<og::dataflow::ISensorDataProvider> provider =
                 std::make_unique<og::database::SensorReader>(table);
-        for (const auto & pair : provider->read(from, to))
+        for (const auto & pair : provider->get(from, to))
         {
             const auto [dt, val] = pair;
             qDebug() << dt << " | " << val;

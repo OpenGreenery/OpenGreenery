@@ -1,10 +1,10 @@
-#include <open_greenery/irrigation/state_machine/WetState.hpp>
+#include <open_greenery/irrigation/moisture/state_machine/WetState.hpp>
 #include <chrono>
 
-namespace open_greenery::irrigation
+namespace open_greenery::irrigation::moisture
 {
 
-WetState::WetState(const open_greenery::dataflow::IrrigationConfigRecord & _config)
+WetState::WetState(const open_greenery::dataflow::irrigation::IrrigationConfigRecord & _config)
     :State(_config)
 {}
 

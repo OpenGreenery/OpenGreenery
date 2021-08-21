@@ -3,6 +3,7 @@
 #include <utility>
 
 namespace ogl = open_greenery::dataflow::light;
+namespace ogt = open_greenery::dataflow::time;
 
 namespace open_greenery::light
 {
@@ -11,7 +12,7 @@ constexpr std::chrono::milliseconds THREAD_PERIOD{100u};
 
 LightController::LightController(std::shared_ptr<open_greenery::relay::IRelay> _relay,
                                  std::shared_ptr<ogl::IConfigProvider> _config_provider,
-                                 std::shared_ptr<ogl::ICurrentTimeProvider> _current_time_provider,
+                                 std::shared_ptr<ogt::ICurrentTimeProvider> _current_time_provider,
                                  std::shared_ptr<ogl::IManualControlProvider> _manual_control_provider,
                                  std::shared_ptr<ogl::IModeProvider> _mode_provider,
                                  std::shared_ptr<ogl::IStatusReceiver> _status_receiver)

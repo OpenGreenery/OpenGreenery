@@ -1,12 +1,12 @@
 #ifndef CURRENTTIMEPROVIDER_HPP
 #define CURRENTTIMEPROVIDER_HPP
 
-#include <open_greenery/dataflow/light/ICurrentTimeProvider.hpp>
+#include <open_greenery/dataflow/time/Participants.hpp>
 
 namespace open_greenery::tests::services::light::mock
 {
 
-class CurrentTimeProvider : public open_greenery::dataflow::light::ICurrentTimeProvider
+class CurrentTimeProvider : public open_greenery::dataflow::time::ICurrentTimeProvider
 {
 public:
     CurrentTimeProvider(); // 00:00

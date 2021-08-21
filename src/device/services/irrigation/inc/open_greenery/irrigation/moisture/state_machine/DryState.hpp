@@ -4,7 +4,7 @@
 #include "State.hpp"
 #include <open_greenery/pump/IPump.hpp>
 
-namespace open_greenery::irrigation
+namespace open_greenery::irrigation::moisture
 {
 
 class DryState final : public State

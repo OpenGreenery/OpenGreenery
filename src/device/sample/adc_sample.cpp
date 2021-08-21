@@ -30,10 +30,10 @@ int main()
     {
         while (clk::now() < end)
         {
-            std::cout << "A0: " << adc_readers[ADC_MUX::SINGLE_0]->read() <<
-                " | A1: " << adc_readers[ADC_MUX::SINGLE_1]->read() <<
-                " | A2: " << adc_readers[ADC_MUX::SINGLE_2]->read() <<
-                " | A3: " << adc_readers[ADC_MUX::SINGLE_3]->read() << std::endl;
+            std::cout << "A0: " << adc_readers[ADC_MUX::SINGLE_0]->get() <<
+                      " | A1: " << adc_readers[ADC_MUX::SINGLE_1]->get() <<
+                      " | A2: " << adc_readers[ADC_MUX::SINGLE_2]->get() <<
+                      " | A3: " << adc_readers[ADC_MUX::SINGLE_3]->get() << std::endl;
 
             std::this_thread::sleep_for(chr::milliseconds(500));
         }

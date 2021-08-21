@@ -1,7 +1,7 @@
 #ifndef ADS1115_READER_HPP
 #define ADS1115_READER_HPP
 
-#include <open_greenery/dataflow/ISensorReadProvider.hpp>
+#include <open_greenery/dataflow/irrigation/Participants.hpp>
 #include <open_greenery/driver/ads1115/ADS1115.hpp>
 
 namespace open_greenery::adc

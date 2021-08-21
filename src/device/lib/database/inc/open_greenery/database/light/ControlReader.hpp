@@ -2,7 +2,7 @@
 #define OPEN_GREENERY_CONTROLREADER_HPP
 
 #include "LightDao.hpp"
-#include "open_greenery/dataflow/light/IManualControlProvider.hpp"
+#include "open_greenery/dataflow/light/Participants.hpp"
 #include <SQLiteCpp/Database.h>
 
 namespace open_greenery::database::light

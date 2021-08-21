@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <QDateTime>
 
-namespace open_greenery::dataflow
+namespace open_greenery::dataflow::irrigation
 {
 
 struct SensorRecord

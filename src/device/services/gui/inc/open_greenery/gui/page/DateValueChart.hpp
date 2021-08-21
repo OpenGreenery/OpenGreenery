@@ -4,7 +4,7 @@
 #include <memory>
 #include <QChartView>
 #include <QDateTime>
-#include "open_greenery/dataflow/ISensorDataProvider.hpp"
+#include "open_greenery/dataflow/irrigation/Participants.hpp"
 
 namespace open_greenery::gui::page
 {
