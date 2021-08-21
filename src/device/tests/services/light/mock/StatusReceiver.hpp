@@ -1,7 +1,7 @@
 #ifndef STATUSRECEIVER_HPP
 #define STATUSRECEIVER_HPP
 
-#include <open_greenery/dataflow/light/IStatusReceiver.hpp>
+#include <open_greenery/dataflow/light/Participants.hpp>
 #include <vector>
 
 namespace open_greenery::tests::services::light::mock

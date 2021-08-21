@@ -1,15 +1,15 @@
 #ifndef IRRIGATION_CONFIG_READER_HPP
 #define IRRIGATION_CONFIG_READER_HPP
 
+#include <vector>
 #include "DatabaseEntity.hpp"
-#include <open_greenery/dataflow/IrrigationConfigRecord.hpp>
-#include <open_greenery/dataflow/IIrrigationConfigDataProvider.hpp>
+#include <open_greenery/dataflow/irrigation/Participants.hpp>
 
 namespace open_greenery::database
 {
 
 class IrrigationConfigReader : public DatabaseEntity,
-                               public open_greenery::dataflow::IIrrigationConfigDataProvider
+                               public open_greenery::dataflow::irrigation::IIrrigationConfigDataProvider
 {
 public:
     IrrigationConfigReader(Table _table);

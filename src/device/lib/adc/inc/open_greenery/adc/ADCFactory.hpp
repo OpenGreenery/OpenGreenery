@@ -4,7 +4,7 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <open_greenery/dataflow/ISensorReadProvider.hpp>
+#include <open_greenery/dataflow/irrigation/Participants.hpp>
 #include <open_greenery/driver/ads1115/ADS1115.hpp>
 
 namespace open_greenery

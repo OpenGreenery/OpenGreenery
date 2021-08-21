@@ -2,7 +2,7 @@
 #define OPEN_GREENERY_STATUSWRITER_HPP
 
 #include "LightDao.hpp"
-#include <open_greenery/dataflow/light/IStatusReceiver.hpp>
+#include <open_greenery/dataflow/light/Participants.hpp>
 #include <SQLiteCpp/Database.h>
 
 

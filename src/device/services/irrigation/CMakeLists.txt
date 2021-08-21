@@ -1,9 +1,9 @@
 project( og-irrigation )
 
-set( SRCS    src/state_machine/Context.cpp
-             src/state_machine/DryState.cpp
-             src/state_machine/State.cpp
-             src/state_machine/WetState.cpp
+set( SRCS    src/moisture/state_machine/Context.cpp
+             src/moisture/state_machine/DryState.cpp
+             src/moisture/state_machine/State.cpp
+             src/moisture/state_machine/WetState.cpp
              src/IrrigationController.cpp )
 
 add_library( ${PROJECT_NAME}_impl    ${SRCS} )

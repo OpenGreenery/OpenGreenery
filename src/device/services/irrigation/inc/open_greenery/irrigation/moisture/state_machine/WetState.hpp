@@ -3,7 +3,7 @@
 
 #include "State.hpp"
 
-namespace open_greenery::irrigation
+namespace open_greenery::irrigation::moisture
 {
 
 class WetState final : public State

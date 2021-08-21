@@ -40,7 +40,7 @@ int main()
     std::shared_ptr<ogdf::IIrrigationConfigDataProvider> cfg_reader =
             std::make_shared<ogdb::IrrigationConfigReader>(ogdb::Table(db, "IrrigationConfig"));
 
-    const auto cfg_records = cfg_reader->read();
+    const auto cfg_records = cfg_reader->get();
     if (cfg_records.empty())
     {
         std::cerr << "Database doesn't contain irrigation configurations" << std::endl;

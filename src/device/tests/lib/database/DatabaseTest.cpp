@@ -8,14 +8,14 @@
 #include "QDebug"
 
 namespace ogdb = open_greenery::database;
-namespace ogdf = open_greenery::dataflow;
+namespace ogdf = open_greenery::dataflow::irrigation;
 
 class SensorDataTest : public ::testing::Test
 {
 protected:
     struct SensorRecordHash
     {
-        std::size_t operator()(const open_greenery::dataflow::SensorRecord & sr) const
+        std::size_t operator()(const ogdf::SensorRecord & sr) const
         {
             const std::string str = std::to_string(sr.value)+
                                     sr.timestamp
@@ -161,7 +161,7 @@ protected:
         writer = std::make_unique<ogdb::SensorWriter>(ogdb::Table(db, TABLE_NAME));
     }
 
-    std::unique_ptr<open_greenery::dataflow::ISensorDataReceiver> writer;
+    std::unique_ptr<ogdf::ISensorDataReceiver> writer;
 };
 
 TEST_F(SensorWriterTest, TableExists)
@@ -254,7 +254,7 @@ TEST_F(SensorWriterTest, RecordWrite)
     writer->write(expected_record);
 
     SQLite::Statement query (*db, std::string("SELECT * FROM ") + TABLE_NAME);
-    std::vector<open_greenery::dataflow::SensorRecord> received_data;
+    std::vector<ogdf::SensorRecord> received_data;
     while (query.executeStep())
     {
         const char * timestamp = query.getColumn("time");
@@ -278,7 +278,7 @@ TEST_F(SensorWriterTest, MultipleRecords)
     }
 
     SQLite::Statement query (*db, std::string("SELECT * FROM ") + TABLE_NAME);
-    std::unordered_set<open_greenery::dataflow::SensorRecord, SensorRecordHash> actual_values;
+    std::unordered_set<ogdf::SensorRecord, SensorRecordHash> actual_values;
     while (query.executeStep())
     {
         const char * timestamp = query.getColumn("time");
@@ -366,8 +366,8 @@ protected:
 
     std::function<QDateTime()> now = QDateTime::currentDateTime;
     constexpr static std::uint8_t SEC_IN_MIN {60u};
-    std::unique_ptr<open_greenery::dataflow::ISensorDataReceiver> writer;
-    std::unique_ptr<open_greenery::dataflow::ISensorDataProvider> reader;
+    std::unique_ptr<ogdf::ISensorDataReceiver> writer;
+    std::unique_ptr<ogdf::ISensorDataProvider> reader;
 };
 
 TEST_F(SensorDataFunctionalTest, SingleValue)

@@ -1,11 +1,11 @@
-#include <open_greenery/irrigation/state_machine/Context.hpp>
-#include <open_greenery/irrigation/state_machine/DryState.hpp>
-#include <open_greenery/irrigation/state_machine/WetState.hpp>
+#include <open_greenery/irrigation/moisture/state_machine/Context.hpp>
+#include <open_greenery/irrigation/moisture/state_machine/DryState.hpp>
+#include <open_greenery/irrigation/moisture/state_machine/WetState.hpp>
 
-namespace open_greenery::irrigation
+namespace open_greenery::irrigation::moisture
 {
 
-Context::Context(const open_greenery::dataflow::IrrigationConfigRecord & _config,
+Context::Context(const open_greenery::dataflow::irrigation::IrrigationConfigRecord & _config,
                  std::shared_ptr<open_greenery::pump::IPump> _pump)
     :m_states({
         {StateName::DRY, std::make_shared<DryState>(_config, _pump)},

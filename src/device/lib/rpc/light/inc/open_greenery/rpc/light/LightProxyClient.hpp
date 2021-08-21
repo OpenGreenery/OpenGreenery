@@ -2,10 +2,7 @@
 #define LIGHT_PROXY_CLIENT_HPP
 
 #include <memory>
-#include <open_greenery/dataflow/light/IConfigProvider.hpp>
-#include <open_greenery/dataflow/light/IManualControlProvider.hpp>
-#include <open_greenery/dataflow/light/IModeProvider.hpp>
-#include <open_greenery/dataflow/light/IStatusReceiver.hpp>
+#include <open_greenery/dataflow/light/Participants.hpp>
 #include "light.grpc.pb.h"
 
 namespace open_greenery::rpc::light

@@ -8,7 +8,7 @@ SensorReader::SensorReader(const Table _table)
     :DatabaseEntity(std::move(_table))
 {}
 
-std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to) const
+std::vector<open_greenery::dataflow::irrigation::SensorRecord> SensorReader::read(const QDateTime _from, const QDateTime _to) const
 {
     auto utc_str = [](const QDateTime & _dt) -> std::string
     {
@@ -22,7 +22,7 @@ std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDat
         "strftime("+strftime_format+", '"+utc_str(_from)+"') AND "+
         "strftime("+strftime_format+", '"+utc_str(_to)+"');");
 
-    std::vector<open_greenery::dataflow::SensorRecord> rv;
+    std::vector<open_greenery::dataflow::irrigation::SensorRecord> rv;
     while (query.executeStep())
     {
         const char * timestamp = query.getColumn("time");
@@ -40,7 +40,7 @@ std::vector<open_greenery::dataflow::SensorRecord> SensorReader::read(const QDat
     return rv;
 }
 
-std::int16_t SensorReader::read() const
+std::int16_t SensorReader::get()
 {
     std::string str_query = "SELECT * FROM "
             + table().name

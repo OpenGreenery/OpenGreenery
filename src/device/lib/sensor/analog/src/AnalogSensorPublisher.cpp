@@ -33,7 +33,7 @@ open_greenery::tools::FinishFuture AnalogSensorPublisher::start()
 {
     if (!m_reading_thr)
     {
-        m_reading_thr.emplace([this]{notify(m_sensor_provider->read());}, m_period);
+        m_reading_thr.emplace([this]{notify(m_sensor_provider->get());}, m_period);
     }
     return m_reading_thr->start();
 }

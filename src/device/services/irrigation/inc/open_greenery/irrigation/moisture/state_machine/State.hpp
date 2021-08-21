@@ -2,10 +2,10 @@
 #define STATE_HPP
 
 #include <cstdint>
-#include <open_greenery/dataflow/IrrigationConfigRecord.hpp>
+#include <open_greenery/dataflow/irrigation/Participants.hpp>
 #include "IState.hpp"
 
-namespace open_greenery::irrigation
+namespace open_greenery::irrigation::moisture
 {
 
 class State : IState

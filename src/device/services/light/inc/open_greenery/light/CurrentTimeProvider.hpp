@@ -1,7 +1,7 @@
 #ifndef CURRENT_TIME_PROVIDER_HPP
 #define CURRENT_TIME_PROVIDER_HPP
 
-#include "open_greenery/dataflow/light/ICurrentTimeProvider.hpp"
+#include "open_greenery/dataflow/time/Participants.hpp"
 
 namespace open_greenery::light
 {

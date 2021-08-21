@@ -8,7 +8,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
-#include <open_greenery/dataflow/ISensorReadProvider.hpp>
+#include <open_greenery/dataflow/irrigation/Participants.hpp>
 #include <open_greenery/tools/LoopThread.hpp>
 #include "IAnalogSensorPublisher.hpp"
 

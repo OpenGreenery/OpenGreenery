@@ -1,13 +1,13 @@
 #ifndef CURRENT_TIME_PROVIDER_MOCK_HPP
 #define CURRENT_TIME_PROVIDER_MOCK_HPP
 
-#include <open_greenery/dataflow/light/ICurrentTimeProvider.hpp>
+#include <open_greenery/dataflow/time/ICurrentTimeProvider.hpp>
 #include <gmock/gmock.h>
 
 namespace open_greenery::mock::dataflow::light
 {
 
-class CurrentTimeProviderMock : public open_greenery::dataflow::light::ICurrentTimeProvider
+class CurrentTimeProviderMock : public open_greenery::dataflow::time::ICurrentTimeProvider
 {
 public:
     MOCK_METHOD(QTime, get, (), (override));

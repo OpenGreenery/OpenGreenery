@@ -3,10 +3,7 @@
 
 #include <optional>
 #include <grpcpp/server.h>
-#include <open_greenery/dataflow/light/IConfigReceiver.hpp>
-#include <open_greenery/dataflow/light/IManualControlReceiver.hpp>
-#include <open_greenery/dataflow/light/IModeReceiver.hpp>
-#include <open_greenery/dataflow/light/IStatusProvider.hpp>
+#include <open_greenery/dataflow/light/Participants.hpp>
 #include "light.grpc.pb.h"
 
 namespace open_greenery::rpc::light
