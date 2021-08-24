@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.1.2" />
-        <PackageReference Include="Grpc.AspNetCore" Version="2.34.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.39.0" />
         <PackageReference Include="MudBlazor" Version="5.0.15" />
     </ItemGroup>
 
