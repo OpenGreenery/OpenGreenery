@@ -6,12 +6,12 @@
 namespace open_greenery::irrigation
 {
 
-IrrigationController::IrrigationController(open_greenery::dataflow::IrrigationConfigRecord _cfg,
-                                           std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _sensor_reader,
+IrrigationController::IrrigationController(open_greenery::dataflow::irrigation::IrrigationConfigRecord _cfg,
+                                           std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider> _sensor_reader,
                                            std::shared_ptr<open_greenery::pump::IPump> _pump)
     :m_cfg(std::move(_cfg)),
-    m_sensor_reader(std::move(_sensor_reader)),
-    m_state_machine_context(std::make_unique<Context>(m_cfg, std::move(_pump)))
+
+    m_moisture_mode_handler(_cfg, std::move(_sensor_reader), std::move(_pump))
 {}
 
 IrrigationController::~IrrigationController()
@@ -43,19 +43,7 @@ void IrrigationController::stop()
 
 void IrrigationController::IrrigationThreadFunc()
 {
-    std::int16_t soil_moisture;
-    try
-    {
-        soil_moisture = m_sensor_reader->read();
-    }
-    catch (const SQLite::Exception & _ex)
-    {
-        std::cerr << "Irrigation controller: SQLite error: " << _ex.getErrorCode() << " "
-                  << _ex.getExtendedErrorCode() << " " << _ex.getErrorStr() << " " << _ex.what() << std::endl;
-        return;
-    }
-
-    m_state_machine_context->handleSoilMoisture(soil_moisture);
+    m_moisture_mode_handler.handle();
 }
 
 }

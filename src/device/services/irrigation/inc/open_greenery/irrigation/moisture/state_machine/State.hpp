@@ -15,9 +15,9 @@ public:
     StateName state() override = 0;
 
 protected:
-    State(const open_greenery::dataflow::IrrigationConfigRecord & _config);
+    State(const open_greenery::dataflow::irrigation::IrrigationConfigRecord & _config);
 
-    const open_greenery::dataflow::IrrigationConfigRecord & m_config;
+    const open_greenery::dataflow::irrigation::IrrigationConfigRecord & m_config;
 };
 
 }

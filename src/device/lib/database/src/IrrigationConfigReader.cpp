@@ -7,12 +7,12 @@ IrrigationConfigReader::IrrigationConfigReader(Table _table)
         : DatabaseEntity(std::move(_table))
 {}
 
-std::vector<open_greenery::dataflow::IrrigationConfigRecord> IrrigationConfigReader::read()
+std::vector<open_greenery::dataflow::irrigation::IrrigationConfigRecord> IrrigationConfigReader::read()
 {
     return read("SELECT * FROM "+table().name);
 }
 
-open_greenery::dataflow::IrrigationConfigRecord IrrigationConfigReader::read(open_greenery::gpio::PinId _pin)
+open_greenery::dataflow::irrigation::IrrigationConfigRecord IrrigationConfigReader::read(open_greenery::gpio::PinId _pin)
 {
     const auto pin = std::to_string(_pin.cast_to(open_greenery::gpio::Pinout::WIRING_PI).pin);
     const auto db_data = read("SELECT * FROM "+table().name+" WHERE pump_pin == "+pin);
@@ -29,10 +29,10 @@ open_greenery::dataflow::IrrigationConfigRecord IrrigationConfigReader::read(ope
     return db_data.front();
 }
 
-std::vector<open_greenery::dataflow::IrrigationConfigRecord> IrrigationConfigReader::read(const std::string & _query)
+std::vector<open_greenery::dataflow::irrigation::IrrigationConfigRecord> IrrigationConfigReader::read(const std::string & _query)
 {
     SQLite::Statement query {*table().database, _query};
-    std::vector<open_greenery::dataflow::IrrigationConfigRecord> rv;
+    std::vector<open_greenery::dataflow::irrigation::IrrigationConfigRecord> rv;
     while (query.executeStep())
     {
         const char * pump_pin = query.getColumn("pump_pin");
@@ -45,7 +45,7 @@ std::vector<open_greenery::dataflow::IrrigationConfigRecord> IrrigationConfigRea
         auto to_uint = [](const char * _str){return std::strtoul(_str, nullptr, 10);};
         auto to_int = [](const char * _str){return std::strtol(_str, nullptr, 10);};
 
-        open_greenery::dataflow::IrrigationConfigRecord rec = {
+        open_greenery::dataflow::irrigation::IrrigationConfigRecord rec = {
                 {std::uint8_t(to_uint(pump_pin)), open_greenery::gpio::Pinout::WIRING_PI},
                 std::int16_t(to_int(dry_level)),
                 std::int16_t(to_int(wet_level)),

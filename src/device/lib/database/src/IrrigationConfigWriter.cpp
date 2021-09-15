@@ -17,7 +17,7 @@ IrrigationConfigWriter::IrrigationConfigWriter(Table _table)
     table().database->exec(query);
 }
 
-void IrrigationConfigWriter::set(open_greenery::dataflow::IrrigationConfigRecord _record) {
+void IrrigationConfigWriter::set(open_greenery::dataflow::irrigation::IrrigationConfigRecord _record) {
     SQLite::Transaction transaction(*table().database);
 
     const auto query = std::string("INSERT INTO ")

@@ -14,11 +14,11 @@ class IrrigationConfigReader : public DatabaseEntity,
 public:
     IrrigationConfigReader(Table _table);
 
-    std::vector<open_greenery::dataflow::IrrigationConfigRecord> read() override;
-    open_greenery::dataflow::IrrigationConfigRecord read(open_greenery::gpio::PinId _pin) override;
+    std::vector<open_greenery::dataflow::irrigation::IrrigationConfigRecord> read() override;
+    open_greenery::dataflow::irrigation::IrrigationConfigRecord read(open_greenery::gpio::PinId _pin) override;
 
 private:
-    std::vector<open_greenery::dataflow::IrrigationConfigRecord> read(const std::string & _query);
+    std::vector<open_greenery::dataflow::irrigation::IrrigationConfigRecord> read(const std::string & _query);
 };
 
 }

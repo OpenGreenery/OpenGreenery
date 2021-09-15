@@ -37,10 +37,10 @@ int main()
         return -1;
     }
 
-    std::shared_ptr<ogdf::IIrrigationConfigDataProvider> cfg_reader =
+    std::shared_ptr<ogdf::irrigation::IIrrigationConfigDataProvider> cfg_reader =
             std::make_shared<ogdb::IrrigationConfigReader>(ogdb::Table(db, "IrrigationConfig"));
 
-    const auto cfg_records = cfg_reader->get();
+    const auto cfg_records = cfg_reader->read();
     if (cfg_records.empty())
     {
         std::cerr << "Database doesn't contain irrigation configurations" << std::endl;
@@ -56,7 +56,7 @@ int main()
                   << "Watering period: " << cfg.watering_period.count() << std::endl
                   << "Soil moisture sensor: " << cfg.soil_moisture_sensor << std::endl;
 
-        std::shared_ptr<ogdf::ISensorReadProvider> soil_moisture_reader =
+        std::shared_ptr<ogdf::irrigation::ISensorReadProvider> soil_moisture_reader =
                 std::make_shared<ogdb::SensorReader>(ogdb::Table(db, cfg.soil_moisture_sensor));
         std::shared_ptr<og::pump::IPump> pump =
             std::make_shared<og::pump::Pump>(
