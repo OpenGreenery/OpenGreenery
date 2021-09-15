@@ -5,7 +5,7 @@
 #include <string>
 #include <open_greenery/gpio/PinId.hpp>
 
-namespace open_greenery::dataflow
+namespace open_greenery::dataflow::irrigation
 {
 
 struct IrrigationConfigRecord

@@ -13,7 +13,7 @@ class IrrigationConfigWriter : public DatabaseEntity,
 public:
     IrrigationConfigWriter(Table _table);
 
-    void set(open_greenery::dataflow::IrrigationConfigRecord _record) override;
+    void set(open_greenery::dataflow::irrigation::IrrigationConfigRecord _record) override;
 };
 
 }

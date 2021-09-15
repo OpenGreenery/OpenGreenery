@@ -13,7 +13,7 @@ namespace open_greenery::irrigation::moisture
 class Context final : IState
 {
 public:
-    Context(const open_greenery::dataflow::IrrigationConfigRecord & _config,
+    Context(const open_greenery::dataflow::irrigation::IrrigationConfigRecord & _config,
             std::shared_ptr<open_greenery::pump::IPump> _pump);
     StateName state() override;
     StateName handleSoilMoisture(std::int16_t _moisture) override;
