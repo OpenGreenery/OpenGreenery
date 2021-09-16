@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "PeriodicModeConfig.hpp"
 #include "SensorRecord.hpp"
 #include "IrrigationConfigRecord.hpp"
 #include <open_greenery/dataflow/common/IOptionalProvider.hpp>
@@ -10,6 +11,9 @@
 
 namespace open_greenery::dataflow::irrigation
 {
+
+using IPeriodicModeConfigProvider = open_greenery::dataflow::common::IOptionalProvider<PeriodicModeConfig>;
+using IPeriodicModeConfigReceiver = open_greenery::dataflow::common::IReceiver<PeriodicModeConfig>;
 
 class IIrrigationConfigDataProvider
 {

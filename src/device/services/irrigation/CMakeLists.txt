@@ -5,6 +5,7 @@ set( SRCS    src/moisture/state_machine/Context.cpp
              src/moisture/state_machine/State.cpp
              src/moisture/state_machine/WetState.cpp
              src/moisture/MoistureModeHandler.cpp
+             src/periodic/PeriodicModeHandler.cpp
              src/IrrigationController.cpp )
 
 add_library( ${PROJECT_NAME}_impl    ${SRCS} )
