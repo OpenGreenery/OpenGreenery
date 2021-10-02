@@ -22,7 +22,7 @@ int main()
     signal(SIGTERM, signalHandler);
     signal(SIGINT, signalHandler);
     // relay
-    constexpr std::uint8_t LIGHT_PIN_NUMBER {2u};
+    constexpr std::uint8_t LIGHT_PIN_NUMBER {15u};
     constexpr open_greenery::gpio::PinId LIGHT_PIN_ID {open_greenery::gpio::PinNumber(LIGHT_PIN_NUMBER),
                                                        open_greenery::gpio::Pinout::WIRING_PI};
     auto light_pin = open_greenery::gpio::GPIOFactory::getInstance().getOutputGPIOctl(LIGHT_PIN_ID);
@@ -32,7 +32,7 @@ int main()
     auto time_provider = std::make_shared<open_greenery::light::CurrentTimeProvider>();
 
     // rpc client
-    constexpr char RPC_HOST [] {"localhost:81"};
+    constexpr char RPC_HOST [] {"localhost:8090"};
     open_greenery::rpc::light::LightProxyClient rpc_client (RPC_HOST);
     // config provider
     auto config_provider = rpc_client.getConfigProvider();
