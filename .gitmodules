@@ -7,3 +7,6 @@
 [submodule "src/device/lib/third-party/googletest"]
 	path = src/device/lib/third-party/googletest
 	url = https://github.com/google/googletest.git
+[submodule "src/device/lib/third-party/spdlog"]
+	path = src/device/lib/third-party/spdlog
+	url = https://github.com/gabime/spdlog.git
