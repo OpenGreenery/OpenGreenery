@@ -13,7 +13,7 @@ namespace og = open_greenery;
 struct ChannelEntities
 {
     std::unique_ptr<og::sensor::IAnalogSensorPublisher> sensor_publisher;
-    std::unique_ptr<og::dataflow::ISensorDataReceiver> sensor_data_receiver;
+    std::unique_ptr<og::dataflow::irrigation::ISensorDataReceiver> sensor_data_receiver;
 };
 
 struct SampleData
@@ -43,7 +43,7 @@ int main ()
         std::cout << "SQLite database file " << db->getFilename() << " opened successfully" << std::endl;
 
         // Notificator that saves sensor data to the database
-        auto make_notificator = [](og::dataflow::ISensorDataReceiver & receiver, std::string logline)
+        auto make_notificator = [](og::dataflow::irrigation::ISensorDataReceiver & receiver, std::string logline)
                 -> og::sensor::AnalogSensorPublisher::Notificator
         {
             return [&receiver, logline](const std::int16_t _val)
@@ -66,7 +66,7 @@ int main ()
         {
             // ADS1115 address
             constexpr og::driver::ADS1115::Address adc_addr = og::driver::ADS1115::Address::GND;
-            std::shared_ptr<og::dataflow::ISensorReadProvider> sensor_read_provider =
+            std::shared_ptr<og::dataflow::irrigation::ISensorReadProvider> sensor_read_provider =
                     adc_factory.getReader(adc_addr, entity_data->channel);
             // Sensor publisher calls notificators with ADC readers data each minute
             constexpr auto period = std::chrono::minutes(1);

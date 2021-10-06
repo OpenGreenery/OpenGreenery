@@ -6,9 +6,7 @@
 namespace open_greenery::light
 {
 
-namespace ogl = open_greenery::dataflow::light;
-
-class CurrentTimeProvider : public ogl::ICurrentTimeProvider
+class CurrentTimeProvider : public open_greenery::dataflow::time::ICurrentTimeProvider
 {
 public:
     QTime get() override;

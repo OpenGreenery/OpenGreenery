@@ -8,7 +8,7 @@ namespace open_greenery::gui::page
 {
 
 DateValueChart::DateValueChart(
-        std::unique_ptr<open_greenery::dataflow::ISensorDataProvider> _provider,
+        std::unique_ptr<open_greenery::dataflow::irrigation::ISensorDataProvider> _provider,
         const QString & _title)
     : m_sensor_provider(std::move(_provider)),
       m_chart_view(new QtCharts::QChartView),
@@ -24,7 +24,7 @@ void DateValueChart::update(const QDateTime & _from, const QDateTime & _to)
 
     auto series = new QtCharts::QSplineSeries();
 
-    for (const auto & moisture_data : m_sensor_provider->get(_from, _to))
+    for (const auto & moisture_data : m_sensor_provider->read(_from, _to))
     {
         series->append(moisture_data.timestamp.toMSecsSinceEpoch(), moisture_data.value);
     }

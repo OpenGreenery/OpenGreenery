@@ -26,7 +26,7 @@ int main ()
 
     const og::database::Table table(db, "A0");// Declare the database table for sensor data
     // Database sensor writer saves data to the table
-    std::unique_ptr<og::dataflow::ISensorDataReceiver> receiver = std::make_unique<og::database::SensorWriter>(table);
+    std::unique_ptr<og::dataflow::irrigation::ISensorDataReceiver> receiver = std::make_unique<og::database::SensorWriter>(table);
 
     // Notificator that saves sensor data to the database
     og::sensor::AnalogSensorPublisher::Notificator ntr = [&receiver](const std::int16_t _val)
@@ -52,9 +52,9 @@ int main ()
     // Read saved to the DB data
     if (table.valid())
     {
-        std::unique_ptr<og::dataflow::ISensorDataProvider> provider =
+        std::unique_ptr<og::dataflow::irrigation::ISensorDataProvider> provider =
                 std::make_unique<og::database::SensorReader>(table);
-        for (const auto & pair : provider->get(from, to))
+        for (const auto & pair : provider->read(from, to))
         {
             const auto [dt, val] = pair;
             qDebug() << dt << " | " << val;

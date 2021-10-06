@@ -12,7 +12,7 @@ namespace open_greenery
 namespace adc
 {
 
-namespace ogdf = open_greenery::dataflow;
+namespace ogdf = open_greenery::dataflow::irrigation;
 namespace ogdr = open_greenery::driver;
 
 class ADCFactory
