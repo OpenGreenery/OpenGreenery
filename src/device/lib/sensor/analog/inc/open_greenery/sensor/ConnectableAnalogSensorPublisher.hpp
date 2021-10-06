@@ -10,7 +10,7 @@ namespace open_greenery::sensor
 class ConnectableAnalogSensorPublisher : public AnalogSensorPublisher
 {
 public:
-    ConnectableAnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _provider,
+    ConnectableAnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider> _provider,
                                      std::shared_ptr<open_greenery::gpio::IInputPin> _is_connected,
                                      std::chrono::milliseconds _period);
 

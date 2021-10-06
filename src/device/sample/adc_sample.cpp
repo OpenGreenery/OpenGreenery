@@ -5,7 +5,7 @@
 
 namespace oga = open_greenery::adc;
 namespace ogd = open_greenery::driver;
-namespace ogdf = open_greenery::dataflow;
+namespace ogdf = open_greenery::dataflow::irrigation;
 namespace chr = std::chrono;
 using clk = chr::system_clock;
 

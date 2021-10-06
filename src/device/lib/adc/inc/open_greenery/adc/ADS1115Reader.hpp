@@ -9,13 +9,13 @@ namespace open_greenery::adc
 
 namespace ogdr = open_greenery::driver;
 
-class ADS1115Reader final : public open_greenery::dataflow::ISensorReadProvider
+class ADS1115Reader final : public open_greenery::dataflow::irrigation::ISensorReadProvider
 {
 public:
     ADS1115Reader(ogdr::ADS1115 & _adc, ogdr::ADS1115::MUX _mux);
     ~ADS1115Reader() override = default;
 
-    std::int16_t read() const override;
+    std::int16_t get() override;
 
 private:
     ogdr::ADS1115 & m_adc;

@@ -5,7 +5,7 @@
 namespace open_greenery::sensor
 {
 
-AnalogSensorPublisher::AnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _provider,
+AnalogSensorPublisher::AnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider> _provider,
                                              std::chrono::milliseconds period)
     : m_sensor_provider(std::move(_provider)),
     m_period(period)

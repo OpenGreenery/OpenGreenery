@@ -20,7 +20,7 @@ int main()
     std::chrono::seconds watering_period {5};
     const std::string soil_moisture_table {"A3"};
     open_greenery::database::SensorReader soil_moisture_reader ({db, soil_moisture_table});
-    writer.write({pin, dry, wet, watering_volume, watering_period, "A3"});
+    writer.set({pin, dry, wet, watering_volume, watering_period, "A3"});
 
     og::database::IrrigationConfigReader reader ({db, "IrrigationConfig"});
     const auto record = reader.read(pin);
