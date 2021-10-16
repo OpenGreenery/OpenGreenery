@@ -20,15 +20,16 @@ jobs:
       run: mkdir ${{github.workspace}}/og-artifacts
     - name: Build project
       run: |
+        echo "Branch: ${GITHUB_REF##*/}"
         docker run \
         -e BRANCH=${GITHUB_REF##*/} \
         -e ARTIFACTS="tests/tests" \
         -v ${{github.workspace}}/og-artifacts:/var/og-artifacts \
-        og-build:x86-latest
+        alexdegtyar/og-build:x86-latest
     - name: List artifacts
       run: ls -al ${{github.workspace}}/og-artifacts
     - name: Run tests
       run: |
         docker run \
         -v ${{github.workspace}}/og-artifacts:/var/og-artifacts \
-        og-test:x86-latest
+        alexdegtyar/og-test:x86-latest
