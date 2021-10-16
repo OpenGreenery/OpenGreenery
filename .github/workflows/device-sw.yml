@@ -1,0 +1,27 @@
+name: Device Software
+on:
+  push:
+    paths:
+      - 'src/device/**'
+  pull_request:
+    branches: [ develop ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    container:
+      image: alexdegtyar/og-build:x86-latest
+      env:
+        # Current branch name
+        BRANCH: ${GITHUB_REF##*/}
+        # Copy only tests executable
+        ARTIFACTS: "tests/tests"
+      volumes:
+        - ${{github.workspace}}:/var/og-artifacts
+  test:
+    steps:
+    - name: List files
+      run: ls -al ${{github.workspace}}
+    - name: Run tests
+      run: ${{github.workspace}}/tests
