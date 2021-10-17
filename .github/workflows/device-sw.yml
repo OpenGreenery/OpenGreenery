@@ -24,7 +24,7 @@ jobs:
         then
           BRANCH="${GITHUB_REF##*/}"
         fi
-        echo Selected branch ${BRANCH}
+        echo "::set-env name=BRANCH::$BRANCH"
     - name: Pull Docker images
       run: |
         docker pull alexdegtyar/og-build:x86-latest
