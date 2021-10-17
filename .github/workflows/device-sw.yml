@@ -33,8 +33,9 @@ jobs:
       run: mkdir ${{ env.ARTIFACTS_DIR }}
     - name: Build project
       run: |
+        echo Build branch ${BRANCH}
         docker run \
-        -e BRANCH=${BRANCH} \
+        -e BRANCH="${BRANCH}" \
         -e ARTIFACTS="tests/tests" \
         -v ${{ env.ARTIFACTS_DIR }}:/var/og-artifacts \
         alexdegtyar/og-build:x86-latest
