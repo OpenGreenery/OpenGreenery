@@ -15,6 +15,7 @@ jobs:
       ARTIFACTS_DIR: ${{github.workspace}}/og-artifacts
     steps:
     - name: Determine branch to build
+      id: vars
       # Source branch of pull request or to which commit pushed
       run: |
         if [[ ${{ github.event_name }} == 'pull_request' ]]
@@ -24,7 +25,7 @@ jobs:
         then
           BRANCH="${GITHUB_REF##*/}"
         fi
-        echo "::set-env name=BRANCH::$BRANCH"
+        echo ::set-output name=branch::${BRANCH}
     - name: Pull Docker images
       run: |
         docker pull alexdegtyar/og-build:x86-latest
@@ -33,9 +34,9 @@ jobs:
       run: mkdir ${{ env.ARTIFACTS_DIR }}
     - name: Build project
       run: |
-        echo Build branch ${BRANCH}
+        echo Build branch ${{ steps.vars.outputs.branch }}
         docker run \
-        -e BRANCH="${BRANCH}" \
+        -e BRANCH=${{ steps.vars.outputs.branch }} \
         -e ARTIFACTS="tests/tests" \
         -v ${{ env.ARTIFACTS_DIR }}:/var/og-artifacts \
         alexdegtyar/og-build:x86-latest
