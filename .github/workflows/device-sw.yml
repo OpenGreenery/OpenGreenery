@@ -24,6 +24,8 @@ jobs:
         elif [[ ${{ github.event_name }} == 'push' ]]
         then
           BRANCH="${GITHUB_REF##*/}"
+        else
+          BRANCH="${{ github.event.repository.default_branch }}"
         fi
         echo ::set-output name=branch::${BRANCH}
     - name: Pull Docker images
