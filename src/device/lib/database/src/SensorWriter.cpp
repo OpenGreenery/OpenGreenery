@@ -9,7 +9,7 @@ SensorWriter::SensorWriter(Table _table)
     :DatabaseEntity(std::move(_table))
 {
     table().database->exec("CREATE TABLE IF NOT EXISTS "+ table().name +
-        " (time DATETIME PRIMARY KEY NOT NULL, value INTEGER NOT NULL)");
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, time DATETIME NOT NULL, value INTEGER NOT NULL)");
 }
 
 void SensorWriter::write(const std::int16_t _data)
@@ -36,8 +36,8 @@ void SensorWriter::write(const char * _time, const std::int16_t _data)
     const auto data_str = std::to_string(_data);
     SQLite::Transaction transaction(*table().database);
 
-    int rv = table().database->exec("INSERT INTO " + table().name + " VALUES "+
-            "((SELECT strftime('%Y-%m-%d %H:%M:%f', '" + _time + "')), " + data_str + ")");
+    int rv = table().database->exec("INSERT INTO " + table().name + "(time, value) VALUES "+
+            "(strftime('%Y-%m-%d %H:%M:%f', '" + _time + "'), " + data_str + ")");
 
     if (rv != 1)
     {

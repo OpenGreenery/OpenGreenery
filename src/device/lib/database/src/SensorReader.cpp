@@ -18,7 +18,7 @@ std::vector<open_greenery::dataflow::irrigation::SensorRecord> SensorReader::rea
     };
 
     const std::string strftime_format ("'%Y-%m-%d %H:%M:%f'");
-    SQLite::Statement query(*table().database, "SELECT * FROM "+table().name+" WHERE time BETWEEN "+
+    SQLite::Statement query(*table().database, "SELECT time, value FROM "+table().name+" WHERE time BETWEEN "+
         "strftime("+strftime_format+", '"+utc_str(_from)+"') AND "+
         "strftime("+strftime_format+", '"+utc_str(_to)+"');");
 
@@ -42,7 +42,7 @@ std::vector<open_greenery::dataflow::irrigation::SensorRecord> SensorReader::rea
 
 std::int16_t SensorReader::get()
 {
-    std::string str_query = "SELECT * FROM "
+    std::string str_query = "SELECT time, value FROM "
             + table().name
             + " WHERE time == (SELECT MAX(time) FROM "
             + table().name
