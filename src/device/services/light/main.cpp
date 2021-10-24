@@ -4,6 +4,7 @@
 #include <open_greenery/light/LightController.hpp>
 #include <open_greenery/light/CurrentTimeProvider.hpp>
 #include <open_greenery/relay/Relay.hpp>
+#include <spdlog/cfg/env.h>
 
 static std::optional<open_greenery::light::LightController> s_controller;
 static std::optional<open_greenery::tools::FinishFuture> s_controller_finish;
@@ -19,6 +20,8 @@ void signalHandler(int signal)
 
 int main()
 {
+    spdlog::cfg::load_env_levels();
+
     signal(SIGTERM, signalHandler);
     signal(SIGINT, signalHandler);
     // relay

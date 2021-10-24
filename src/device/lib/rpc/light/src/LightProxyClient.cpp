@@ -4,6 +4,7 @@
 #include <grpcpp/create_channel.h>
 #include <grpcpp/channel.h>
 #include "light.grpc.pb.h"
+#include <spdlog/spdlog.h>
 
 namespace open_greenery::rpc::light
 {
@@ -29,19 +30,29 @@ std::optional<open_greenery::dataflow::light::LightConfigRecord> LightProxyClien
     const auto status = m_stub->GetConfig(&context, request, &response);
     if (!status.ok())
     {
-        std::cerr << "Invalid light service config request" << std::endl;
+        spdlog::trace("Unsuccessful config request");
+        return {};
+    }
+
+    if (response.has_day_start() != response.has_day_end())
+    {
+        spdlog::warn("Only one time specified in config");
         return {};
     }
 
     if (response.has_day_start() && response.has_day_end())
     {
-        return {{QTime::fromMSecsSinceStartOfDay(response.day_start()),
-                QTime::fromMSecsSinceStartOfDay(response.day_end())}};
+        std::optional<open_greenery::dataflow::light::LightConfigRecord> received_config {
+            {QTime::fromMSecsSinceStartOfDay(response.day_start()),
+             QTime::fromMSecsSinceStartOfDay(response.day_end())}
+        };
+        auto TimeStr = [](const QTime & t){return t.toString("hh:mm:ss").toStdString();};
+        spdlog::debug("Received config: start={}, end={}",
+                     TimeStr(received_config->day_start),
+                     TimeStr(received_config->day_end));
+        return received_config;
     }
-    else
-    {
-        return {};
-    }
+    return {};
 }
 
 LightProxyClient::ManualControlProvider::ManualControlProvider(std::shared_ptr<LightProxy::Stub> stub)
@@ -56,7 +67,7 @@ std::optional<open_greenery::dataflow::light::Control> LightProxyClient::ManualC
     const auto status = m_stub->GetManualControl(&context, request, &response);
     if (!status.ok())
     {
-        std::cerr << "Invalid light service manual control request" << std::endl;
+        spdlog::trace("Unsuccessful manual control request");
         return {};
     }
 
@@ -66,20 +77,20 @@ std::optional<open_greenery::dataflow::light::Control> LightProxyClient::ManualC
         switch (control)
         {
             case ManualControlResponse::CONTROL_ENABLE:
+                spdlog::debug("Received manual enable command");
                 return {open_greenery::dataflow::light::Control::ENABLE};
             case ManualControlResponse::CONTROL_DISABLE:
+                spdlog::debug("Received manual disable command");
                 return {open_greenery::dataflow::light::Control::DISABLE};
             case ManualControlResponse::CONTROL_TOGGLE:
+                spdlog::debug("Received manual toggle command");
                 return {open_greenery::dataflow::light::Control::TOGGLE};
             default:
-                assert(false && "Unknown light::control type");
+                assert(false && "Unknown control type");
                 return {};
         }
     }
-    else
-    {
-        return {};
-    }
+    return {};
 }
 
 LightProxyClient::ModeProvider::ModeProvider(std::shared_ptr<LightProxy::Stub> stub)
@@ -94,7 +105,7 @@ std::optional<open_greenery::dataflow::light::Mode> LightProxyClient::ModeProvid
     const auto status = m_stub->GetMode(&context, request, &response);
     if (!status.ok())
     {
-        std::cerr << "Invalid light service mode request" << std::endl;
+        spdlog::trace("Unsuccessful mode request");
         return {};
     }
 
@@ -103,18 +114,17 @@ std::optional<open_greenery::dataflow::light::Mode> LightProxyClient::ModeProvid
         switch (response.mode())
         {
             case ModeResponse::MODE_AUTO:
+                spdlog::debug("Received auto mode setting");
                 return {open_greenery::dataflow::light::Mode::AUTO};
             case ModeResponse::MODE_MANUAL:
+                spdlog::debug("Received manual mode setting");
                 return {open_greenery::dataflow::light::Mode::MANUAL};
             default:
-                assert(false && "Unknown light::Mode type");
+                assert(false && "Unknown Mode type");
                 return {};
         }
     }
-    else
-    {
-        return {};
-    }
+    return {};
 }
 
 
@@ -132,9 +142,10 @@ void LightProxyClient::StatusReceiver::set(bool _is_enabled)
     const auto status = m_stub->SetStatus(&context, request, &response);
     if (!status.ok())
     {
-        std::cerr << "Invalid light service status report" << std::endl;
+        spdlog::trace("Unsuccessful status sending");
         return;
     }
+    spdlog::debug("{} status sent", (_is_enabled ? "enabled" : "disabled"));
 }
 
 std::shared_ptr<LightProxyClient::ConfigProvider> LightProxyClient::getConfigProvider()

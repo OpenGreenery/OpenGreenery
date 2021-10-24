@@ -1,6 +1,7 @@
 #include "open_greenery/rpc/light/LightProxyServer.hpp"
 #include <cassert>
 #include <grpcpp/server_builder.h>
+#include <spdlog/spdlog.h>
 
 
 namespace open_greenery::rpc::light
@@ -14,14 +15,22 @@ namespace open_greenery::rpc::light
     std::ignore = request;
     if (m_config)
     {
-        response->set_day_start(m_config->day_start.msecsSinceStartOfDay());
-        response->set_day_end(m_config->day_end.msecsSinceStartOfDay());
+        const auto day_start = m_config->day_start.msecsSinceStartOfDay();
+        response->set_day_start(day_start);
+        const auto day_end = m_config->day_end.msecsSinceStartOfDay();
+        response->set_day_end(day_end);
+
+        auto TimeStr = [](const QTime & t){return t.toString("hh:mm:ss").toStdString();};
+        spdlog::debug("Config light day start={}, end={} sent",
+                      TimeStr(m_config->day_start),
+                      TimeStr(m_config->day_end));
         m_config.reset();
     }
     else
     {
         response->clear_day_start();
         response->clear_day_end();
+        spdlog::trace("Empty config sent");
     }
     return {}; // OK
 }
@@ -37,12 +46,15 @@ namespace open_greenery::rpc::light
         switch (*m_manual_control)
         {
             case open_greenery::dataflow::light::Control::ENABLE:
+                spdlog::debug("Manual enable sent");
                 response->set_control(ManualControlResponse::CONTROL_ENABLE);
                 break;
             case open_greenery::dataflow::light::Control::DISABLE:
+                spdlog::debug("Manual disable sent");
                 response->set_control(ManualControlResponse::CONTROL_DISABLE);
                 break;
             case open_greenery::dataflow::light::Control::TOGGLE:
+                spdlog::debug("Manual toggle sent");
                 response->set_control(ManualControlResponse::CONTROL_TOGGLE);
                 break;
             default:
@@ -52,6 +64,7 @@ namespace open_greenery::rpc::light
     }
     else
     {
+        spdlog::trace("Empty manual control sent");
         response->clear_control();
     }
     return {}; // OK
@@ -68,9 +81,11 @@ namespace open_greenery::rpc::light
         switch (*m_mode)
         {
             case open_greenery::dataflow::light::Mode::MANUAL:
+                spdlog::debug("Manual mode setting sent");
                 response->set_mode(ModeResponse::MODE_MANUAL);
                 break;
             case open_greenery::dataflow::light::Mode::AUTO:
+                spdlog::debug("Auto mode setting sent");
                 response->set_mode(ModeResponse::MODE_AUTO);
                 break;
             default:
@@ -88,6 +103,7 @@ namespace open_greenery::rpc::light
     std::ignore = context;
     std::ignore = response;
     m_status = request->is_enabled();
+    spdlog::debug("{} status received", (m_status ? "Enabled" : "Disabled"));
     return {}; // OK
 }
 
