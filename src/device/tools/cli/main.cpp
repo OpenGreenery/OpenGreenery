@@ -162,8 +162,7 @@ int main()
                 {
                     std::cout << "Enter " << time_name << " in format " << FORMAT << std::endl;
                     std::string time_str;
-                    std::cin.get();
-                    std::getline(std::cin, time_str);
+                    std::cin >> time_str;
                     return QTime::fromString(QString::fromStdString(time_str), FORMAT);
                 };
 
