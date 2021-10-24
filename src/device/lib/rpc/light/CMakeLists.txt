@@ -42,4 +42,5 @@ target_link_libraries(rpc_light
         ${_REFLECTION}
         ${_GRPC_GRPCPP}
         ${_PROTOBUF_LIBPROTOBUF}
+        spdlog
         dataflow)

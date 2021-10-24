@@ -6,6 +6,7 @@
 #include <string>
 
 #include <QTime>
+#include <spdlog/cfg/env.h>
 
 #include <open_greenery/rpc/light/LightProxyServer.hpp>
 
@@ -102,6 +103,8 @@ private:
 
 int main()
 {
+    spdlog::cfg::load_env_levels();
+
     signal(SIGTERM, exit);
     signal(SIGINT, exit);
 
