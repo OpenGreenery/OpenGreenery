@@ -25,7 +25,7 @@ int main()
     signal(SIGTERM, signalHandler);
     signal(SIGINT, signalHandler);
     // relay
-    constexpr std::uint8_t LIGHT_PIN_NUMBER {15u};
+    constexpr std::uint8_t LIGHT_PIN_NUMBER {6u};
     constexpr open_greenery::gpio::PinId LIGHT_PIN_ID {open_greenery::gpio::PinNumber(LIGHT_PIN_NUMBER),
                                                        open_greenery::gpio::Pinout::WIRING_PI};
     auto light_pin = open_greenery::gpio::GPIOFactory::getInstance().getOutputGPIOctl(LIGHT_PIN_ID);
