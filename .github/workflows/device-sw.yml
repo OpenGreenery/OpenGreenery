@@ -23,7 +23,10 @@ jobs:
           BRANCH="${{github.head_ref}}"
         elif [[ ${{ github.event_name }} == 'push' ]]
         then
-          BRANCH="${GITHUB_REF##*/}"
+          BRANCH="${GITHUB_REF#refs/heads/}"
+        elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]
+        then
+          BRANCH="${GITHUB_REF#refs/heads/}"
         else
           BRANCH="${{ github.event.repository.default_branch }}"
         fi
