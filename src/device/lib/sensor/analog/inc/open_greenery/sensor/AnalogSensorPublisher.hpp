@@ -18,8 +18,9 @@ namespace open_greenery::sensor
 class AnalogSensorPublisher : public IAnalogSensorPublisher
 {
 public:
-    AnalogSensorPublisher(std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> _provider,
-                          std::chrono::milliseconds period);
+    AnalogSensorPublisher(
+            std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider> _provider,
+            std::chrono::milliseconds period);
 
     /**
      * @note Internal LoopThread will be stopped in the own destructor
@@ -39,7 +40,7 @@ protected:
     std::list<Notificator> m_notificators;
     mutable std::mutex m_notificators_mutex;
 
-    std::shared_ptr<open_greenery::dataflow::ISensorReadProvider> m_sensor_provider;
+    std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider> m_sensor_provider;
     const std::chrono::milliseconds m_period;
     std::optional<open_greenery::tools::LoopThread> m_reading_thr;
 };

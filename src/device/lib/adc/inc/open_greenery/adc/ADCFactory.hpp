@@ -12,8 +12,6 @@ namespace open_greenery
 namespace adc
 {
 
-namespace ogdf = open_greenery::dataflow;
-namespace ogdr = open_greenery::driver;
 
 class ADCFactory
 {
@@ -23,18 +21,21 @@ public:
     ADCFactory(const ADCFactory &) = delete;
     ADCFactory & operator=(ADCFactory &) = delete;
 
-    std::shared_ptr<ogdf::ISensorReadProvider> getReader(const ogdr::ADS1115::Address _adr,
-                                          const ogdr::ADS1115::MUX _mux);
+    std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider> getReader(
+            const open_greenery::driver::ADS1115::Address _adr,
+            const open_greenery::driver::ADS1115::MUX _mux);
 
 private:
     ADCFactory() = default;
 
     struct ADS1115Storage
     {
-        std::unique_ptr<ogdr::ADS1115> adc;
-        std::map<ogdr::ADS1115::MUX, std::shared_ptr<ogdf::ISensorReadProvider>> readers;
+        std::unique_ptr<open_greenery::driver::ADS1115> adc;
+        std::map<
+            open_greenery::driver::ADS1115::MUX,
+            std::shared_ptr<open_greenery::dataflow::irrigation::ISensorReadProvider>> readers;
     };
-    std::map<ogdr::ADS1115::Address, ADS1115Storage> m_ads1115;
+    std::map<open_greenery::driver::ADS1115::Address, ADS1115Storage> m_ads1115;
 };
 
 }

@@ -4,14 +4,17 @@
 namespace open_greenery::adc
 {
 
+namespace ogdfi = open_greenery::dataflow::irrigation;
+
 ADCFactory & ADCFactory::getInstance()
 {
     static ADCFactory instance;
     return instance;
 }
 
-std::shared_ptr<ogdf::ISensorReadProvider> ADCFactory::getReader(const ogdr::ADS1115::Address _adr,
-                                                  const ogdr::ADS1115::MUX _mux)
+std::shared_ptr<ogdfi::ISensorReadProvider> ADCFactory::getReader(
+        const ogdr::ADS1115::Address _adr,
+        const ogdr::ADS1115::MUX _mux)
 {
     if (m_ads1115.find(_adr) == m_ads1115.end())
     {
@@ -19,7 +22,7 @@ std::shared_ptr<ogdf::ISensorReadProvider> ADCFactory::getReader(const ogdr::ADS
     }
     ADS1115Storage & storage = m_ads1115[_adr];
     std::unique_ptr<ogdr::ADS1115> & adc = storage.adc;
-    std::map<ogdr::ADS1115::MUX, std::shared_ptr<ogdf::ISensorReadProvider>> & readers = storage.readers;
+    std::map<ogdr::ADS1115::MUX, std::shared_ptr<ogdfi::ISensorReadProvider>> & readers = storage.readers;
 
     if (!adc)
     {
