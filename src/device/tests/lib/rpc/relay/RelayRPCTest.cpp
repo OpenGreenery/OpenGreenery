@@ -10,7 +10,7 @@ namespace ogdfl = open_greenery::dataflow::light;
 namespace open_greenery::tests::lib::rpc
 {
 
-class LightProxyTest : public ::testing::Test
+class RelayRPCTest : public ::testing::Test
 {
 protected:
 
@@ -42,7 +42,7 @@ protected:
     std::shared_ptr<ogdfl::IStatusReceiver> status_receiver;
 };
 
-TEST_F(LightProxyTest, ConfigTransmition)
+TEST_F(RelayRPCTest, ConfigTransmition)
 {
     const ogdfl::LightConfigRecord expected_config {QTime(0, 0),
                                                     QTime(23, 59, 59, 999)};
@@ -53,7 +53,7 @@ TEST_F(LightProxyTest, ConfigTransmition)
     EXPECT_EQ(expected_config.day_end, actual_config->day_end);
 }
 
-TEST_F(LightProxyTest, SingleConfigTransmition)
+TEST_F(RelayRPCTest, SingleConfigTransmition)
 {
     EXPECT_FALSE(config_provider->get().has_value());
 
@@ -64,7 +64,7 @@ TEST_F(LightProxyTest, SingleConfigTransmition)
     EXPECT_FALSE(config_provider->get().has_value());
 }
 
-TEST_F(LightProxyTest, ManualControlTransmition)
+TEST_F(RelayRPCTest, ManualControlTransmition)
 {
     for (auto expected_config : {ogdfl::Control::ENABLE,
                                  ogdfl::Control::DISABLE,
@@ -77,7 +77,7 @@ TEST_F(LightProxyTest, ManualControlTransmition)
     }
 }
 
-TEST_F(LightProxyTest, SingleManualControlTransmition)
+TEST_F(RelayRPCTest, SingleManualControlTransmition)
 {
     EXPECT_FALSE(control_provider->get().has_value());
 
@@ -88,7 +88,7 @@ TEST_F(LightProxyTest, SingleManualControlTransmition)
     EXPECT_FALSE(control_provider->get().has_value());
 }
 
-TEST_F(LightProxyTest, ModeTransmition)
+TEST_F(RelayRPCTest, ModeTransmition)
 {
     for (auto expected_mode : {ogdfl::Mode::AUTO,
                                ogdfl::Mode::MANUAL})
@@ -100,7 +100,7 @@ TEST_F(LightProxyTest, ModeTransmition)
     }
 }
 
-TEST_F(LightProxyTest, SingleModeTransmition)
+TEST_F(RelayRPCTest, SingleModeTransmition)
 {
     EXPECT_FALSE(mode_provider->get().has_value());
 
@@ -111,7 +111,7 @@ TEST_F(LightProxyTest, SingleModeTransmition)
     EXPECT_FALSE(mode_provider->get().has_value());
 }
 
-TEST_F(LightProxyTest, StatusTransmition)
+TEST_F(RelayRPCTest, StatusTransmition)
 {
     for (auto expected_status : {true, false})
     {
@@ -122,7 +122,7 @@ TEST_F(LightProxyTest, StatusTransmition)
     }
 }
 
-TEST_F(LightProxyTest, SingleStatusTransmition)
+TEST_F(RelayRPCTest, SingleStatusTransmition)
 {
     EXPECT_FALSE(status_provider->get().has_value());
 
