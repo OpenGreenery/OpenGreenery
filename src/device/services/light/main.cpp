@@ -1,10 +1,11 @@
 #include <csignal>
-#include <open_greenery/rpc/light/LightProxyClient.hpp>
+#include <open_greenery/rpc/relay/Client.hpp>
 #include <open_greenery/gpio/OutputGPIOctl.hpp>
 #include <open_greenery/light/LightController.hpp>
 #include <open_greenery/light/CurrentTimeProvider.hpp>
 #include <open_greenery/relay/Relay.hpp>
 #include <spdlog/cfg/env.h>
+#include <open_greenery/rpc/relay/Server.hpp>
 
 static std::optional<open_greenery::light::LightController> s_controller;
 static std::optional<open_greenery::tools::FinishFuture> s_controller_finish;
@@ -36,32 +37,22 @@ int main()
 
     // rpc client
     constexpr char RPC_HOST [] {"localhost:8090"};
-    open_greenery::rpc::light::LightProxyClient rpc_client (RPC_HOST);
-    // config provider
-    auto config_provider = rpc_client.getConfigProvider();
-    // manual control provider
-    auto ctl_reader = rpc_client.getManualControlProvider();
-    // mode provider
-    auto mode_provider = rpc_client.getModeProvider();
-    // light status
-    auto status_writer = rpc_client.getStatusReceiver();
-
+    auto rpc_server = std::make_shared<open_greenery::rpc::relay::Server>(RPC_HOST);
 
     // light controller
     s_controller.emplace(
             light_relay,
-            config_provider,
+            rpc_server,
             time_provider,
-            ctl_reader,
-            mode_provider,
-            status_writer
+            rpc_server,
+            rpc_server,
+            rpc_server
         );
     s_controller_finish = s_controller->start();
     if (s_controller_finish->valid())
     {
         s_controller_finish->wait();  // Execute service until termination signal
     }
-
 
     return 0;
 }

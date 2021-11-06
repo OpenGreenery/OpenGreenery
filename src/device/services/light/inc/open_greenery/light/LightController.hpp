@@ -14,11 +14,11 @@ class LightController
 {
 public:
     LightController(std::shared_ptr<open_greenery::relay::IRelay> _relay,
-                    std::shared_ptr<open_greenery::dataflow::light::IConfigProvider> _config_provider,
+                    std::shared_ptr<open_greenery::dataflow::light::IAsyncConfigProvider> _config_provider,
                     std::shared_ptr<open_greenery::dataflow::time::ICurrentTimeProvider> _current_time_provider,
-                    std::shared_ptr<open_greenery::dataflow::light::IManualControlProvider> _manual_control_provider,
-                    std::shared_ptr<open_greenery::dataflow::light::IModeProvider> _mode_provider,
-                    std::shared_ptr<open_greenery::dataflow::light::IStatusReceiver> _status_receiver);
+                    std::shared_ptr<open_greenery::dataflow::light::IAsyncManualControlProvider> _manual_control_provider,
+                    std::shared_ptr<open_greenery::dataflow::light::IAsyncModeProvider> _mode_provider,
+                    std::shared_ptr<open_greenery::dataflow::light::IAsyncStatusRecevier> _status_receiver);
 
     ~LightController();
     open_greenery::tools::FinishFuture start();
@@ -27,18 +27,24 @@ public:
 private:
     void LightServiceThreadFunc();
     void handleAutomaticControl();
-    void handleManualControl();
+
+    void handleConfigUpdate(open_greenery::dataflow::light::LightConfigRecord config);
+    void handleManualControl(open_greenery::dataflow::light::Control control);
+    void handleModeUpdate(open_greenery::dataflow::light::Mode mode);
+    bool getRelayStatus();
 
     // Dependencies
     std::shared_ptr<open_greenery::relay::IRelay> m_relay;
-    std::shared_ptr<open_greenery::dataflow::light::IConfigProvider> m_config_provider;
+    std::shared_ptr<open_greenery::dataflow::light::IAsyncConfigProvider> m_config_provider;
     std::shared_ptr<open_greenery::dataflow::time::ICurrentTimeProvider> m_current_time_provider;
-    std::shared_ptr<open_greenery::dataflow::light::IManualControlProvider> m_manual_control_provider;
-    std::shared_ptr<open_greenery::dataflow::light::IModeProvider> m_mode_provider;
-    std::shared_ptr<open_greenery::dataflow::light::IStatusReceiver> m_status_receiver;
+    std::shared_ptr<open_greenery::dataflow::light::IAsyncManualControlProvider> m_manual_control_provider;
+    std::shared_ptr<open_greenery::dataflow::light::IAsyncModeProvider> m_mode_provider;
+    std::shared_ptr<open_greenery::dataflow::light::IAsyncStatusRecevier> m_status_receiver;
 
     open_greenery::dataflow::light::LightConfigRecord m_current_config;
+    std::mutex m_config_mutex;
     open_greenery::dataflow::light::Mode m_current_mode;
+    std::mutex m_mode_mutex;
 
     std::unique_ptr<open_greenery::tools::LoopThread> m_service_thr;
 };

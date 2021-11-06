@@ -13,11 +13,11 @@ namespace open_greenery::light
 constexpr std::chrono::milliseconds THREAD_PERIOD{100u};
 
 LightController::LightController(std::shared_ptr<open_greenery::relay::IRelay> _relay,
-                                 std::shared_ptr<ogl::IConfigProvider> _config_provider,
+                                 std::shared_ptr<ogl::IAsyncConfigProvider> _config_provider,
                                  std::shared_ptr<ogt::ICurrentTimeProvider> _current_time_provider,
-                                 std::shared_ptr<ogl::IManualControlProvider> _manual_control_provider,
-                                 std::shared_ptr<ogl::IModeProvider> _mode_provider,
-                                 std::shared_ptr<ogl::IStatusReceiver> _status_receiver)
+                                 std::shared_ptr<ogl::IAsyncManualControlProvider> _manual_control_provider,
+                                 std::shared_ptr<ogl::IAsyncModeProvider> _mode_provider,
+                                 std::shared_ptr<ogl::IAsyncStatusRecevier> _status_receiver)
         : m_relay(std::move(_relay)),
           m_config_provider(std::move(_config_provider)),
           m_current_time_provider(std::move(_current_time_provider)),
@@ -32,8 +32,15 @@ LightController::LightController(std::shared_ptr<open_greenery::relay::IRelay> _
     assert(m_mode_provider);
     assert(m_status_receiver);
 
+    std::lock_guard<std::mutex> mode_lock(m_mode_mutex);
+    std::lock_guard<std::mutex> config_lock(m_config_mutex);
     m_current_mode = ogl::Mode::MANUAL;
     m_current_config = {QTime(), QTime()};
+
+    m_config_provider->onUpdate([this](ogl::LightConfigRecord c){ handleConfigUpdate(c); });
+    m_manual_control_provider->onUpdate([this](ogl::Control c) { handleManualControl(c); });
+    m_mode_provider->onUpdate([this](ogl::Mode m){ handleModeUpdate(m); });
+    m_status_receiver->onRequest([this] { return getRelayStatus(); });
 }
 
 LightController::~LightController()
@@ -68,21 +75,11 @@ void LightController::stop()
 
 void LightController::LightServiceThreadFunc()
 {
-    // Update mode if control command
-    spdlog::trace("Request mode");
-    auto new_mode = m_mode_provider->get();
-    if (new_mode.has_value())
-    {
-        m_current_mode = new_mode.value();
-        spdlog::debug("Mode updated: {}", (m_current_mode == ogl::Mode::AUTO ? "AUTO" : "MANUAL"));
-    }
-
+    std::lock_guard<std::mutex> l (m_mode_mutex);
     if (m_current_mode == ogl::Mode::AUTO)
     {
         handleAutomaticControl();
     }
-    // Handle manual control commands in both modes
-    handleManualControl();
 }
 
 void LightController::handleAutomaticControl()
@@ -93,65 +90,64 @@ void LightController::handleAutomaticControl()
         return (some_time >= event_time) && (some_time < event_time.addMSecs(THREAD_PERIOD.count()));
     };
 
-    // Update config if new one received
-    spdlog::trace("Request config");
-    auto new_config = m_config_provider->get();
-    if (new_config.has_value())
-    {
-        m_current_config = new_config.value();
-        spdlog::debug("Config updated");
-    }
-
     spdlog::trace("Current time request");
     const auto current_time = m_current_time_provider->get();
-    if (is_event(current_time, m_current_config.day_start) && !m_relay->enabled())
+    std::lock_guard<std::mutex> l (m_config_mutex);
+    if (is_event(current_time, m_current_config.day_start))
     {
         spdlog::info("Time to enable");
         m_relay->enable();
-        // Inform receiver about status update
-        spdlog::trace("Send status");
-        m_status_receiver->set(m_relay->enabled());
     }
-    if (is_event(current_time, m_current_config.day_end) && m_relay->enabled())
+    if (is_event(current_time, m_current_config.day_end))
     {
         spdlog::info("Time to disable");
         m_relay->disable();
-        spdlog::trace("Send status");
-        m_status_receiver->set(m_relay->enabled());
     }
 }
 
-void LightController::handleManualControl()
+bool LightController::getRelayStatus()
 {
-    // Get control command if received
-    spdlog::trace("Manual control request");
-    const auto command = m_manual_control_provider->get();
-    if (!command.has_value())
-    {
-        spdlog::trace("Manual control request");
-        return;
-    }
+    const auto status = m_relay->enabled();
+    spdlog::debug("Send status: {}", (status ? "enabled" : "disabled"));
+    return status;
+}
 
+void LightController::handleManualControl(open_greenery::dataflow::light::Control control)
+{
     // Handle command
-    if (*command == open_greenery::dataflow::light::Control::DISABLE)
+    if (control == open_greenery::dataflow::light::Control::DISABLE)
     {
         spdlog::info("Disable relay");
         m_relay->disable();
     }
-    else if (*command == open_greenery::dataflow::light::Control::ENABLE)
+    else if (control == open_greenery::dataflow::light::Control::ENABLE)
     {
         spdlog::info("Enable relay");
         m_relay->enable();
     }
-    else if (*command == open_greenery::dataflow::light::Control::TOGGLE)
+    else if (control == open_greenery::dataflow::light::Control::TOGGLE)
     {
         spdlog::info("Toggle relay");
         m_relay->toggle();
     }
+}
 
-    // Inform receiver about status
-    spdlog::trace("Send status");
-    m_status_receiver->set(m_relay->enabled());
+void LightController::handleModeUpdate(open_greenery::dataflow::light::Mode mode)
+{
+    std::lock_guard<std::mutex> l (m_mode_mutex);
+    spdlog::info("Mode changed: {}",
+                 (mode == open_greenery::dataflow::light::Mode::MANUAL ? "MANUAL" : "AUTO"));
+    m_current_mode = mode;
+}
+
+void LightController::handleConfigUpdate(open_greenery::dataflow::light::LightConfigRecord config)
+{
+    auto TimeStr = [](const QTime & t){return t.toString("hh:mm:ss").toStdString();};
+    spdlog::info("Relay configuration updated: start={}, end={}",
+                 TimeStr(config.day_start),
+                 TimeStr(config.day_end));
+    std::lock_guard<std::mutex> l (m_config_mutex);
+    m_current_config = config;
 }
 
 }
