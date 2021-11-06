@@ -10,12 +10,13 @@ set( SRCS    main.cpp
              lib/database/light/LigthDaoTest.cpp
              lib/pump/PumpTest.cpp
              lib/relay/RelayTest.cpp
-             lib/rpc/light/LightProxy.cpp
+             lib/rpc/relay/RelayRPCTest.cpp
              services/light/mock/CurrentTimeProvider.cpp
              services/light/mock/OptionalProvider.hpp
              services/light/mock/Relay.cpp
              services/light/mock/StatusReceiver.cpp
-             services/light/LightTest.cpp )
+             services/light/LightTest.cpp
+)
 
 add_executable( ${PROJECT_NAME}    ${SRCS} )
 target_link_libraries( ${PROJECT_NAME}
