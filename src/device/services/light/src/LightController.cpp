@@ -17,7 +17,7 @@ LightController::LightController(std::shared_ptr<open_greenery::relay::IRelay> _
                                  std::shared_ptr<ogt::ICurrentTimeProvider> _current_time_provider,
                                  std::shared_ptr<ogl::IAsyncManualControlProvider> _manual_control_provider,
                                  std::shared_ptr<ogl::IAsyncModeProvider> _mode_provider,
-                                 std::shared_ptr<ogl::IAsyncStatusRecevier> _status_receiver)
+                                 std::shared_ptr<ogl::IAsyncStatusReceiver> _status_receiver)
         : m_relay(std::move(_relay)),
           m_config_provider(std::move(_config_provider)),
           m_current_time_provider(std::move(_current_time_provider)),
