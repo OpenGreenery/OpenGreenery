@@ -39,7 +39,7 @@ protected:
     std::shared_ptr<ogdfl::IAsyncModeProvider> mode_provider;
     std::shared_ptr<ogdfl::IModeReceiver> mode_receiver;
     std::shared_ptr<ogdfl::IStatusOptionalProvider> status_provider;
-    std::shared_ptr<ogdfl::IAsyncStatusRecevier> status_receiver;
+    std::shared_ptr<ogdfl::IAsyncStatusReceiver> status_receiver;
 };
 
 TEST_F(RelayRPCTest, ConfigTransmition)

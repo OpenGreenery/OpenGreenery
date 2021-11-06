@@ -13,7 +13,7 @@ class Server :
         public open_greenery::dataflow::light::IAsyncConfigProvider,
         public open_greenery::dataflow::light::IAsyncManualControlProvider,
         public open_greenery::dataflow::light::IAsyncModeProvider,
-        public open_greenery::dataflow::light::IAsyncStatusRecevier
+        public open_greenery::dataflow::light::IAsyncStatusReceiver
 {
 public:
     explicit Server(const std::string & host);
