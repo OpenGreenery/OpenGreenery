@@ -4,7 +4,7 @@
 #include <open_greenery/dataflow/time/Participants.hpp>
 #include <gmock/gmock.h>
 
-namespace open_greenery::mock::dataflow::light
+namespace open_greenery::mock::dataflow::time
 {
 
 class CurrentTimeProviderMock : public open_greenery::dataflow::time::ICurrentTimeProvider

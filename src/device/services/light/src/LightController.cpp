@@ -93,12 +93,12 @@ void LightController::handleAutomaticControl()
     spdlog::trace("Current time request");
     const auto current_time = m_current_time_provider->get();
     std::lock_guard<std::mutex> l (m_config_mutex);
-    if (is_event(current_time, m_current_config.day_start))
+    if (is_event(current_time, m_current_config.day_start) && !m_relay->enabled())
     {
         spdlog::info("Time to enable");
         m_relay->enable();
     }
-    if (is_event(current_time, m_current_config.day_end))
+    if (is_event(current_time, m_current_config.day_end) && m_relay->enabled())
     {
         spdlog::info("Time to disable");
         m_relay->disable();

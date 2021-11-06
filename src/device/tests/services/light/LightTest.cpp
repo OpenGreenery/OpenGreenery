@@ -1,15 +1,25 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <memory>
 
 #include <open_greenery/light/LightController.hpp>
-#include "mock/CurrentTimeProvider.hpp"
-#include "mock/OptionalProvider.hpp"
-#include "mock/Relay.hpp"
-#include "mock/StatusReceiver.hpp"
+#include <open_greenery/dataflow/common/IAsyncReceiver.hpp>
+#include <open_greenery/dataflow/common/IAsyncProvider.hpp>
+#include <open_greenery/mock/dataflow/light/IAsyncConfigProviderMock.hpp>
+#include <open_greenery/mock/dataflow/light/IAsyncManualControlProviderMock.hpp>
+#include <open_greenery/mock/dataflow/light/IAsyncModeProviderMock.hpp>
+#include <open_greenery/mock/dataflow/light/IAsyncStatusRecevierMock.hpp>
+#include <open_greenery/mock/relay/StatefulRelayMock.hpp>
+#include <open_greenery/mock/dataflow/time/CurrentTimeProviderMock.hpp>
 
 namespace ogdfl = open_greenery::dataflow::light;
 namespace ogl = open_greenery::light;
 using namespace std::chrono_literals;
+using ::testing::_;
+using ::testing::SaveArg;
+using ::testing::InSequence;
+using ::testing::AnyNumber;
+using ::testing::ReturnPointee;
 
 namespace open_greenery::tests::services::light
 {
@@ -19,22 +29,30 @@ class LightTest : public ::testing::Test
 protected:
     void SetUp() override
     {
-        relay_mock = std::make_shared<mock::Relay>();
+        relay_mock = std::make_shared<open_greenery::mock::relay::StatefulRelayMock>();
         config_provider_mock =
-                std::make_shared<mock::OptionalProvider<ogdfl::IConfigProvider, ogdfl::LightConfigRecord>>();
-        current_time_provider_mock = std::make_shared<mock::CurrentTimeProvider>();
+                std::make_shared<open_greenery::mock::dataflow::light::IAsyncConfigProviderMock>();
+        current_time_provider_mock = std::make_shared<open_greenery::mock::dataflow::time::CurrentTimeProviderMock>();
         manual_control_provider_mock =
-            std::make_shared<mock::OptionalProvider<ogdfl::IManualControlProvider, ogdfl::Control>>();
+            std::make_shared<open_greenery::mock::dataflow::light::IAsyncManualControlProviderMock>();
         mode_provider_mock =
-                std::make_shared<mock::OptionalProvider<ogdfl::IModeProvider, ogdfl::Mode>>();
-        status_receiver_mock = std::make_shared<mock::StatusReceiver>();
+                std::make_shared<open_greenery::mock::dataflow::light::IAsyncModeProviderMock>();
+        status_receiver_mock = std::make_shared<open_greenery::mock::dataflow::light::IAsyncStatusReceiverMock>();
 
-        controller = std::make_unique<ogl::LightController>(relay_mock,
-                                                              config_provider_mock,
-                                                              current_time_provider_mock,
-                                                              manual_control_provider_mock,
-                                                              mode_provider_mock,
-                                                              status_receiver_mock);
+        EXPECT_CALL(*relay_mock, enabled())
+                .Times(AnyNumber());
+        EXPECT_CALL(*current_time_provider_mock, get())
+                .Times(AnyNumber())
+                .WillRepeatedly(ReturnPointee(&current_time));
+        expectHandlersAssignment();
+        controller = std::make_unique<ogl::LightController>(
+                relay_mock,
+                config_provider_mock,
+                current_time_provider_mock,
+                manual_control_provider_mock,
+                mode_provider_mock,
+                status_receiver_mock
+        );
         controller_finish = controller->start();
     }
 
@@ -57,293 +75,257 @@ protected:
         std::this_thread::sleep_for(duration);
     }
 
+    void expectHandlersAssignment()
+    {
+        EXPECT_CALL(*manual_control_provider_mock, onUpdate(_))
+                .Times(1)
+                .WillOnce(SaveArg<0>(&emulate_manual_control));
+        EXPECT_CALL(*mode_provider_mock, onUpdate(_))
+                .Times(1)
+                .WillOnce(SaveArg<0>(&emulate_mode_update));
+        EXPECT_CALL(*config_provider_mock, onUpdate(_))
+                .Times(1)
+                .WillOnce(SaveArg<0>(&emulate_config_update));
+        EXPECT_CALL(*status_receiver_mock, onRequest(_))
+                .Times(1)
+                .WillOnce(SaveArg<0>(&emulate_status_request));
+    }
+
     // Mocks
-    std::shared_ptr<mock::Relay> relay_mock;
-    std::shared_ptr<mock::OptionalProvider<ogdfl::IConfigProvider, ogdfl::LightConfigRecord>> config_provider_mock;
-    std::shared_ptr<mock::CurrentTimeProvider> current_time_provider_mock;
-    std::shared_ptr<mock::OptionalProvider<ogdfl::IManualControlProvider, ogdfl::Control>> manual_control_provider_mock;
-    std::shared_ptr<mock::OptionalProvider<ogdfl::IModeProvider, ogdfl::Mode>> mode_provider_mock;
-    std::shared_ptr<mock::StatusReceiver> status_receiver_mock;
+    std::shared_ptr<open_greenery::mock::relay::StatefulRelayMock> relay_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncConfigProviderMock> config_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::time::CurrentTimeProviderMock> current_time_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncManualControlProviderMock> manual_control_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncModeProviderMock> mode_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncStatusReceiverMock> status_receiver_mock;
+
+    // Assigned handlers bu controller
+    open_greenery::dataflow::common::AsyncReceive<ogdfl::Control> emulate_manual_control;
+    open_greenery::dataflow::common::AsyncReceive<ogdfl::Mode> emulate_mode_update;
+    open_greenery::dataflow::common::AsyncReceive<ogdfl::LightConfigRecord> emulate_config_update;
+    open_greenery::dataflow::common::AsyncProvide<bool> emulate_status_request;
 
     std::unique_ptr<ogl::LightController> controller;
     std::optional<open_greenery::tools::FinishFuture> controller_finish;
+    QTime current_time;
     static constexpr std::chrono::milliseconds DEFAULT_HANDLING_TIME {150ms};
 };
 
+TEST_F(LightTest, DisabledByDefault)
+{
+    EXPECT_FALSE(relay_mock->enabled());
+}
 
 TEST_F(LightTest, ManualEnable)
 {
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-
-    mode_provider_mock->set(ogdfl::Mode::MANUAL);
-    manual_control_provider_mock->set(ogdfl::Control::ENABLE);
-
-    waitForHandling();
-
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_TRUE(statuses.back());
+    EXPECT_CALL(*relay_mock, enable())
+        .Times(1);
+    emulate_manual_control(ogdfl::Control::ENABLE);
     EXPECT_TRUE(relay_mock->enabled());
 }
 
 TEST_F(LightTest, ManualDisable)
 {
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-
-    mode_provider_mock->set(ogdfl::Mode::MANUAL);
-    manual_control_provider_mock->set(ogdfl::Control::DISABLE);
-
-    waitForHandling();
-
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_FALSE(statuses.back());
+    EXPECT_CALL(*relay_mock, disable())
+          .Times(1);
+    emulate_manual_control(ogdfl::Control::DISABLE);
     EXPECT_FALSE(relay_mock->enabled());
 }
 
 TEST_F(LightTest, ManualToggle)
 {
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-
-    mode_provider_mock->set(ogdfl::Mode::MANUAL);
-
-    manual_control_provider_mock->set(ogdfl::Control::ENABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_TRUE(statuses.back());
+    EXPECT_CALL(*relay_mock, toggle())
+          .Times(2);
+    emulate_manual_control(ogdfl::Control::TOGGLE);
     EXPECT_TRUE(relay_mock->enabled());
-
-    manual_control_provider_mock->set(ogdfl::Control::TOGGLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 2);
-    EXPECT_FALSE(statuses.back());
-    EXPECT_FALSE(relay_mock->enabled());
-
-    manual_control_provider_mock->set(ogdfl::Control::TOGGLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 3);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
-}
-
-TEST_F(LightTest, ManualControlDuplication)
-{
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-
-    // Enable two times
-    manual_control_provider_mock->set(ogdfl::Control::ENABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
-    manual_control_provider_mock->set(ogdfl::Control::ENABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 2);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
-
-    // Disable two times
-    manual_control_provider_mock->set(ogdfl::Control::DISABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 3);
-    EXPECT_FALSE(statuses.back());
-    EXPECT_FALSE(relay_mock->enabled());
-    manual_control_provider_mock->set(ogdfl::Control::DISABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 4);
-    EXPECT_FALSE(statuses.back());
-    EXPECT_FALSE(relay_mock->enabled());
-
-    // Toggle two times
-    manual_control_provider_mock->set(ogdfl::Control::TOGGLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 5);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
-    manual_control_provider_mock->set(ogdfl::Control::TOGGLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 6);
-    EXPECT_FALSE(statuses.back());
+    emulate_manual_control(ogdfl::Control::TOGGLE);
     EXPECT_FALSE(relay_mock->enabled());
 }
 
 TEST_F(LightTest, HandleManualInAuto)
 {
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
+    emulate_mode_update(ogdfl::Mode::AUTO);
+    {
+        InSequence s;
 
-    mode_provider_mock->set(ogdfl::Mode::AUTO);
+        // Enable
+        EXPECT_CALL(*relay_mock, enable())
+                .Times(1);
+        // Disable
+        EXPECT_CALL(*relay_mock, disable())
+                .Times(1);
+        // Toggle
+        EXPECT_CALL(*relay_mock, toggle())
+                .Times(1);
+    }
 
-    manual_control_provider_mock->set(ogdfl::Control::ENABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
-
-    manual_control_provider_mock->set(ogdfl::Control::DISABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 2);
-    EXPECT_FALSE(statuses.back());
-    EXPECT_FALSE(relay_mock->enabled());
-
-    manual_control_provider_mock->set(ogdfl::Control::TOGGLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 3);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
+    emulate_manual_control(ogdfl::Control::ENABLE);
+    emulate_manual_control(ogdfl::Control::DISABLE);
+    emulate_manual_control(ogdfl::Control::TOGGLE);
 }
 
 TEST_F(LightTest, AutoEnable)
 {
+    {
+        InSequence s;
+        // Manual disable
+        EXPECT_CALL(*relay_mock, disable())
+                .Times(1);
+        // Auto enable
+        EXPECT_CALL(*relay_mock, enable())
+                .Times(1);
+    }
+    emulate_mode_update(ogdfl::Mode::AUTO);
     // Disable manually
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-    manual_control_provider_mock->set(ogdfl::Control::DISABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_FALSE(statuses.back());
+    emulate_manual_control(ogdfl::Control::DISABLE);
     EXPECT_FALSE(relay_mock->enabled());
-
     // Enable automatically
     ogdfl::LightConfigRecord cfg;
     cfg.day_start = QTime(0, 5); // 00:05
     cfg.day_end = QTime(23, 59); // 23:59
-    config_provider_mock->set(cfg);
-    mode_provider_mock->set(ogdfl::Mode::AUTO);
+    emulate_config_update(cfg);
 
-    current_time_provider_mock->set(QTime(0, 4, 59, 999)); // before 00:05
+    // Enable automatically
+    current_time = QTime(0, 4, 59, 999); // before 00:05
     waitForHandling();
-    EXPECT_EQ(statuses.size(), 1); // nothing changed
+    EXPECT_FALSE(relay_mock->enabled()); // still disabled
 
-    current_time_provider_mock->set(QTime(0, 5)); // day start
+    current_time = QTime(0, 5); // day start
     waitForHandling();
-    ASSERT_EQ(statuses.size(), 2);
-    EXPECT_TRUE(statuses.back());
     EXPECT_TRUE(relay_mock->enabled());
 }
 
 TEST_F(LightTest, AutoDisable)
 {
-    // Enable manually
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-    manual_control_provider_mock->set(ogdfl::Control::ENABLE);
-    waitForHandling();
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_TRUE(statuses.back());
-    EXPECT_TRUE(relay_mock->enabled());
+    {
+        InSequence s;
+        // Manual enable
+        EXPECT_CALL(*relay_mock, enable())
+                .Times(1);
+        // Auto disable
+        EXPECT_CALL(*relay_mock, disable())
+                .Times(1);
+    }
 
+    emulate_mode_update(ogdfl::Mode::AUTO);
+    // Enable manually
+    emulate_manual_control(ogdfl::Control::ENABLE);
+    EXPECT_TRUE(relay_mock->enabled());
     // Disable automatically
     ogdfl::LightConfigRecord cfg;
     cfg.day_start = QTime(23, 59); // 23:59
     cfg.day_end = QTime(0, 5); // 00:05
-    config_provider_mock->set(cfg);
-    mode_provider_mock->set(ogdfl::Mode::AUTO);
+    emulate_config_update(cfg);
 
-    current_time_provider_mock->set(QTime(0, 4, 59, 999)); // before 00:05
-    waitForHandling();
-    EXPECT_EQ(statuses.size(), 1); // nothing changed
 
-    current_time_provider_mock->set(QTime(0, 5)); // day end
+    current_time = QTime(0, 4, 59, 999); // before 00:05
     waitForHandling();
-    ASSERT_EQ(statuses.size(), 2);
-    EXPECT_FALSE(statuses.back());
+    EXPECT_TRUE(relay_mock->enabled()); // still enabled
+
+    current_time = QTime(0, 5); // day end
+    waitForHandling();
     EXPECT_FALSE(relay_mock->enabled());
 }
 
 TEST_F(LightTest, DontHandleAutoInManual)
 {
+    EXPECT_CALL(*relay_mock, enable())
+            .Times(0);
+    EXPECT_CALL(*relay_mock, disable())
+            .Times(0);
+    EXPECT_CALL(*relay_mock, toggle())
+            .Times(0);
+
     ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};
-    config_provider_mock->set(cfg); // 00:01, 00:02
-    mode_provider_mock->set(ogdfl::Mode::MANUAL);
+    emulate_config_update(cfg); // 00:01, 00:02
+    emulate_mode_update(ogdfl::Mode::MANUAL);
 
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0); // no any status change reports
-    current_time_provider_mock->set(QTime(0, 1));
+    current_time = QTime(0, 1);
     waitForHandling();
-    current_time_provider_mock->set(QTime(0, 2));
+    current_time = QTime(0, 2);
     waitForHandling();
-
-    EXPECT_EQ(statuses.size(), 0); // nothing changed
 }
 
 TEST_F(LightTest, ManualByDefault)
 {
     // Same as previous test, but without explicit Manual mode set
 
+    EXPECT_CALL(*relay_mock, enable())
+            .Times(0);
+    EXPECT_CALL(*relay_mock, disable())
+            .Times(0);
+    EXPECT_CALL(*relay_mock, toggle())
+            .Times(0);
+
     ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};
-    config_provider_mock->set(cfg); // 00:01, 00:02
+    emulate_config_update(cfg); // 00:01, 00:02
 
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0); // no any status change reports
-    current_time_provider_mock->set(QTime(0, 1));
+    current_time = QTime(0, 1);
     waitForHandling();
-    current_time_provider_mock->set(QTime(0, 2));
+    current_time = QTime(0, 2);
     waitForHandling();
-
-    EXPECT_EQ(statuses.size(), 0); // nothing changed
 }
 
 TEST_F(LightTest, ChangeConfig)
 {
+    {
+        InSequence s;
+        EXPECT_CALL(*relay_mock, enable())
+                .Times(1);
+        EXPECT_CALL(*relay_mock, disable())
+                .Times(1);
+        EXPECT_CALL(*relay_mock, enable())
+                .Times(1);
+        EXPECT_CALL(*relay_mock, disable())
+                .Times(1);
+    }
+
     ogdfl::LightConfigRecord first_cfg {QTime(0, 1), QTime(0, 2)}; // 00:01, 00:02
     ogdfl::LightConfigRecord second_cfg {QTime(20, 1), QTime(20, 2)}; // 20:01, 20:02
 
-    mode_provider_mock->set(ogdfl::Mode::AUTO);
-
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
+    emulate_mode_update(ogdfl::Mode::AUTO);
 
     // With first config
-    config_provider_mock->set(first_cfg);
-    current_time_provider_mock->set(QTime(0, 1));
+    emulate_config_update(first_cfg);
+    current_time = QTime(0, 1);
     waitForHandling();
-    ASSERT_EQ(statuses.size(), 1);
-    EXPECT_TRUE(statuses.back());
     EXPECT_TRUE(relay_mock->enabled());
 
-    current_time_provider_mock->set(QTime(0, 2));
+    current_time = QTime(0, 2);
     waitForHandling();
-    ASSERT_EQ(statuses.size(), 2);
-    EXPECT_FALSE(statuses.back());
     EXPECT_FALSE(relay_mock->enabled());
 
     // With second config
-    config_provider_mock->set(second_cfg);
-    current_time_provider_mock->set(QTime(20, 1));
+    emulate_config_update(second_cfg);
+    current_time = QTime(20, 1);
     waitForHandling();
-    ASSERT_EQ(statuses.size(), 3);
-    EXPECT_TRUE(statuses.back());
     EXPECT_TRUE(relay_mock->enabled());
 
-    current_time_provider_mock->set(QTime(20, 2));
+    current_time = QTime(20, 2);
     waitForHandling();
-    ASSERT_EQ(statuses.size(), 4);
-    EXPECT_FALSE(statuses.back());
     EXPECT_FALSE(relay_mock->enabled());
 }
 
 TEST_F(LightTest, AutoControlDuplication)
 {
+    {
+        InSequence s;
+        EXPECT_CALL(*relay_mock, enable())
+                .Times(1);
+        EXPECT_CALL(*relay_mock, disable())
+                .Times(1);
+    }
+
     ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};  // 00:01, 00:02
-    config_provider_mock->set(cfg);
-    mode_provider_mock->set(ogdfl::Mode::AUTO);
+    emulate_config_update(cfg);
+    emulate_mode_update(ogdfl::Mode::AUTO);
 
-    auto & statuses = status_receiver_mock->getReceivedStatuses();
-    ASSERT_EQ(statuses.size(), 0);
-
-    current_time_provider_mock->set(QTime(0, 1)); // day start
+    current_time = QTime(0, 1); // day start
     waitForHandling(1000ms);
-    ASSERT_EQ(statuses.size(), 1); // only one enable event
-    EXPECT_TRUE(statuses.back());
     EXPECT_TRUE(relay_mock->enabled());
 
-    current_time_provider_mock->set(QTime(0, 2));  // day end
+    current_time = QTime(0, 2);  // day end
     waitForHandling(1000ms);
-    ASSERT_EQ(statuses.size(), 2); // only one disable event
-    EXPECT_FALSE(statuses.back());
     EXPECT_FALSE(relay_mock->enabled());
 }
 
