@@ -28,7 +28,7 @@ protected:
 
     std::shared_ptr<SQLite::Database> db;
     std::unique_ptr<ogdfl::IStatusReceiver> status_receiver_;
-    std::unique_ptr<ogdfl::IManualControlProvider> control_provider_;
+    std::unique_ptr<ogdfl::IManualControlOptionalProvider> control_provider_;
 };
 
 TEST_F(LightDaoTest, TableCreated)

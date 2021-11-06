@@ -8,7 +8,7 @@
 namespace open_greenery::database::light
 {
 
-class ControlReader : public LightDAO, public open_greenery::dataflow::light::IManualControlProvider
+class ControlReader : public LightDAO, public open_greenery::dataflow::light::IManualControlOptionalProvider
 {
 public:
     explicit ControlReader(std::shared_ptr<SQLite::Database> _database);
