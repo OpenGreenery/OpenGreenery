@@ -109,8 +109,11 @@ int main()
     signal(SIGINT, exit);
 
     // Light
-    constexpr char RPC_HOST[]{"localhost:8090"};
-    auto light_rpc_client = std::make_unique<open_greenery::rpc::relay::Client>(RPC_HOST);
+    constexpr char LIGHT_RPC_HOST[]{"localhost:8090"};
+    auto light_rpc_client = std::make_unique<open_greenery::rpc::relay::Client>(LIGHT_RPC_HOST);
+    // Ventilation
+    constexpr char VENTILATION_RPC_HOST[]{"localhost:8091"};
+    auto ventilation_rpc_client = std::make_unique<open_greenery::rpc::relay::Client>(VENTILATION_RPC_HOST);
 
     using open_greenery::cli::MenuEntity;
     // Light: Set mode
@@ -179,9 +182,78 @@ int main()
              {3, light_config}}
     );
 
+    // Ventilation: Set mode
+    MenuEntity ventilation_mode_set(
+            "Set mode",
+            {
+                    {1, {"Manual mode",
+                                [&ventilation_rpc_client] {
+                                    ventilation_rpc_client->set(open_greenery::dataflow::relay::Mode::MANUAL);
+                                }
+                        }},
+                    {2, {"Auto mode",
+                                [&ventilation_rpc_client] {
+                                    ventilation_rpc_client->set(open_greenery::dataflow::relay::Mode::AUTO);
+                                }
+                        }}
+            }
+    );
+
+    // Ventilation: Manual control
+    MenuEntity ventilation_manual_control(
+            "Manual control",
+            {
+                    {1, {"Enable",
+                                [&ventilation_rpc_client] {
+                                ventilation_rpc_client->set(open_greenery::dataflow::relay::Control::ENABLE);
+                                }
+                        }},
+                    {2, {"Disable",
+                                [&ventilation_rpc_client] {
+                                ventilation_rpc_client->set(open_greenery::dataflow::relay::Control::DISABLE);
+                                }
+                        }},
+                    {3, {"Toggle",
+                                [&ventilation_rpc_client] {
+                                ventilation_rpc_client->set(open_greenery::dataflow::relay::Control::TOGGLE);
+                                }
+                        }}
+            });
+
+    // Ventilation: Configure Auto mode
+    MenuEntity ventilation_config (
+            "Configure Auto mode",
+            [&ventilation_rpc_client]
+            {
+                constexpr char FORMAT [] {"hh:mm"};
+
+                auto RequestTime = [FORMAT](std::string time_name)
+                {
+                    std::cout << "Enter " << time_name << " in format " << FORMAT << std::endl;
+                    std::string time_str;
+                    std::cin >> time_str;
+                    return QTime::fromString(QString::fromStdString(time_str), FORMAT);
+                };
+
+                const auto start = RequestTime("day start");
+                const auto end = RequestTime("day end");
+
+                ventilation_rpc_client->set({start, end});
+            });
+
+    MenuEntity ventilation_menu(
+            "Ventilation",
+            {{1, ventilation_mode_set},
+             {2, ventilation_manual_control},
+             {3, ventilation_config}}
+    );
+
     MenuEntity main_menu(
             "OpenGreenery CLI",
-            {{1, light_menu}},
+            {
+                {1, light_menu},
+                {2, ventilation_menu},
+            },
             MenuEntity::ROOT
     );
     main_menu.show();
