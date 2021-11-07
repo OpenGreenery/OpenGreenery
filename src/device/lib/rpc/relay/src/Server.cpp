@@ -56,6 +56,8 @@ grpc::Status Server::Service::ManualControl(
             break;
         default:
             assert(false && "Unknown relay::Control type");
+            // Fictive assignment to avoid warning
+            control = open_greenery::dataflow::light::Control::DISABLE;
     }
     m_manual_control_handler(control);
 
@@ -84,6 +86,8 @@ grpc::Status Server::Service::SetMode(
             break;
         default:
             assert(false && "relay relay::Mode type");
+            // Fictive assignment to avoid warning
+            mode = open_greenery::dataflow::light::Mode::MANUAL;
     }
 
     m_mode_update_handler(mode);

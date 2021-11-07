@@ -8,7 +8,7 @@
 #include <QTime>
 #include <spdlog/cfg/env.h>
 
-#include <open_greenery/rpc/light/LightProxyServer.hpp>
+#include <open_greenery/rpc/relay/Client.hpp>
 
 namespace open_greenery::cli
 {
@@ -110,7 +110,7 @@ int main()
 
     // Light
     constexpr char RPC_HOST[]{"localhost:8090"};
-    auto light_rpc_server = std::make_unique<open_greenery::rpc::light::LightProxyServer>(RPC_HOST);
+    auto light_rpc_client = std::make_unique<open_greenery::rpc::relay::Client>(RPC_HOST);
 
     using open_greenery::cli::MenuEntity;
     // Light: Set mode
@@ -118,13 +118,13 @@ int main()
             "Set mode",
             {
                     {1, {"Manual mode",
-                                [&light_rpc_server] {
-                                    light_rpc_server->set(open_greenery::dataflow::light::Mode::MANUAL);
+                                [&light_rpc_client] {
+                                    light_rpc_client->set(open_greenery::dataflow::light::Mode::MANUAL);
                                 }
                         }},
                     {2, {"Auto mode",
-                                [&light_rpc_server] {
-                                    light_rpc_server->set(open_greenery::dataflow::light::Mode::AUTO);
+                                [&light_rpc_client] {
+                                    light_rpc_client->set(open_greenery::dataflow::light::Mode::AUTO);
                                 }
                         }}
             }
@@ -135,18 +135,18 @@ int main()
             "Manual control",
             {
                     {1, {"Enable",
-                                [&light_rpc_server] {
-                                    light_rpc_server->set(open_greenery::dataflow::light::Control::ENABLE);
+                                [&light_rpc_client] {
+                                    light_rpc_client->set(open_greenery::dataflow::light::Control::ENABLE);
                                 }
                         }},
                     {2, {"Disable",
-                                [&light_rpc_server] {
-                                    light_rpc_server->set(open_greenery::dataflow::light::Control::DISABLE);
+                                [&light_rpc_client] {
+                                    light_rpc_client->set(open_greenery::dataflow::light::Control::DISABLE);
                                 }
                         }},
                     {3, {"Toggle",
-                                [&light_rpc_server] {
-                                    light_rpc_server->set(open_greenery::dataflow::light::Control::TOGGLE);
+                                [&light_rpc_client] {
+                                    light_rpc_client->set(open_greenery::dataflow::light::Control::TOGGLE);
                                 }
                         }}
             });
@@ -154,7 +154,7 @@ int main()
     // Light: Configure Auto mode
     MenuEntity light_config (
             "Configure Auto mode",
-            [&light_rpc_server]
+            [&light_rpc_client]
             {
                 constexpr char FORMAT [] {"hh:mm"};
 
@@ -169,7 +169,7 @@ int main()
                 const auto start = RequestTime("day start");
                 const auto end = RequestTime("day end");
 
-                light_rpc_server->set({start, end});
+                light_rpc_client->set({start, end});
             });
 
     MenuEntity light_menu(
