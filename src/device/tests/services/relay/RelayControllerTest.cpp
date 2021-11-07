@@ -2,18 +2,18 @@
 #include <gmock/gmock.h>
 #include <memory>
 
-#include <open_greenery/light/LightController.hpp>
+#include <open_greenery/relay/RelayController.hpp>
 #include <open_greenery/dataflow/common/IAsyncReceiver.hpp>
 #include <open_greenery/dataflow/common/IAsyncProvider.hpp>
-#include <open_greenery/mock/dataflow/light/IAsyncConfigProviderMock.hpp>
-#include <open_greenery/mock/dataflow/light/IAsyncManualControlProviderMock.hpp>
-#include <open_greenery/mock/dataflow/light/IAsyncModeProviderMock.hpp>
-#include <open_greenery/mock/dataflow/light/IAsyncStatusRecevierMock.hpp>
+#include <open_greenery/mock/dataflow/relay/IAsyncConfigProviderMock.hpp>
+#include <open_greenery/mock/dataflow/relay/IAsyncManualControlProviderMock.hpp>
+#include <open_greenery/mock/dataflow/relay/IAsyncModeProviderMock.hpp>
+#include <open_greenery/mock/dataflow/relay/IAsyncStatusRecevierMock.hpp>
 #include <open_greenery/mock/relay/StatefulRelayMock.hpp>
 #include <open_greenery/mock/dataflow/time/CurrentTimeProviderMock.hpp>
 
-namespace ogdfl = open_greenery::dataflow::light;
-namespace ogl = open_greenery::light;
+namespace ogdfl = open_greenery::dataflow::relay;
+namespace ogrc = open_greenery::relay;
 using namespace std::chrono_literals;
 using ::testing::_;
 using ::testing::SaveArg;
@@ -21,23 +21,23 @@ using ::testing::InSequence;
 using ::testing::AnyNumber;
 using ::testing::ReturnPointee;
 
-namespace open_greenery::tests::services::light
+namespace open_greenery::tests::services::relay
 {
 
-class LightTest : public ::testing::Test
+class RelayControllerTest : public ::testing::Test
 {
 protected:
     void SetUp() override
     {
         relay_mock = std::make_shared<open_greenery::mock::relay::StatefulRelayMock>();
         config_provider_mock =
-                std::make_shared<open_greenery::mock::dataflow::light::IAsyncConfigProviderMock>();
+                std::make_shared<open_greenery::mock::dataflow::relay::IAsyncConfigProviderMock>();
         current_time_provider_mock = std::make_shared<open_greenery::mock::dataflow::time::CurrentTimeProviderMock>();
         manual_control_provider_mock =
-            std::make_shared<open_greenery::mock::dataflow::light::IAsyncManualControlProviderMock>();
+            std::make_shared<open_greenery::mock::dataflow::relay::IAsyncManualControlProviderMock>();
         mode_provider_mock =
-                std::make_shared<open_greenery::mock::dataflow::light::IAsyncModeProviderMock>();
-        status_receiver_mock = std::make_shared<open_greenery::mock::dataflow::light::IAsyncStatusReceiverMock>();
+                std::make_shared<open_greenery::mock::dataflow::relay::IAsyncModeProviderMock>();
+        status_receiver_mock = std::make_shared<open_greenery::mock::dataflow::relay::IAsyncStatusReceiverMock>();
 
         EXPECT_CALL(*relay_mock, enabled())
                 .Times(AnyNumber());
@@ -45,7 +45,7 @@ protected:
                 .Times(AnyNumber())
                 .WillRepeatedly(ReturnPointee(&current_time));
         expectHandlersAssignment();
-        controller = std::make_unique<ogl::LightController>(
+        controller = std::make_unique<ogrc::RelayController>(
                 relay_mock,
                 config_provider_mock,
                 current_time_provider_mock,
@@ -93,30 +93,30 @@ protected:
 
     // Mocks
     std::shared_ptr<open_greenery::mock::relay::StatefulRelayMock> relay_mock;
-    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncConfigProviderMock> config_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::relay::IAsyncConfigProviderMock> config_provider_mock;
     std::shared_ptr<open_greenery::mock::dataflow::time::CurrentTimeProviderMock> current_time_provider_mock;
-    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncManualControlProviderMock> manual_control_provider_mock;
-    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncModeProviderMock> mode_provider_mock;
-    std::shared_ptr<open_greenery::mock::dataflow::light::IAsyncStatusReceiverMock> status_receiver_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::relay::IAsyncManualControlProviderMock> manual_control_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::relay::IAsyncModeProviderMock> mode_provider_mock;
+    std::shared_ptr<open_greenery::mock::dataflow::relay::IAsyncStatusReceiverMock> status_receiver_mock;
 
     // Assigned handlers bu controller
     open_greenery::dataflow::common::AsyncReceive<ogdfl::Control> emulate_manual_control;
     open_greenery::dataflow::common::AsyncReceive<ogdfl::Mode> emulate_mode_update;
-    open_greenery::dataflow::common::AsyncReceive<ogdfl::LightConfigRecord> emulate_config_update;
+    open_greenery::dataflow::common::AsyncReceive<ogdfl::Config> emulate_config_update;
     open_greenery::dataflow::common::AsyncProvide<bool> emulate_status_request;
 
-    std::unique_ptr<ogl::LightController> controller;
+    std::unique_ptr<ogrc::RelayController> controller;
     std::optional<open_greenery::tools::FinishFuture> controller_finish;
     QTime current_time;
     static constexpr std::chrono::milliseconds DEFAULT_HANDLING_TIME {150ms};
 };
 
-TEST_F(LightTest, DisabledByDefault)
+TEST_F(RelayControllerTest, DisabledByDefault)
 {
     EXPECT_FALSE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, ManualEnable)
+TEST_F(RelayControllerTest, ManualEnable)
 {
     EXPECT_CALL(*relay_mock, enable())
         .Times(1);
@@ -124,7 +124,7 @@ TEST_F(LightTest, ManualEnable)
     EXPECT_TRUE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, ManualDisable)
+TEST_F(RelayControllerTest, ManualDisable)
 {
     EXPECT_CALL(*relay_mock, disable())
           .Times(1);
@@ -132,7 +132,7 @@ TEST_F(LightTest, ManualDisable)
     EXPECT_FALSE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, ManualToggle)
+TEST_F(RelayControllerTest, ManualToggle)
 {
     EXPECT_CALL(*relay_mock, toggle())
           .Times(2);
@@ -142,7 +142,7 @@ TEST_F(LightTest, ManualToggle)
     EXPECT_FALSE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, HandleManualInAuto)
+TEST_F(RelayControllerTest, HandleManualInAuto)
 {
     emulate_mode_update(ogdfl::Mode::AUTO);
     {
@@ -164,7 +164,7 @@ TEST_F(LightTest, HandleManualInAuto)
     emulate_manual_control(ogdfl::Control::TOGGLE);
 }
 
-TEST_F(LightTest, AutoEnable)
+TEST_F(RelayControllerTest, AutoEnable)
 {
     {
         InSequence s;
@@ -180,7 +180,7 @@ TEST_F(LightTest, AutoEnable)
     emulate_manual_control(ogdfl::Control::DISABLE);
     EXPECT_FALSE(relay_mock->enabled());
     // Enable automatically
-    ogdfl::LightConfigRecord cfg;
+    ogdfl::Config cfg;
     cfg.day_start = QTime(0, 5); // 00:05
     cfg.day_end = QTime(23, 59); // 23:59
     emulate_config_update(cfg);
@@ -195,7 +195,7 @@ TEST_F(LightTest, AutoEnable)
     EXPECT_TRUE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, AutoDisable)
+TEST_F(RelayControllerTest, AutoDisable)
 {
     {
         InSequence s;
@@ -212,7 +212,7 @@ TEST_F(LightTest, AutoDisable)
     emulate_manual_control(ogdfl::Control::ENABLE);
     EXPECT_TRUE(relay_mock->enabled());
     // Disable automatically
-    ogdfl::LightConfigRecord cfg;
+    ogdfl::Config cfg;
     cfg.day_start = QTime(23, 59); // 23:59
     cfg.day_end = QTime(0, 5); // 00:05
     emulate_config_update(cfg);
@@ -227,7 +227,7 @@ TEST_F(LightTest, AutoDisable)
     EXPECT_FALSE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, DontHandleAutoInManual)
+TEST_F(RelayControllerTest, DontHandleAutoInManual)
 {
     EXPECT_CALL(*relay_mock, enable())
             .Times(0);
@@ -236,7 +236,7 @@ TEST_F(LightTest, DontHandleAutoInManual)
     EXPECT_CALL(*relay_mock, toggle())
             .Times(0);
 
-    ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};
+    ogdfl::Config cfg {QTime(0, 1), QTime(0, 2)};
     emulate_config_update(cfg); // 00:01, 00:02
     emulate_mode_update(ogdfl::Mode::MANUAL);
 
@@ -246,7 +246,7 @@ TEST_F(LightTest, DontHandleAutoInManual)
     waitForHandling();
 }
 
-TEST_F(LightTest, ManualByDefault)
+TEST_F(RelayControllerTest, ManualByDefault)
 {
     // Same as previous test, but without explicit Manual mode set
 
@@ -257,7 +257,7 @@ TEST_F(LightTest, ManualByDefault)
     EXPECT_CALL(*relay_mock, toggle())
             .Times(0);
 
-    ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};
+    ogdfl::Config cfg {QTime(0, 1), QTime(0, 2)};
     emulate_config_update(cfg); // 00:01, 00:02
 
     current_time = QTime(0, 1);
@@ -266,7 +266,7 @@ TEST_F(LightTest, ManualByDefault)
     waitForHandling();
 }
 
-TEST_F(LightTest, ChangeConfig)
+TEST_F(RelayControllerTest, ChangeConfig)
 {
     {
         InSequence s;
@@ -280,8 +280,8 @@ TEST_F(LightTest, ChangeConfig)
                 .Times(1);
     }
 
-    ogdfl::LightConfigRecord first_cfg {QTime(0, 1), QTime(0, 2)}; // 00:01, 00:02
-    ogdfl::LightConfigRecord second_cfg {QTime(20, 1), QTime(20, 2)}; // 20:01, 20:02
+    ogdfl::Config first_cfg {QTime(0, 1), QTime(0, 2)}; // 00:01, 00:02
+    ogdfl::Config second_cfg {QTime(20, 1), QTime(20, 2)}; // 20:01, 20:02
 
     emulate_mode_update(ogdfl::Mode::AUTO);
 
@@ -306,7 +306,7 @@ TEST_F(LightTest, ChangeConfig)
     EXPECT_FALSE(relay_mock->enabled());
 }
 
-TEST_F(LightTest, AutoControlDuplication)
+TEST_F(RelayControllerTest, AutoControlDuplication)
 {
     {
         InSequence s;
@@ -316,7 +316,7 @@ TEST_F(LightTest, AutoControlDuplication)
                 .Times(1);
     }
 
-    ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};  // 00:01, 00:02
+    ogdfl::Config cfg {QTime(0, 1), QTime(0, 2)};  // 00:01, 00:02
     emulate_config_update(cfg);
     emulate_mode_update(ogdfl::Mode::AUTO);
 

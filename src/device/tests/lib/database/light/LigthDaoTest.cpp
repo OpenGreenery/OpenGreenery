@@ -5,7 +5,7 @@
 #include <open_greenery/database/light/ControlReader.hpp>
 #include <open_greenery/database/light/StatusWriter.hpp>
 
-namespace ogdfl = open_greenery::dataflow::light;
+namespace ogdfl = open_greenery::dataflow::relay;
 namespace ogdbl = open_greenery::database::light;
 
 class LightDaoTest : public ::testing::Test

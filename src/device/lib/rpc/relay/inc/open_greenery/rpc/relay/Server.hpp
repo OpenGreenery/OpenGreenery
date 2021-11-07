@@ -3,17 +3,17 @@
 
 #include <optional>
 #include <grpcpp/server.h>
-#include <open_greenery/dataflow/light/Participants.hpp>
+#include <open_greenery/dataflow/relay/Participants.hpp>
 #include "relay.grpc.pb.h"
 
 namespace open_greenery::rpc::relay
 {
 
 class Server :
-        public open_greenery::dataflow::light::IAsyncConfigProvider,
-        public open_greenery::dataflow::light::IAsyncManualControlProvider,
-        public open_greenery::dataflow::light::IAsyncModeProvider,
-        public open_greenery::dataflow::light::IAsyncStatusReceiver
+        public open_greenery::dataflow::relay::IAsyncConfigProvider,
+        public open_greenery::dataflow::relay::IAsyncManualControlProvider,
+        public open_greenery::dataflow::relay::IAsyncModeProvider,
+        public open_greenery::dataflow::relay::IAsyncStatusReceiver
 {
 public:
     explicit Server(const std::string & host);
@@ -26,27 +26,27 @@ public:
 
     void onConfigUpdate(
             open_greenery::dataflow::common::AsyncReceive
-                    <open_greenery::dataflow::light::LightConfigRecord> handler);
+                    <open_greenery::dataflow::relay::Config> handler);
 
     void onUpdate(
             open_greenery::dataflow::common::AsyncReceive
-                    <open_greenery::dataflow::light::LightConfigRecord> receive) override;
+                    <open_greenery::dataflow::relay::Config> receive) override;
 
     void onManualControl(
             open_greenery::dataflow::common::AsyncReceive
-                    <open_greenery::dataflow::light::Control> handler);
+                    <open_greenery::dataflow::relay::Control> handler);
 
     void onUpdate(
             open_greenery::dataflow::common::AsyncReceive
-                    <open_greenery::dataflow::light::Control> receive) override;
+                    <open_greenery::dataflow::relay::Control> receive) override;
 
     void onModeUpdate(
             open_greenery::dataflow::common::AsyncReceive
-                    <open_greenery::dataflow::light::Mode> handler);
+                    <open_greenery::dataflow::relay::Mode> handler);
 
     void onUpdate(
             open_greenery::dataflow::common::AsyncReceive
-                    <open_greenery::dataflow::light::Mode> receive) override;
+                    <open_greenery::dataflow::relay::Mode> receive) override;
 
     void onStatusRequest(open_greenery::dataflow::common::AsyncProvide<bool> handler);
 
@@ -74,11 +74,11 @@ private:
                                open_greenery::rpc::relay::Status * response) override;
 
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::LightConfigRecord> m_config_update_handler;
+                <open_greenery::dataflow::relay::Config> m_config_update_handler;
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::Control> m_manual_control_handler;
+                <open_greenery::dataflow::relay::Control> m_manual_control_handler;
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::Mode> m_mode_update_handler;
+                <open_greenery::dataflow::relay::Mode> m_mode_update_handler;
         open_greenery::dataflow::common::AsyncProvide<bool> m_status_request_handler;
     };
 

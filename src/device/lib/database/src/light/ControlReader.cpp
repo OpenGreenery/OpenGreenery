@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QTime>
 
-namespace ogdfl = open_greenery::dataflow::light;
+namespace ogdfl = open_greenery::dataflow::relay;
 
 namespace open_greenery::database::light
 {

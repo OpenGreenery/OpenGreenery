@@ -12,7 +12,7 @@ Client::Client(const std::string & host)
         :m_channel(grpc::CreateChannel(host, grpc::InsecureChannelCredentials())),
         m_stub(Relay::NewStub(m_channel)) {}
 
-void Client::set(open_greenery::dataflow::light::LightConfigRecord record)
+void Client::set(open_greenery::dataflow::relay::Config record)
 {
     grpc::ClientContext context;
     Config request;
@@ -37,7 +37,7 @@ void Client::set(open_greenery::dataflow::light::LightConfigRecord record)
     }
 }
 
-void Client::set(open_greenery::dataflow::light::Control control)
+void Client::set(open_greenery::dataflow::relay::Control control)
 {
     grpc::ClientContext context;
     ManualControlRequest request;
@@ -45,15 +45,15 @@ void Client::set(open_greenery::dataflow::light::Control control)
 
     switch (control)
     {
-        case open_greenery::dataflow::light::Control::ENABLE:
+        case open_greenery::dataflow::relay::Control::ENABLE:
             spdlog::debug("Send manual enable");
             request.set_control(ManualControlRequest::CONTROL_ENABLE);
             break;
-        case open_greenery::dataflow::light::Control::DISABLE:
+        case open_greenery::dataflow::relay::Control::DISABLE:
             spdlog::debug("Send manual disable");
             request.set_control(ManualControlRequest::CONTROL_DISABLE);
             break;
-        case open_greenery::dataflow::light::Control::TOGGLE:
+        case open_greenery::dataflow::relay::Control::TOGGLE:
             spdlog::debug("Send manual toggle");
             request.set_control(ManualControlRequest::CONTROL_TOGGLE);
             break;
@@ -70,7 +70,7 @@ void Client::set(open_greenery::dataflow::light::Control control)
     }
 }
 
-void Client::set(open_greenery::dataflow::light::Mode mode)
+void Client::set(open_greenery::dataflow::relay::Mode mode)
 {
     grpc::ClientContext context;
     ModeSetting request;
@@ -78,16 +78,16 @@ void Client::set(open_greenery::dataflow::light::Mode mode)
 
     switch (mode)
     {
-        case open_greenery::dataflow::light::Mode::MANUAL:
+        case open_greenery::dataflow::relay::Mode::MANUAL:
             spdlog::debug("Send mode setting: MANUAL");
             request.set_mode(ModeSetting::MODE_MANUAL);
             break;
-        case open_greenery::dataflow::light::Mode::AUTO:
+        case open_greenery::dataflow::relay::Mode::AUTO:
             spdlog::debug("Send mode setting: AUTO");
             request.set_mode(ModeSetting::MODE_AUTO);
             break;
         default:
-            assert(false && "Unknown light::Mode type");
+            assert(false && "Unknown relay::Mode type");
     }
 
     auto status = m_stub->SetMode(&context, request, &response);

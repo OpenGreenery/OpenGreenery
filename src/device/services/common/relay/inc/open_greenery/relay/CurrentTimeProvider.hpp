@@ -3,7 +3,7 @@
 
 #include "open_greenery/dataflow/time/Participants.hpp"
 
-namespace open_greenery::light
+namespace open_greenery::relay
 {
 
 class CurrentTimeProvider : public open_greenery::dataflow::time::ICurrentTimeProvider
