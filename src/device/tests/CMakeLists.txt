@@ -11,10 +11,6 @@ set( SRCS    main.cpp
              lib/pump/PumpTest.cpp
              lib/relay/RelayTest.cpp
              lib/rpc/relay/RelayRPCTest.cpp
-             services/light/mock/CurrentTimeProvider.cpp
-             services/light/mock/OptionalProvider.hpp
-             services/light/mock/Relay.cpp
-             services/light/mock/StatusReceiver.cpp
              services/light/LightTest.cpp
 )
 
