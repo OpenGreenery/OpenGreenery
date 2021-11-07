@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <open_greenery/rpc/light/LightProxyClient.hpp>
-#include <open_greenery/rpc/light/LightProxyServer.hpp>
+#include <open_greenery/rpc/relay/Client.hpp>
+#include <open_greenery/rpc/relay/Server.hpp>
 #include <open_greenery/light/LightController.hpp>
 #include <open_greenery/mock/relay/StatefulRelayMock.hpp>
-#include <open_greenery/mock/dataflow/light/CurrentTimeProviderMock.hpp>
+#include <open_greenery/mock/dataflow/time/CurrentTimeProviderMock.hpp>
 
 using namespace std::chrono_literals;
 using ::testing::Return;
@@ -24,22 +24,22 @@ protected:
         relay = std::make_shared<open_greenery::mock::relay::StatefulRelayMock>();
         EXPECT_CALL(*relay, enabled()).Times(AnyNumber());  // Uninteresting method
 
-        time_provider = std::make_shared<open_greenery::mock::dataflow::light::CurrentTimeProviderMock>();
+        time_provider = std::make_shared<open_greenery::mock::dataflow::time::CurrentTimeProviderMock>();
         EXPECT_CALL(*time_provider, get())
                 .Times(AnyNumber())
                 .WillRepeatedly(ReturnPointee(&current_time));
 
-        rpc_server = std::make_shared<open_greenery::rpc::light::LightProxyServer>(RPC_HOST);
-        proxy_config_writer = rpc_server;
-        proxy_control_writer = rpc_server;
-        proxy_mode_writer = rpc_server;
-        proxy_status_reader = rpc_server;
+        rpc_client = std::make_shared<open_greenery::rpc::relay::Client>(RPC_HOST);
+        proxy_config_writer = rpc_client;
+        proxy_control_writer = rpc_client;
+        proxy_mode_writer = rpc_client;
+        proxy_status_reader = rpc_client;
 
-        rpc_client.emplace(RPC_HOST);
-        auto config_provider = rpc_client->getConfigProvider();
-        auto control_provider = rpc_client->getManualControlProvider();
-        auto mode_provider = rpc_client->getModeProvider();
-        auto status_receiver = rpc_client->getStatusReceiver();
+        rpc_server = std::make_shared<open_greenery::rpc::relay::Server>(RPC_HOST);
+        auto config_provider = rpc_server;
+        auto control_provider = rpc_server;
+        auto mode_provider = rpc_server;
+        auto status_receiver = rpc_server;
 
         light_controller.emplace(relay,
                                  config_provider,
@@ -70,11 +70,11 @@ protected:
     static constexpr char RPC_HOST [] {"localhost:8085"};
     static constexpr std::chrono::milliseconds DEFAULT_HANDLING_TIME {150ms};
 
-    std::optional<open_greenery::rpc::light::LightProxyClient> rpc_client;
-    std::shared_ptr<open_greenery::rpc::light::LightProxyServer> rpc_server;
+    std::shared_ptr<open_greenery::rpc::relay::Client> rpc_client;
+    std::shared_ptr<open_greenery::rpc::relay::Server> rpc_server;
 
     std::shared_ptr<open_greenery::mock::relay::StatefulRelayMock> relay;
-    std::shared_ptr<open_greenery::mock::dataflow::light::CurrentTimeProviderMock> time_provider;
+    std::shared_ptr<open_greenery::mock::dataflow::time::CurrentTimeProviderMock> time_provider;
     QTime current_time;
     std::optional<open_greenery::light::LightController> light_controller;
     std::optional<open_greenery::tools::FinishFuture> controller_finish;
@@ -82,7 +82,7 @@ protected:
     std::shared_ptr<ogdfl::IConfigReceiver> proxy_config_writer;
     std::shared_ptr<ogdfl::IManualControlReceiver> proxy_control_writer;
     std::shared_ptr<ogdfl::IModeReceiver> proxy_mode_writer;
-    std::shared_ptr<ogdfl::IStatusProvider> proxy_status_reader;
+    std::shared_ptr<ogdfl::IStatusOptionalProvider> proxy_status_reader;
 };
 
 TEST_F(LightRpcTest, ManualEnable)
@@ -202,13 +202,14 @@ TEST_F(LightRpcTest, AutoEnable)
     current_time = QTime(0, 4, 59, 999); // before 00:05
     waitForHandling();
     status = proxy_status_reader->get();
-    EXPECT_FALSE(status.has_value());
+    ASSERT_TRUE(status.has_value());
+    EXPECT_FALSE(status.value()); // still disabled
 
     current_time = QTime(0, 5);  // day start
     waitForHandling();
     status = proxy_status_reader->get();
     ASSERT_TRUE(status.has_value());
-    EXPECT_TRUE(status.value());
+    EXPECT_TRUE(status.value()); // still enabled
 }
 
 TEST_F(LightRpcTest, AutoDisable)
@@ -238,13 +239,14 @@ TEST_F(LightRpcTest, AutoDisable)
     current_time = QTime(0, 4, 59, 999); // before 00:05
     waitForHandling();
     status = proxy_status_reader->get();
-    EXPECT_FALSE(status.has_value());
+    ASSERT_TRUE(status.has_value());
+    EXPECT_TRUE(status.value()); // still enabled
 
     current_time = QTime(0, 5);  // day start
     waitForHandling();
     status = proxy_status_reader->get();
     ASSERT_TRUE(status.has_value());
-    EXPECT_FALSE(status.value());
+    EXPECT_FALSE(status.value()); // disabled
 }
 
 TEST_F(LightRpcTest, DontHandleAutoInManual)
@@ -259,12 +261,14 @@ TEST_F(LightRpcTest, DontHandleAutoInManual)
     current_time = QTime(0, 1);
     waitForHandling();
     auto status = proxy_status_reader->get();
-    EXPECT_FALSE(status.has_value());
+    EXPECT_TRUE(status.has_value());
+    EXPECT_FALSE(status.value());
 
     current_time = QTime(0, 2);
     waitForHandling();
     status = proxy_status_reader->get();
-    EXPECT_FALSE(status.has_value());
+    EXPECT_TRUE(status.has_value());
+    EXPECT_FALSE(status.value());
 }
 
 TEST_F(LightRpcTest, ManualByDefault)
@@ -278,12 +282,14 @@ TEST_F(LightRpcTest, ManualByDefault)
     current_time = QTime(0, 1);
     waitForHandling();
     auto status = proxy_status_reader->get();
-    EXPECT_FALSE(status.has_value());
+    EXPECT_TRUE(status.has_value());
+    EXPECT_FALSE(status.value());
 
     current_time = QTime(0, 2);
     waitForHandling();
     status = proxy_status_reader->get();
-    EXPECT_FALSE(status.has_value());
+    EXPECT_TRUE(status.has_value());
+    EXPECT_FALSE(status.value());
 }
 
 TEST_F(LightRpcTest, ChangeConfig)
