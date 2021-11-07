@@ -119,12 +119,12 @@ int main()
             {
                     {1, {"Manual mode",
                                 [&light_rpc_client] {
-                                    light_rpc_client->set(open_greenery::dataflow::light::Mode::MANUAL);
+                                    light_rpc_client->set(open_greenery::dataflow::relay::Mode::MANUAL);
                                 }
                         }},
                     {2, {"Auto mode",
                                 [&light_rpc_client] {
-                                    light_rpc_client->set(open_greenery::dataflow::light::Mode::AUTO);
+                                    light_rpc_client->set(open_greenery::dataflow::relay::Mode::AUTO);
                                 }
                         }}
             }
@@ -136,17 +136,17 @@ int main()
             {
                     {1, {"Enable",
                                 [&light_rpc_client] {
-                                    light_rpc_client->set(open_greenery::dataflow::light::Control::ENABLE);
+                                    light_rpc_client->set(open_greenery::dataflow::relay::Control::ENABLE);
                                 }
                         }},
                     {2, {"Disable",
                                 [&light_rpc_client] {
-                                    light_rpc_client->set(open_greenery::dataflow::light::Control::DISABLE);
+                                    light_rpc_client->set(open_greenery::dataflow::relay::Control::DISABLE);
                                 }
                         }},
                     {3, {"Toggle",
                                 [&light_rpc_client] {
-                                    light_rpc_client->set(open_greenery::dataflow::light::Control::TOGGLE);
+                                    light_rpc_client->set(open_greenery::dataflow::relay::Control::TOGGLE);
                                 }
                         }}
             });

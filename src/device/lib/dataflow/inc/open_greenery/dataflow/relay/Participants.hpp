@@ -9,14 +9,14 @@
 #include <open_greenery/dataflow/common/IProvider.hpp>
 #include <open_greenery/dataflow/common/IReceiver.hpp>
 
-namespace open_greenery::dataflow::light
+namespace open_greenery::dataflow::relay
 {
 
-using IConfigProvider = open_greenery::dataflow::common::IProvider<LightConfigRecord>;
-using IConfigOptionalProvider = open_greenery::dataflow::common::IOptionalProvider<LightConfigRecord>;
-using IConfigReceiver = open_greenery::dataflow::common::IReceiver<LightConfigRecord>;
-using IAsyncConfigProvider = open_greenery::dataflow::common::IAsyncProvider<LightConfigRecord>;
-using IAsyncConfigReceiver = open_greenery::dataflow::common::IAsyncReceiver<LightConfigRecord>;
+using IConfigProvider = open_greenery::dataflow::common::IProvider<Config>;
+using IConfigOptionalProvider = open_greenery::dataflow::common::IOptionalProvider<Config>;
+using IConfigReceiver = open_greenery::dataflow::common::IReceiver<Config>;
+using IAsyncConfigProvider = open_greenery::dataflow::common::IAsyncProvider<Config>;
+using IAsyncConfigReceiver = open_greenery::dataflow::common::IAsyncReceiver<Config>;
 
 using IManualControlProvider = open_greenery::dataflow::common::IProvider<Control>;
 using IManualControlOptionalProvider = open_greenery::dataflow::common::IOptionalProvider<Control>;

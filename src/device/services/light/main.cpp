@@ -1,13 +1,12 @@
 #include <csignal>
-#include <open_greenery/rpc/relay/Client.hpp>
 #include <open_greenery/gpio/OutputGPIOctl.hpp>
-#include <open_greenery/light/LightController.hpp>
-#include <open_greenery/light/CurrentTimeProvider.hpp>
+#include <open_greenery/relay/RelayController.hpp>
+#include <open_greenery/relay/CurrentTimeProvider.hpp>
 #include <open_greenery/relay/Relay.hpp>
 #include <spdlog/cfg/env.h>
 #include <open_greenery/rpc/relay/Server.hpp>
 
-static std::optional<open_greenery::light::LightController> s_controller;
+static std::optional<open_greenery::relay::RelayController> s_controller;
 static std::optional<open_greenery::tools::FinishFuture> s_controller_finish;
 
 void signalHandler(int signal)
@@ -33,7 +32,7 @@ int main()
     auto light_relay = std::make_shared<open_greenery::relay::Relay>(light_pin);
 
     // time provider
-    auto time_provider = std::make_shared<open_greenery::light::CurrentTimeProvider>();
+    auto time_provider = std::make_shared<open_greenery::relay::CurrentTimeProvider>();
 
     // rpc client
     constexpr char RPC_HOST [] {"localhost:8090"};

@@ -5,13 +5,13 @@ add_subdirectory(mock)
 enable_testing()
 
 set( SRCS    main.cpp
-             integration/light-service_rpc-lib/LightRpcTest.cpp
+             integration/relay-controller_rpc-lib/RelayRpcTest.cpp
              lib/database/DatabaseTest.cpp
              lib/database/light/LigthDaoTest.cpp
              lib/pump/PumpTest.cpp
              lib/relay/RelayTest.cpp
              lib/rpc/relay/RelayRPCTest.cpp
-             services/light/LightTest.cpp
+             services/relay/RelayControllerTest.cpp
 )
 
 add_executable( ${PROJECT_NAME}    ${SRCS} )
@@ -23,7 +23,7 @@ target_link_libraries( ${PROJECT_NAME}
         pump
         relay
         rpc
-        og-light_impl
+        og-relay_impl
 )
 
 include(GoogleTest)

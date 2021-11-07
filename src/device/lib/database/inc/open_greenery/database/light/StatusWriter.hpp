@@ -2,14 +2,14 @@
 #define OPEN_GREENERY_STATUSWRITER_HPP
 
 #include "LightDao.hpp"
-#include <open_greenery/dataflow/light/Participants.hpp>
+#include <open_greenery/dataflow/relay/Participants.hpp>
 #include <SQLiteCpp/Database.h>
 
 
 namespace open_greenery::database::light
 {
 
-class StatusWriter : public LightDAO, public open_greenery::dataflow::light::IStatusReceiver
+class StatusWriter : public LightDAO, public open_greenery::dataflow::relay::IStatusReceiver
 {
 public:
     explicit StatusWriter(std::shared_ptr<SQLite::Database> _database);

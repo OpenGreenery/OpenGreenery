@@ -16,7 +16,7 @@ grpc::Status Server::Service::SetConfig(
 {
     std::ignore = context;
     std::ignore = response;
-    open_greenery::dataflow::light::LightConfigRecord received_config{
+    open_greenery::dataflow::relay::Config received_config{
             QTime::fromMSecsSinceStartOfDay(request->day_start()),
             QTime::fromMSecsSinceStartOfDay(request->day_end())
     };
@@ -38,26 +38,26 @@ grpc::Status Server::Service::ManualControl(
     std::ignore = context;
     std::ignore = response;
 
-    open_greenery::dataflow::light::Control control;
+    open_greenery::dataflow::relay::Control control;
 
     switch (request->control())
     {
         case ManualControlRequest::CONTROL_ENABLE:
             spdlog::debug("Manual enable received");
-            control = open_greenery::dataflow::light::Control::ENABLE;
+            control = open_greenery::dataflow::relay::Control::ENABLE;
             break;
         case ManualControlRequest::CONTROL_DISABLE:
             spdlog::debug("Manual disable received");
-            control = open_greenery::dataflow::light::Control::DISABLE;
+            control = open_greenery::dataflow::relay::Control::DISABLE;
             break;
         case ManualControlRequest::CONTROL_TOGGLE:
             spdlog::debug("Manual toggle received");
-            control = open_greenery::dataflow::light::Control::TOGGLE;
+            control = open_greenery::dataflow::relay::Control::TOGGLE;
             break;
         default:
             assert(false && "Unknown relay::Control type");
             // Fictive assignment to avoid warning
-            control = open_greenery::dataflow::light::Control::DISABLE;
+            control = open_greenery::dataflow::relay::Control::DISABLE;
     }
     m_manual_control_handler(control);
 
@@ -72,22 +72,22 @@ grpc::Status Server::Service::SetMode(
     std::ignore = context;
     std::ignore = response;
 
-    open_greenery::dataflow::light::Mode mode;
+    open_greenery::dataflow::relay::Mode mode;
 
     switch (request->mode())
     {
         case ModeSetting::MODE_MANUAL:
             spdlog::debug("Manual mode setting received");
-            mode = open_greenery::dataflow::light::Mode::MANUAL;
+            mode = open_greenery::dataflow::relay::Mode::MANUAL;
             break;
         case ModeSetting::MODE_AUTO:
             spdlog::debug("Auto mode setting received");
-            mode = open_greenery::dataflow::light::Mode::AUTO;
+            mode = open_greenery::dataflow::relay::Mode::AUTO;
             break;
         default:
             assert(false && "relay relay::Mode type");
             // Fictive assignment to avoid warning
-            mode = open_greenery::dataflow::light::Mode::MANUAL;
+            mode = open_greenery::dataflow::relay::Mode::MANUAL;
     }
 
     m_mode_update_handler(mode);
@@ -136,21 +136,21 @@ void Server::shutdown()
 
 void Server::onConfigUpdate(
         open_greenery::dataflow::common::AsyncReceive<
-                open_greenery::dataflow::light::LightConfigRecord> handler)
+                open_greenery::dataflow::relay::Config> handler)
 {
     m_service.m_config_update_handler = std::move(handler);
 }
 
 void Server::onManualControl(
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::Control> handler)
+                <open_greenery::dataflow::relay::Control> handler)
 {
     m_service.m_manual_control_handler = std::move(handler);
 }
 
 void Server::onModeUpdate(
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::Mode> handler)
+                <open_greenery::dataflow::relay::Mode> handler)
 {
     m_service.m_mode_update_handler = std::move(handler);
 }
@@ -162,21 +162,21 @@ void Server::onStatusRequest(open_greenery::dataflow::common::AsyncProvide<bool>
 
 void Server::onUpdate(
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::LightConfigRecord> receive)
+                <open_greenery::dataflow::relay::Config> receive)
 {
     onConfigUpdate(std::move(receive));
 }
 
 void Server::onUpdate(
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::Control> receive)
+                <open_greenery::dataflow::relay::Control> receive)
 {
     onManualControl(std::move(receive));
 }
 
 void Server::onUpdate(
         open_greenery::dataflow::common::AsyncReceive
-                <open_greenery::dataflow::light::Mode> receive)
+                <open_greenery::dataflow::relay::Mode> receive)
 {
     onModeUpdate(std::move(receive));
 }

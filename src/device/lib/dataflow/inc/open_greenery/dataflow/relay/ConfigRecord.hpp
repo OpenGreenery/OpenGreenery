@@ -3,10 +3,10 @@
 
 #include <QTime>
 
-namespace open_greenery::dataflow::light
+namespace open_greenery::dataflow::relay
 {
 
-struct LightConfigRecord
+struct Config
 {
     QTime day_start;
     QTime day_end;

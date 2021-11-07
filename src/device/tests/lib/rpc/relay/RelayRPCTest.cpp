@@ -5,7 +5,7 @@
 #include <open_greenery/rpc/relay/Server.hpp>
 
 namespace ogrpcr = open_greenery::rpc::relay;
-namespace ogdfl = open_greenery::dataflow::light;
+namespace ogdfl = open_greenery::dataflow::relay;
 
 namespace open_greenery::tests::lib::rpc
 {
@@ -44,10 +44,10 @@ protected:
 
 TEST_F(RelayRPCTest, ConfigTransmition)
 {
-    const ogdfl::LightConfigRecord expected_config {QTime(0, 0),
+    const ogdfl::Config expected_config {QTime(0, 0),
                                                     QTime(23, 59, 59, 999)};
 
-    config_provider->onUpdate([expected_config](ogdfl::LightConfigRecord actual_config){
+    config_provider->onUpdate([expected_config](ogdfl::Config actual_config){
         EXPECT_EQ(expected_config.day_start, actual_config.day_start);
         EXPECT_EQ(expected_config.day_end, actual_config.day_end);
     });

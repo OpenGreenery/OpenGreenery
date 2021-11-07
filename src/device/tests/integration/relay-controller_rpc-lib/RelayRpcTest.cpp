@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <open_greenery/rpc/relay/Client.hpp>
 #include <open_greenery/rpc/relay/Server.hpp>
-#include <open_greenery/light/LightController.hpp>
+#include <open_greenery/relay/RelayController.hpp>
 #include <open_greenery/mock/relay/StatefulRelayMock.hpp>
 #include <open_greenery/mock/dataflow/time/CurrentTimeProviderMock.hpp>
 
@@ -11,12 +11,12 @@ using ::testing::AnyNumber;
 using ::testing::ReturnPointee;
 using ::testing::InSequence;
 
-namespace ogdfl = open_greenery::dataflow::light;
+namespace ogdfl = open_greenery::dataflow::relay;
 
-namespace open_greenery::tests::integration::rpc_light
+namespace open_greenery::tests::integration::relay_rpc
 {
 
-class LightRpcTest : public ::testing::Test
+class RelayRpcTest : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -76,7 +76,7 @@ protected:
     std::shared_ptr<open_greenery::mock::relay::StatefulRelayMock> relay;
     std::shared_ptr<open_greenery::mock::dataflow::time::CurrentTimeProviderMock> time_provider;
     QTime current_time;
-    std::optional<open_greenery::light::LightController> light_controller;
+    std::optional<open_greenery::relay::RelayController> light_controller;
     std::optional<open_greenery::tools::FinishFuture> controller_finish;
 
     std::shared_ptr<ogdfl::IConfigReceiver> proxy_config_writer;
@@ -85,7 +85,7 @@ protected:
     std::shared_ptr<ogdfl::IStatusOptionalProvider> proxy_status_reader;
 };
 
-TEST_F(LightRpcTest, ManualEnable)
+TEST_F(RelayRpcTest, ManualEnable)
 {
     EXPECT_CALL(*relay, enable())
         .Times(1);  // One enable for one command
@@ -97,7 +97,7 @@ TEST_F(LightRpcTest, ManualEnable)
     EXPECT_TRUE(status.value());
 }
 
-TEST_F(LightRpcTest, ManualDisable)
+TEST_F(RelayRpcTest, ManualDisable)
 {
     EXPECT_CALL(*relay, disable())
             .Times(1);  // One disable for one command
@@ -109,7 +109,7 @@ TEST_F(LightRpcTest, ManualDisable)
     EXPECT_FALSE(status.value());
 }
 
-TEST_F(LightRpcTest, ManualToggle)
+TEST_F(RelayRpcTest, ManualToggle)
 {
     {
         InSequence s;
@@ -138,7 +138,7 @@ TEST_F(LightRpcTest, ManualToggle)
     EXPECT_TRUE(status.value());
 }
 
-TEST_F(LightRpcTest, HandleManualInAuto)
+TEST_F(RelayRpcTest, HandleManualInAuto)
 {
     EXPECT_CALL(*time_provider, get())
         .Times(AnyNumber())
@@ -175,7 +175,7 @@ TEST_F(LightRpcTest, HandleManualInAuto)
     EXPECT_TRUE(status.value());
 }
 
-TEST_F(LightRpcTest, AutoEnable)
+TEST_F(RelayRpcTest, AutoEnable)
 {
     {
         InSequence s;
@@ -192,7 +192,7 @@ TEST_F(LightRpcTest, AutoEnable)
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
-    ogdfl::LightConfigRecord cfg {
+    ogdfl::Config cfg {
         QTime(0, 5),  // 00:05
         QTime(23, 59)  // 23:59
     };
@@ -212,7 +212,7 @@ TEST_F(LightRpcTest, AutoEnable)
     EXPECT_TRUE(status.value()); // still enabled
 }
 
-TEST_F(LightRpcTest, AutoDisable)
+TEST_F(RelayRpcTest, AutoDisable)
 {
     {
         InSequence s;
@@ -229,7 +229,7 @@ TEST_F(LightRpcTest, AutoDisable)
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
-    ogdfl::LightConfigRecord cfg {
+    ogdfl::Config cfg {
         QTime(23, 59),  // 23:59
         QTime(0, 5)  // 00:05
     };
@@ -249,9 +249,9 @@ TEST_F(LightRpcTest, AutoDisable)
     EXPECT_FALSE(status.value()); // disabled
 }
 
-TEST_F(LightRpcTest, DontHandleAutoInManual)
+TEST_F(RelayRpcTest, DontHandleAutoInManual)
 {
-    ogdfl::LightConfigRecord cfg {
+    ogdfl::Config cfg {
         QTime(0, 1),
         QTime(0, 2)
     };
@@ -271,9 +271,9 @@ TEST_F(LightRpcTest, DontHandleAutoInManual)
     EXPECT_FALSE(status.value());
 }
 
-TEST_F(LightRpcTest, ManualByDefault)
+TEST_F(RelayRpcTest, ManualByDefault)
 {
-    ogdfl::LightConfigRecord cfg {
+    ogdfl::Config cfg {
         QTime(0, 1),
         QTime(0, 2)
     };
@@ -292,7 +292,7 @@ TEST_F(LightRpcTest, ManualByDefault)
     EXPECT_FALSE(status.value());
 }
 
-TEST_F(LightRpcTest, ChangeConfig)
+TEST_F(RelayRpcTest, ChangeConfig)
 {
     {
         InSequence s;
@@ -307,7 +307,7 @@ TEST_F(LightRpcTest, ChangeConfig)
     }
 
     // First config
-    ogdfl::LightConfigRecord first_cfg {QTime(0, 1), QTime(0, 2)}; // 00:01, 00:02
+    ogdfl::Config first_cfg {QTime(0, 1), QTime(0, 2)}; // 00:01, 00:02
     proxy_mode_writer->set(ogdfl::Mode::AUTO);
     proxy_config_writer->set(first_cfg);
 
@@ -324,7 +324,7 @@ TEST_F(LightRpcTest, ChangeConfig)
     EXPECT_FALSE(status.value());
 
     // Second config
-    ogdfl::LightConfigRecord second_cfg {QTime(20, 1), QTime(20, 2)}; // 20:01, 20:02
+    ogdfl::Config second_cfg {QTime(20, 1), QTime(20, 2)}; // 20:01, 20:02
     proxy_config_writer->set(second_cfg);
 
     current_time = QTime(20, 1);
@@ -340,7 +340,7 @@ TEST_F(LightRpcTest, ChangeConfig)
     EXPECT_FALSE(status.value());
 }
 
-TEST_F(LightRpcTest, AutoControlDuplication)
+TEST_F(RelayRpcTest, AutoControlDuplication)
 {
     {
         InSequence s;
@@ -350,7 +350,7 @@ TEST_F(LightRpcTest, AutoControlDuplication)
                 .Times(1);
     }
 
-    ogdfl::LightConfigRecord cfg {QTime(0, 1), QTime(0, 2)};  // 00:01, 00:02
+    ogdfl::Config cfg {QTime(0, 1), QTime(0, 2)};  // 00:01, 00:02
     proxy_config_writer->set(cfg);
     proxy_mode_writer->set(ogdfl::Mode::AUTO);
 
