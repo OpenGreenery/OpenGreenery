@@ -27,7 +27,7 @@ protected:
     static constexpr char DATABASE_PATH[]{"test.db3"};
 
     std::shared_ptr<SQLite::Database> db;
-    std::unique_ptr<ogdfl::IStatusReceiver> status_receiver_;
+    std::unique_ptr<ogdfl::IRelayStatusReceiver> status_receiver_;
     std::unique_ptr<ogdfl::IManualControlOptionalProvider> control_provider_;
 };
 

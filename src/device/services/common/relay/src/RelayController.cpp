@@ -16,7 +16,7 @@ RelayController::RelayController(std::shared_ptr<open_greenery::relay::IRelay> _
                                  std::shared_ptr<ogdft::ICurrentTimeProvider> _current_time_provider,
                                  std::shared_ptr<ogrc::IAsyncManualControlProvider> _manual_control_provider,
                                  std::shared_ptr<ogrc::IAsyncModeProvider> _mode_provider,
-                                 std::shared_ptr<ogrc::IAsyncStatusReceiver> _status_receiver)
+                                 std::shared_ptr<ogrc::IAsyncRelayStatusReceiver> _status_receiver)
         : m_relay(std::move(_relay)),
           m_config_provider(std::move(_config_provider)),
           m_current_time_provider(std::move(_current_time_provider)),

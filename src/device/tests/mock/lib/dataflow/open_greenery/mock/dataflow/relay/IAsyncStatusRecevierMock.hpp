@@ -6,7 +6,7 @@
 namespace open_greenery::mock::dataflow::relay
 {
 
-class IAsyncStatusReceiverMock : public open_greenery::dataflow::relay::IAsyncStatusReceiver
+class IAsyncStatusReceiverMock : public open_greenery::dataflow::relay::IAsyncRelayStatusReceiver
 {
 public:
     MOCK_METHOD(void,

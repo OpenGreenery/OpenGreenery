@@ -18,7 +18,7 @@ public:
                     std::shared_ptr<open_greenery::dataflow::time::ICurrentTimeProvider> _current_time_provider,
                     std::shared_ptr<open_greenery::dataflow::relay::IAsyncManualControlProvider> _manual_control_provider,
                     std::shared_ptr<open_greenery::dataflow::relay::IAsyncModeProvider> _mode_provider,
-                    std::shared_ptr<open_greenery::dataflow::relay::IAsyncStatusReceiver> _status_receiver);
+                    std::shared_ptr<open_greenery::dataflow::relay::IAsyncRelayStatusReceiver> _status_receiver);
 
     ~RelayController();
     open_greenery::tools::FinishFuture start();
@@ -39,7 +39,7 @@ private:
     std::shared_ptr<open_greenery::dataflow::time::ICurrentTimeProvider> m_current_time_provider;
     std::shared_ptr<open_greenery::dataflow::relay::IAsyncManualControlProvider> m_manual_control_provider;
     std::shared_ptr<open_greenery::dataflow::relay::IAsyncModeProvider> m_mode_provider;
-    std::shared_ptr<open_greenery::dataflow::relay::IAsyncStatusReceiver> m_status_receiver;
+    std::shared_ptr<open_greenery::dataflow::relay::IAsyncRelayStatusReceiver> m_status_receiver;
 
     open_greenery::dataflow::relay::Config m_current_config;
     std::mutex m_config_mutex;

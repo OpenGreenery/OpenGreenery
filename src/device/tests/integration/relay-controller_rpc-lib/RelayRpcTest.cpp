@@ -33,7 +33,8 @@ protected:
         proxy_config_writer = rpc_client;
         proxy_control_writer = rpc_client;
         proxy_mode_writer = rpc_client;
-        proxy_status_reader = rpc_client;
+        proxy_relay_status_reader = rpc_client->getRelayStatusOptionalProvider();
+        proxy_service_status_reader = rpc_client->getServiceStatusOptionalProvider();
 
         rpc_server = std::make_shared<open_greenery::rpc::relay::Server>(RPC_HOST);
         auto config_provider = rpc_server;
@@ -82,7 +83,8 @@ protected:
     std::shared_ptr<ogdfl::IConfigReceiver> proxy_config_writer;
     std::shared_ptr<ogdfl::IManualControlReceiver> proxy_control_writer;
     std::shared_ptr<ogdfl::IModeReceiver> proxy_mode_writer;
-    std::shared_ptr<ogdfl::IStatusOptionalProvider> proxy_status_reader;
+    std::unique_ptr<ogdfl::IRelayStatusOptionalProvider> proxy_relay_status_reader;
+    std::unique_ptr<ogdfl::IServiceStatusOptionalProvider> proxy_service_status_reader;
 };
 
 TEST_F(RelayRpcTest, ManualEnable)
@@ -92,7 +94,7 @@ TEST_F(RelayRpcTest, ManualEnable)
 
     proxy_control_writer->set(ogdfl::Control::ENABLE);
     waitForHandling();
-    const auto status = proxy_status_reader->get();
+    const auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 }
@@ -104,7 +106,7 @@ TEST_F(RelayRpcTest, ManualDisable)
 
     proxy_control_writer->set(ogdfl::Control::DISABLE);
     waitForHandling();
-    const auto status = proxy_status_reader->get();
+    const auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 }
@@ -121,19 +123,19 @@ TEST_F(RelayRpcTest, ManualToggle)
 
     proxy_control_writer->set(ogdfl::Control::ENABLE);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
     proxy_control_writer->set(ogdfl::Control::TOGGLE);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
     proxy_control_writer->set(ogdfl::Control::TOGGLE);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 }
@@ -158,19 +160,19 @@ TEST_F(RelayRpcTest, HandleManualInAuto)
 
     proxy_control_writer->set(ogdfl::Control::ENABLE);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
     proxy_control_writer->set(ogdfl::Control::DISABLE);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
     proxy_control_writer->set(ogdfl::Control::TOGGLE);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 }
@@ -188,7 +190,7 @@ TEST_F(RelayRpcTest, AutoEnable)
     // previously disable manually
     proxy_control_writer->set(ogdfl::Control::DISABLE);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
@@ -201,13 +203,13 @@ TEST_F(RelayRpcTest, AutoEnable)
 
     current_time = QTime(0, 4, 59, 999); // before 00:05
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value()); // still disabled
 
     current_time = QTime(0, 5);  // day start
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value()); // still enabled
 }
@@ -225,7 +227,7 @@ TEST_F(RelayRpcTest, AutoDisable)
     // previously disable manually
     proxy_control_writer->set(ogdfl::Control::ENABLE);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
@@ -238,13 +240,13 @@ TEST_F(RelayRpcTest, AutoDisable)
 
     current_time = QTime(0, 4, 59, 999); // before 00:05
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value()); // still enabled
 
     current_time = QTime(0, 5);  // day start
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value()); // disabled
 }
@@ -260,13 +262,13 @@ TEST_F(RelayRpcTest, DontHandleAutoInManual)
 
     current_time = QTime(0, 1);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     EXPECT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
     current_time = QTime(0, 2);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     EXPECT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 }
@@ -281,13 +283,13 @@ TEST_F(RelayRpcTest, ManualByDefault)
 
     current_time = QTime(0, 1);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     EXPECT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
     current_time = QTime(0, 2);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     EXPECT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 }
@@ -313,13 +315,13 @@ TEST_F(RelayRpcTest, ChangeConfig)
 
     current_time = QTime(0, 1);
     waitForHandling();
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
     current_time = QTime(0, 2);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 
@@ -329,13 +331,13 @@ TEST_F(RelayRpcTest, ChangeConfig)
 
     current_time = QTime(20, 1);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
     current_time = QTime(20, 2);
     waitForHandling();
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 }
@@ -356,13 +358,13 @@ TEST_F(RelayRpcTest, AutoControlDuplication)
 
     current_time = QTime(0, 1);
     waitForHandling(DEFAULT_HANDLING_TIME*5);
-    auto status = proxy_status_reader->get();
+    auto status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_TRUE(status.value());
 
     current_time = QTime(0, 2);
     waitForHandling(DEFAULT_HANDLING_TIME*5);
-    status = proxy_status_reader->get();
+    status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
 }

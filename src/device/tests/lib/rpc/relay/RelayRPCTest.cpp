@@ -25,8 +25,10 @@ protected:
         config_receiver = client;
         mode_provider = server;
         mode_receiver = client;
-        status_provider = client;
-        status_receiver = server;
+        relay_status_provider = client->getRelayStatusOptionalProvider();
+        relay_status_receiver = server;
+        service_status_provider = client->getServiceStatusOptionalProvider();
+        service_status_receiver = server;
     }
 
     std::shared_ptr<ogrpcr::Client> client;
@@ -38,16 +40,18 @@ protected:
     std::shared_ptr<ogdfl::IManualControlReceiver> control_receiver;
     std::shared_ptr<ogdfl::IAsyncModeProvider> mode_provider;
     std::shared_ptr<ogdfl::IModeReceiver> mode_receiver;
-    std::shared_ptr<ogdfl::IStatusOptionalProvider> status_provider;
-    std::shared_ptr<ogdfl::IAsyncStatusReceiver> status_receiver;
+    std::unique_ptr<ogdfl::IRelayStatusOptionalProvider> relay_status_provider;
+    std::shared_ptr<ogdfl::IAsyncRelayStatusReceiver> relay_status_receiver;
+    std::unique_ptr<ogdfl::IServiceStatusOptionalProvider> service_status_provider;
+    std::shared_ptr<ogdfl::IAsyncServiceStatusReceiver> service_status_receiver;
 };
 
 TEST_F(RelayRPCTest, ConfigTransmition)
 {
-    const ogdfl::Config expected_config {QTime(0, 0),
-                                                    QTime(23, 59, 59, 999)};
+    const ogdfl::Config expected_config{QTime(0, 0),
+                                        QTime(23, 59, 59, 999)};
 
-    config_provider->onUpdate([expected_config](ogdfl::Config actual_config){
+    config_provider->onUpdate([expected_config](ogdfl::Config actual_config) {
         EXPECT_EQ(expected_config.day_start, actual_config.day_start);
         EXPECT_EQ(expected_config.day_end, actual_config.day_end);
     });
@@ -57,10 +61,10 @@ TEST_F(RelayRPCTest, ConfigTransmition)
 TEST_F(RelayRPCTest, ManualControlTransmition)
 {
     for (auto expected_ctl : {ogdfl::Control::ENABLE,
-                                 ogdfl::Control::DISABLE,
-                                 ogdfl::Control::TOGGLE})
+                              ogdfl::Control::DISABLE,
+                              ogdfl::Control::TOGGLE})
     {
-        control_provider->onUpdate([expected_ctl](ogdfl::Control actual_ctl){
+        control_provider->onUpdate([expected_ctl](ogdfl::Control actual_ctl) {
             EXPECT_EQ(expected_ctl, actual_ctl);
         });
         control_receiver->set(expected_ctl);
@@ -72,23 +76,50 @@ TEST_F(RelayRPCTest, ModeTransmition)
     for (auto expected_mode : {ogdfl::Mode::AUTO,
                                ogdfl::Mode::MANUAL})
     {
-        mode_provider->onUpdate([expected_mode](ogdfl::Mode actual_mode){
+        mode_provider->onUpdate([expected_mode](ogdfl::Mode actual_mode) {
             EXPECT_EQ(expected_mode, actual_mode);
         });
         mode_receiver->set(expected_mode);
     }
 }
 
-TEST_F(RelayRPCTest, StatusTransmition)
+TEST_F(RelayRPCTest, RelayStatusTransmition)
 {
     for (auto expected_status : {true, false})
     {
-        status_receiver->onRequest([expected_status]{
+        relay_status_receiver->onRequest([expected_status] {
             return expected_status;
         });
-        const auto actual_status = status_provider->get();
+        const auto actual_status = relay_status_provider->get();
         ASSERT_TRUE(actual_status.has_value());
         EXPECT_EQ(expected_status, *actual_status);
+    }
+}
+
+TEST_F(RelayRPCTest, ServiceStatusTransmition)
+{
+    const ogdfl::Config expected_config{QTime(0, 0),
+                                        QTime(23, 59, 59, 999)};
+    for (auto expected_mode : {ogdfl::Mode::AUTO,
+                               ogdfl::Mode::MANUAL})
+    {
+        for (auto expected_relay_status : {true, false})
+        {
+            service_status_receiver->onRequest([expected_mode, expected_relay_status, expected_config] {
+                ogdfl::ServiceStatus service_status;
+                service_status.mode = expected_mode;
+                service_status.relay_enabled = expected_relay_status;
+                service_status.config = expected_config;
+                return service_status;
+            });
+
+            const auto actual_service_status = service_status_provider->get();
+            ASSERT_TRUE(actual_service_status.has_value());
+            EXPECT_EQ(expected_mode, actual_service_status->mode);
+            EXPECT_EQ(expected_relay_status, actual_service_status->relay_enabled);
+            EXPECT_EQ(expected_config.day_start, actual_service_status->config.day_start);
+            EXPECT_EQ(expected_config.day_end, actual_service_status->config.day_end);
+        }
     }
 }
 
