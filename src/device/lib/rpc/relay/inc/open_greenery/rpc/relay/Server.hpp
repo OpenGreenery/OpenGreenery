@@ -5,6 +5,7 @@
 #include <grpcpp/server.h>
 #include <open_greenery/dataflow/relay/Participants.hpp>
 #include "relay.grpc.pb.h"
+#include "relay.pb.h"
 
 namespace open_greenery::rpc::relay
 {
@@ -13,7 +14,8 @@ class Server :
         public open_greenery::dataflow::relay::IAsyncConfigProvider,
         public open_greenery::dataflow::relay::IAsyncManualControlProvider,
         public open_greenery::dataflow::relay::IAsyncModeProvider,
-        public open_greenery::dataflow::relay::IAsyncStatusReceiver
+        public open_greenery::dataflow::relay::IAsyncRelayStatusReceiver,
+        public open_greenery::dataflow::relay::IAsyncServiceStatusReceiver
 {
 public:
     explicit Server(const std::string & host);
@@ -52,6 +54,10 @@ public:
 
     void onRequest(open_greenery::dataflow::common::AsyncProvide<bool> provide) override;
 
+    void onRequest(
+            open_greenery::dataflow::common::AsyncProvide
+                    <open_greenery::dataflow::relay::ServiceStatus> provide) override;
+
 private:
     class Service : public Relay::Service
     {
@@ -69,9 +75,13 @@ private:
                              const open_greenery::rpc::relay::ModeSetting * request,
                              google::protobuf::Empty * response) override;
 
-        grpc::Status GetStatus(grpc::ServerContext * context,
+        grpc::Status GetRelayStatus(grpc::ServerContext * context,
                                const google::protobuf::Empty * request,
-                               open_greenery::rpc::relay::Status * response) override;
+                               open_greenery::rpc::relay::RelayStatus * response) override;
+
+        grpc::Status GetServiceStatus(grpc::ServerContext * context,
+                                      const google::protobuf::Empty * request,
+                                      open_greenery::rpc::relay::ServiceStatus * response) override;
 
         open_greenery::dataflow::common::AsyncReceive
                 <open_greenery::dataflow::relay::Config> m_config_update_handler;
@@ -79,7 +89,9 @@ private:
                 <open_greenery::dataflow::relay::Control> m_manual_control_handler;
         open_greenery::dataflow::common::AsyncReceive
                 <open_greenery::dataflow::relay::Mode> m_mode_update_handler;
-        open_greenery::dataflow::common::AsyncProvide<bool> m_status_request_handler;
+        open_greenery::dataflow::common::AsyncProvide<bool> m_relay_status_request_handler;
+        open_greenery::dataflow::common::AsyncProvide
+                <open_greenery::dataflow::relay::ServiceStatus> m_service_status_request_handler;
     };
 
     Service m_service;

@@ -7,7 +7,8 @@ service Relay {
   rpc SetConfig(Config) returns (google.protobuf.Empty) {}
   rpc ManualControl(ManualControlRequest) returns (google.protobuf.Empty) {}
   rpc SetMode(ModeSetting) returns (google.protobuf.Empty) {}
-  rpc GetStatus(google.protobuf.Empty) returns (Status) {}
+  rpc GetRelayStatus(google.protobuf.Empty) returns (RelayStatus) {}
+  rpc GetServiceStatus(google.protobuf.Empty) returns (ServiceStatus) {}
 }
 
 message Config {
@@ -33,6 +34,12 @@ message ModeSetting {
   Mode mode = 1;
 }
 
-message Status {
+message RelayStatus {
   bool is_enabled = 1;
+}
+
+message ServiceStatus {
+  ModeSetting mode_settings = 1;
+  RelayStatus relay_status = 2;
+  Config config = 3;
 }

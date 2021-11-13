@@ -11,8 +11,7 @@ namespace open_greenery::rpc::relay
 class Client :
         public open_greenery::dataflow::relay::IConfigReceiver,
         public open_greenery::dataflow::relay::IManualControlReceiver,
-        public open_greenery::dataflow::relay::IModeReceiver,
-        public open_greenery::dataflow::relay::IStatusOptionalProvider
+        public open_greenery::dataflow::relay::IModeReceiver
 {
 public:
     explicit Client(const std::string & host);
@@ -26,12 +25,34 @@ public:
     // IModeReceiver
     void set(open_greenery::dataflow::relay::Mode mode) override;
 
-    // IStatusProvider
-    std::optional<bool> get() override;
+    class RelayStatusOptionalProvider : public open_greenery::dataflow::relay::IRelayStatusOptionalProvider
+    {
+    public:
+        RelayStatusOptionalProvider(std::shared_ptr<Relay::Stub> stub);
 
+        std::optional<bool> get() override;
+
+    private:
+        std::shared_ptr<Relay::Stub> m_stub;
+    };
+
+    class ServiceStatusOptionalProvider : public open_greenery::dataflow::relay::IServiceStatusOptionalProvider
+    {
+    public:
+        ServiceStatusOptionalProvider(std::shared_ptr<Relay::Stub> stub);
+
+        std::optional<open_greenery::dataflow::relay::ServiceStatus> get() override;
+
+    private:
+        std::shared_ptr<Relay::Stub> m_stub;
+    };
+
+    std::unique_ptr<RelayStatusOptionalProvider> getRelayStatusOptionalProvider() const;
+
+    std::unique_ptr<ServiceStatusOptionalProvider> getServiceStatusOptionalProvider() const;
 private:
     std::shared_ptr<grpc::Channel> m_channel;
-    std::unique_ptr<Relay::Stub> m_stub;
+    std::shared_ptr<Relay::Stub> m_stub;
 };
 
 }
