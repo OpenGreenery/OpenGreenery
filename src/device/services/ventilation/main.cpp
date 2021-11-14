@@ -45,6 +45,7 @@ int main()
             time_provider,
             rpc_server,
             rpc_server,
+            rpc_server,
             rpc_server
         );
     s_controller_finish = s_controller->start();

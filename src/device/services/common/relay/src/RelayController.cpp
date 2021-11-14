@@ -1,6 +1,5 @@
 #include "open_greenery/relay/RelayController.hpp"
 #include <chrono>
-#include <utility>
 #include <spdlog/spdlog.h>
 
 namespace ogrc = open_greenery::dataflow::relay;
@@ -11,25 +10,29 @@ namespace open_greenery::relay
 
 constexpr std::chrono::milliseconds THREAD_PERIOD{100u};
 
-RelayController::RelayController(std::shared_ptr<open_greenery::relay::IRelay> _relay,
-                                 std::shared_ptr<ogrc::IAsyncConfigProvider> _config_provider,
-                                 std::shared_ptr<ogdft::ICurrentTimeProvider> _current_time_provider,
-                                 std::shared_ptr<ogrc::IAsyncManualControlProvider> _manual_control_provider,
-                                 std::shared_ptr<ogrc::IAsyncModeProvider> _mode_provider,
-                                 std::shared_ptr<ogrc::IAsyncRelayStatusReceiver> _status_receiver)
+RelayController::RelayController(
+        std::shared_ptr<open_greenery::relay::IRelay> _relay,
+        std::shared_ptr<ogrc::IAsyncConfigProvider> _config_provider,
+        std::shared_ptr<ogdft::ICurrentTimeProvider> _current_time_provider,
+        std::shared_ptr<ogrc::IAsyncManualControlProvider> _manual_control_provider,
+        std::shared_ptr<ogrc::IAsyncModeProvider> _mode_provider,
+        std::shared_ptr<ogrc::IAsyncRelayStatusReceiver> _relay_status_receiver,
+        std::shared_ptr<ogrc::IAsyncServiceStatusReceiver> _service_status_receiver
+        )
         : m_relay(std::move(_relay)),
           m_config_provider(std::move(_config_provider)),
           m_current_time_provider(std::move(_current_time_provider)),
           m_manual_control_provider(std::move(_manual_control_provider)),
           m_mode_provider(std::move(_mode_provider)),
-          m_status_receiver(std::move(_status_receiver))
+          m_relay_status_receiver(std::move(_relay_status_receiver)),
+          m_service_status_receiver(std::move(_service_status_receiver))
 {
     assert(m_relay);
     assert(m_config_provider);
     assert(m_current_time_provider);
     assert(m_manual_control_provider);
     assert(m_mode_provider);
-    assert(m_status_receiver);
+    assert(m_relay_status_receiver);
 
     std::lock_guard<std::mutex> mode_lock(m_mode_mutex);
     std::lock_guard<std::mutex> config_lock(m_config_mutex);
@@ -39,7 +42,8 @@ RelayController::RelayController(std::shared_ptr<open_greenery::relay::IRelay> _
     m_config_provider->onUpdate([this](ogrc::Config c){ handleConfigUpdate(c); });
     m_manual_control_provider->onUpdate([this](ogrc::Control c) { handleManualControl(c); });
     m_mode_provider->onUpdate([this](ogrc::Mode m){ handleModeUpdate(m); });
-    m_status_receiver->onRequest([this] { return getRelayStatus(); });
+    m_relay_status_receiver->onRequest([this] { return getRelayStatus(); });
+    m_service_status_receiver->onRequest([this] { return getServiceStatus(); });
 }
 
 RelayController::~RelayController()
@@ -147,6 +151,16 @@ void RelayController::handleConfigUpdate(open_greenery::dataflow::relay::Config 
                  TimeStr(config.day_end));
     std::lock_guard<std::mutex> l (m_config_mutex);
     m_current_config = config;
+}
+
+open_greenery::dataflow::relay::ServiceStatus RelayController::getServiceStatus()
+{
+    ogrc::ServiceStatus service_status;
+    std::scoped_lock l {m_mode_mutex, m_config_mutex};
+    service_status.mode = m_current_mode;
+    service_status.relay_enabled = m_relay->enabled();
+    service_status.config = m_current_config;
+    return service_status;
 }
 
 }
