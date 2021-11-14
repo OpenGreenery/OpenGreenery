@@ -40,14 +40,16 @@ protected:
         auto config_provider = rpc_server;
         auto control_provider = rpc_server;
         auto mode_provider = rpc_server;
-        auto status_receiver = rpc_server;
+        auto relay_status_receiver = rpc_server;
+        auto service_status_receiver = rpc_server;
 
         light_controller.emplace(relay,
                                  config_provider,
                                  time_provider,
                                  control_provider,
                                  mode_provider,
-                                 status_receiver);
+                                 relay_status_receiver,
+                                 service_status_receiver);
 
         controller_finish = light_controller->start();
     }
@@ -367,6 +369,49 @@ TEST_F(RelayRpcTest, AutoControlDuplication)
     status = proxy_relay_status_reader->get();
     ASSERT_TRUE(status.has_value());
     EXPECT_FALSE(status.value());
+}
+
+TEST_F(RelayRpcTest, ServiceStatusRequest)
+{
+    {
+        InSequence s;
+        EXPECT_CALL(*relay, enable())
+                .Times(1);
+        EXPECT_CALL(*relay, disable())
+                .Times(1);
+        EXPECT_CALL(*relay, toggle())
+                .Times(2);
+        EXPECT_CALL(*relay, enable())
+                .Times(1);
+        EXPECT_CALL(*relay, disable())
+                .Times(1);
+        EXPECT_CALL(*relay, toggle())
+                .Times(2);
+    }
+
+    const ogdfl::Config expected_config{QTime(0, 0),
+                                        QTime(23, 59, 59, 999)};
+    for (const auto expected_mode : {ogdfl::Mode::AUTO, ogdfl::Mode::MANUAL})
+    {
+        for (const auto [command, expected_status] : std::array<std::tuple<ogdfl::Control, bool>, 4>{
+                std::make_tuple(ogdfl::Control::ENABLE,  true),
+                std::make_tuple(ogdfl::Control::DISABLE, false),
+                std::make_tuple(ogdfl::Control::TOGGLE,  true),
+                std::make_tuple(ogdfl::Control::TOGGLE,  false)
+        })
+        {
+            proxy_mode_writer->set(expected_mode);
+            proxy_control_writer->set(command);
+            proxy_config_writer->set(expected_config);
+
+            const auto actual_status = proxy_service_status_reader->get();
+            ASSERT_TRUE(actual_status.has_value());
+            EXPECT_EQ(expected_mode, actual_status->mode);
+            EXPECT_EQ(expected_status, actual_status->relay_enabled);
+            EXPECT_EQ(expected_config.day_start, actual_status->config.day_start);
+            EXPECT_EQ(expected_config.day_end, actual_status->config.day_end);
+        }
+    }
 }
 
 }
