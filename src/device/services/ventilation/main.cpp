@@ -29,7 +29,9 @@ int main()
     constexpr open_greenery::gpio::PinId VENTILATION_PIN_ID {open_greenery::gpio::PinNumber(VENTILATION_PIN_NUMBER),
                                                              open_greenery::gpio::Pinout::WIRING_PI};
     auto ventilation_pin = open_greenery::gpio::GPIOFactory::getInstance().getOutputGPIOctl(VENTILATION_PIN_ID);
-    auto ventilation_relay = std::make_shared<open_greenery::relay::Relay>(ventilation_pin);
+    auto ventilation_relay = std::make_shared<open_greenery::relay::Relay>(
+            ventilation_pin,
+            open_greenery::gpio::LogicLevel::LOW);
 
     // time provider
     auto time_provider = std::make_shared<open_greenery::relay::CurrentTimeProvider>();

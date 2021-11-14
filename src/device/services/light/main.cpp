@@ -29,7 +29,9 @@ int main()
     constexpr open_greenery::gpio::PinId LIGHT_PIN_ID {open_greenery::gpio::PinNumber(LIGHT_PIN_NUMBER),
                                                        open_greenery::gpio::Pinout::WIRING_PI};
     auto light_pin = open_greenery::gpio::GPIOFactory::getInstance().getOutputGPIOctl(LIGHT_PIN_ID);
-    auto light_relay = std::make_shared<open_greenery::relay::Relay>(light_pin);
+    auto light_relay = std::make_shared<open_greenery::relay::Relay>(
+            light_pin,
+            open_greenery::gpio::LogicLevel::LOW);
 
     // time provider
     auto time_provider = std::make_shared<open_greenery::relay::CurrentTimeProvider>();
