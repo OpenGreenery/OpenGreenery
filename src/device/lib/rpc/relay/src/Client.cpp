@@ -99,22 +99,69 @@ void Client::set(open_greenery::dataflow::relay::Mode mode)
     }
 }
 
-std::optional<bool> Client::get()
+std::unique_ptr<Client::RelayStatusOptionalProvider> Client::getRelayStatusOptionalProvider() const
+{
+    return std::make_unique<RelayStatusOptionalProvider>(m_stub);
+}
+
+std::unique_ptr<Client::ServiceStatusOptionalProvider> Client::getServiceStatusOptionalProvider() const
+{
+    return std::make_unique<ServiceStatusOptionalProvider>(m_stub);
+}
+
+Client::RelayStatusOptionalProvider::RelayStatusOptionalProvider(std::shared_ptr<Relay::Stub> stub)
+        :m_stub(std::move(stub)){}
+
+std::optional<bool> Client::RelayStatusOptionalProvider::get()
 {
     grpc::ClientContext context;
     google::protobuf::Empty request;
-    Status response;
+    RelayStatus response;
 
-    auto status = m_stub->GetStatus(&context, request, &response);
+    auto status = m_stub->GetRelayStatus(&context, request, &response);
     if (!status.ok())
     {
-        spdlog::warn("Unsuccessful Relay::GetStatus request: {} {}",
+        spdlog::warn("Unsuccessful Relay::GetRelayStatus request: {} {}",
                      status.error_code(),
                      status.error_message());
         return {};
     }
 
     return response.is_enabled();
+}
+
+Client::ServiceStatusOptionalProvider::ServiceStatusOptionalProvider(std::shared_ptr<Relay::Stub> stub)
+        :m_stub(std::move(stub)){}
+
+std::optional<open_greenery::dataflow::relay::ServiceStatus> Client::ServiceStatusOptionalProvider::get()
+{
+    grpc::ClientContext context;
+    google::protobuf::Empty request;
+    ServiceStatus response;
+
+    auto status = m_stub->GetServiceStatus(&context, request, &response);
+    if (!status.ok())
+    {
+        spdlog::warn("Unsuccessful Relay::GetServiceStatus request: {} {}",
+                     status.error_code(),
+                     status.error_message());
+        return {};
+    }
+
+    const open_greenery::dataflow::relay::Mode mode =
+            (response.mode_settings().mode() == ModeSetting::MODE_MANUAL) ?
+                open_greenery::dataflow::relay::Mode::MANUAL : open_greenery::dataflow::relay::Mode::AUTO;
+    const bool relay_enabled = response.relay_status().is_enabled();
+    const open_greenery::dataflow::relay::Config config =
+            {QTime::fromMSecsSinceStartOfDay(response.config().day_start()),
+             QTime::fromMSecsSinceStartOfDay(response.config().day_end())};
+
+    open_greenery::dataflow::relay::ServiceStatus service_status;
+    service_status.mode = mode;
+    service_status.relay_enabled = relay_enabled;
+    service_status.config = config;
+
+    return service_status;
 }
 
 }

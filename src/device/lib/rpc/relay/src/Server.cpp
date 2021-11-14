@@ -95,16 +95,46 @@ grpc::Status Server::Service::SetMode(
     return {}; // OK
 }
 
-grpc::Status Server::Service::GetStatus(
+grpc::Status Server::Service::GetRelayStatus(
         grpc::ServerContext * context,
         const google::protobuf::Empty * request,
-        open_greenery::rpc::relay::Status * response)
+        open_greenery::rpc::relay::RelayStatus * response)
 {
     std::ignore = context;
     std::ignore = request;
 
-    response->set_is_enabled(m_status_request_handler());
+    response->set_is_enabled(m_relay_status_request_handler());
     spdlog::debug("{} status sent", (response->is_enabled() ? "Enabled" : "Disabled"));
+
+    return {}; // OK
+}
+
+grpc::Status Server::Service::GetServiceStatus(
+        grpc::ServerContext * context,
+        const google::protobuf::Empty * request,
+        open_greenery::rpc::relay::ServiceStatus * response)
+{
+    std::ignore = context;
+    std::ignore = request;
+
+    open_greenery::dataflow::relay::ServiceStatus service_status = m_service_status_request_handler();
+
+    auto * relay_status = new RelayStatus();
+    relay_status->set_is_enabled(service_status.relay_enabled);
+
+    auto * config = new Config();
+    config->set_day_start(service_status.config.day_start.msecsSinceStartOfDay());
+    config->set_day_end(service_status.config.day_end.msecsSinceStartOfDay());
+
+    auto * mode = new ModeSetting();
+    mode->set_mode(
+            service_status.mode == open_greenery::dataflow::relay::Mode::MANUAL ?
+                ModeSetting::MODE_MANUAL : ModeSetting::MODE_AUTO
+    );
+
+    response->set_allocated_mode_settings(mode);
+    response->set_allocated_relay_status(relay_status);
+    response->set_allocated_config(config);
 
     return {}; // OK
 }
@@ -157,7 +187,7 @@ void Server::onModeUpdate(
 
 void Server::onStatusRequest(open_greenery::dataflow::common::AsyncProvide<bool> handler)
 {
-    m_service.m_status_request_handler = std::move(handler);
+    m_service.m_relay_status_request_handler = std::move(handler);
 }
 
 void Server::onUpdate(
@@ -184,6 +214,13 @@ void Server::onUpdate(
 void Server::onRequest(open_greenery::dataflow::common::AsyncProvide<bool> provide)
 {
     onStatusRequest(std::move(provide));
+}
+
+void Server::onRequest(
+        open_greenery::dataflow::common::AsyncProvide
+                <open_greenery::dataflow::relay::ServiceStatus> provide)
+{
+    m_service.m_service_status_request_handler = std::move(provide);
 }
 
 }

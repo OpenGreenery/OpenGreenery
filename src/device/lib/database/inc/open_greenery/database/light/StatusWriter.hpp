@@ -9,7 +9,7 @@
 namespace open_greenery::database::light
 {
 
-class StatusWriter : public LightDAO, public open_greenery::dataflow::relay::IStatusReceiver
+class StatusWriter : public LightDAO, public open_greenery::dataflow::relay::IRelayStatusReceiver
 {
 public:
     explicit StatusWriter(std::shared_ptr<SQLite::Database> _database);
