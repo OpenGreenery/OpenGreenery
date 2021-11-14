@@ -8,6 +8,7 @@ set( SRCS    main.cpp
              integration/relay-controller_rpc-lib/RelayRpcTest.cpp
              lib/database/DatabaseTest.cpp
              lib/database/light/LigthDaoTest.cpp
+             lib/gpio/LogicLevelTest.cpp
              lib/pump/PumpTest.cpp
              lib/relay/RelayTest.cpp
              lib/rpc/relay/RelayRPCTest.cpp
@@ -20,6 +21,7 @@ target_link_libraries( ${PROJECT_NAME}
         og-mock
         database
         dataflow
+        gpio
         pump
         relay
         rpc

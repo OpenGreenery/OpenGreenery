@@ -1,75 +1,89 @@
 #include <gtest/gtest.h>
-#include <vector>
+#include <open_greenery/mock/gpio/OutputPinMock.hpp>
 #include <open_greenery/relay/Relay.hpp>
 
 namespace ogio = open_greenery::gpio;
 namespace ogr = open_greenery::relay;
 
-class OutputPinMock : public ogio::IOutputPin
+namespace open_greenery::tests::relay
 {
-public:
 
-    void write(const ogio::LogicLevel _value) const override
-    {
-        m_write_calls.push_back(_value);
-    }
-
-    const std::vector<ogio::LogicLevel> & writeCalls() const
-    {
-        return m_write_calls;
-    }
-
-private:
-    mutable std::vector<ogio::LogicLevel> m_write_calls;
-};
-
-class RelayTest : public ::testing::Test
+class RelayTest : public ::testing::TestWithParam<ogio::LogicLevel>
 {
 protected:
-    RelayTest()
-        :m_output_pin_mock(std::make_shared<OutputPinMock>()),
-        m_relay(m_output_pin_mock)
-    {}
+    explicit RelayTest()
+        :ACTIVE_LEVEL(GetParam()){}
 
-    std::shared_ptr<OutputPinMock> m_output_pin_mock;
-    ogr::Relay m_relay;
+    void SetUp() override
+    {
+        m_output_pin_mock = std::make_shared<open_greenery::mock::gpio::OutputPinMock>();
+        EXPECT_CALL(*m_output_pin_mock, write(!ACTIVE_LEVEL))
+                .Times(1);
+        m_relay = std::make_unique<ogr::Relay>(m_output_pin_mock, ACTIVE_LEVEL);
+    }
+
+    void TearDown() override
+    {
+        EXPECT_CALL(*m_output_pin_mock, write(!ACTIVE_LEVEL))
+                .Times(1);
+        m_relay.reset();
+    }
+
+    const ogio::LogicLevel ACTIVE_LEVEL;
+    std::unique_ptr<ogr::Relay> m_relay;
+    std::shared_ptr<open_greenery::mock::gpio::OutputPinMock> m_output_pin_mock;
 };
 
-TEST(RelayConstructorTest, NullOutputPin)
+TEST_P(RelayTest, DisabledByDefault)
 {
-    EXPECT_THROW(ogr::Relay(nullptr);, std::logic_error);
+    EXPECT_FALSE(m_relay->enabled());
 }
 
-TEST_F(RelayTest, DisabledByDefault)
+TEST_P(RelayTest, Enable)
 {
-    EXPECT_FALSE(m_relay.enabled());
-    ASSERT_EQ(m_output_pin_mock->writeCalls().size(), 1u);
-    EXPECT_EQ(m_output_pin_mock->writeCalls().back(), ogio::LogicLevel::LOW);
+    EXPECT_CALL(*m_output_pin_mock, write(ACTIVE_LEVEL))
+            .Times(1);
+    m_relay->enable();
+    EXPECT_TRUE(m_relay->enabled());
 }
 
-TEST_F(RelayTest, Enable)
+TEST_P(RelayTest, Disable)
 {
-    m_relay.enable();
-
-    EXPECT_TRUE(m_relay.enabled());
-    ASSERT_EQ(m_output_pin_mock->writeCalls().size(), 2u);  // Disable on start, enable after call
-    EXPECT_EQ(m_output_pin_mock->writeCalls().back(), ogio::LogicLevel::HIGH);
+    EXPECT_CALL(*m_output_pin_mock, write(!ACTIVE_LEVEL))
+            .Times(1);
+    m_relay->disable();
+    EXPECT_FALSE(m_relay->enabled());
 }
 
-TEST_F(RelayTest, Disable)
+TEST_P(RelayTest, Toggle)
 {
-    m_relay.disable();
+    {
+        testing::InSequence s;
+        EXPECT_CALL(*m_output_pin_mock, write(ACTIVE_LEVEL))
+                .Times(1);
+        EXPECT_CALL(*m_output_pin_mock, write(!ACTIVE_LEVEL))
+                .Times(1);
+    }
 
-    EXPECT_FALSE(m_relay.enabled());
-    ASSERT_EQ(m_output_pin_mock->writeCalls().size(), 2u);  // Disable on start, disable after call
-    EXPECT_EQ(m_output_pin_mock->writeCalls().back(), ogio::LogicLevel::LOW);
-}
-
-TEST_F(RelayTest, Toggle)
-{
-    const auto first {m_relay.enabled()};
-    m_relay.toggle();
-    const auto second {m_relay.enabled()};
+    const bool first{m_relay->enabled()};
+    m_relay->toggle();
+    const bool second{m_relay->enabled()};
+    m_relay->toggle();
+    const bool third{m_relay->enabled()};
 
     EXPECT_NE(first, second);
+    EXPECT_NE(second, third);
+    EXPECT_EQ(first, third);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+        ActiveLevels,
+        RelayTest,
+        testing::Values(ogio::LogicLevel::LOW, ogio::LogicLevel::HIGH),
+        [](const testing::TestParamInfo<RelayTest::ParamType> & info)
+        {
+            return (info.param == ogio::LogicLevel::LOW) ? "LOW" : "HIGH";
+        }
+);
+
 }

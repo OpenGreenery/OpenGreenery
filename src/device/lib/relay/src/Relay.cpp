@@ -1,6 +1,5 @@
 #include "open_greenery/relay/Relay.hpp"
 #include <cassert>
-#include <stdexcept>
 
 
 namespace open_greenery
