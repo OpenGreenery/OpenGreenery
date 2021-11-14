@@ -1,4 +1,5 @@
 #include "open_greenery/relay/Relay.hpp"
+#include <cassert>
 #include <stdexcept>
 
 
@@ -9,15 +10,14 @@ namespace relay
 
 namespace ogio = open_greenery::gpio;
 
-Relay::Relay(std::shared_ptr<ogio::IOutputPin> _pin)
-    :m_enabled(false)
+Relay::Relay(std::shared_ptr<open_greenery::gpio::IOutputPin> _pin,
+             open_greenery::gpio::LogicLevel _active_level)
+     :m_enabled(false),
+     m_gpio(std::move(_pin)),
+     m_active_level(_active_level)
 {
-    if (_pin == nullptr)
-    {
-        throw std::logic_error("Output pin pointer in null");
-    }
-    m_gpio = std::move(_pin);
-    m_gpio->write(ogio::LogicLevel::LOW);
+    assert(m_gpio && "Output pin pointer in null");
+    m_gpio->write(!m_active_level);
 }
 
 Relay::~Relay()
@@ -28,13 +28,13 @@ Relay::~Relay()
 
 void Relay::enable()
 {
-    m_gpio->write(ogio::LogicLevel::HIGH);
+    m_gpio->write(m_active_level);
     m_enabled = true;
 }
 
 void Relay::disable()
 {
-    m_gpio->write(ogio::LogicLevel::LOW);
+    m_gpio->write(!m_active_level);
     m_enabled = false;
 }
 

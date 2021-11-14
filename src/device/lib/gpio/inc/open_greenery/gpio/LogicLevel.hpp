@@ -6,18 +6,17 @@
 #undef LOW
 #undef HIGH
 
-namespace open_greenery
-{
-namespace gpio
+namespace open_greenery::gpio
 {
 
 enum class LogicLevel : bool
 {
-    LOW = 0,
-    HIGH = 1
+    LOW = false,
+    HIGH = true
 };
 
-}
+LogicLevel operator!(LogicLevel value);
+
 }
 
 #endif //LOGIC_LEVEL_HPP

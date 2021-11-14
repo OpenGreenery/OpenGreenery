@@ -4,6 +4,7 @@ set( SOURCES    src/GPIOctl.cpp
                 src/GPIOFactory.cpp
                 src/OutputGPIOctl.cpp
                 src/InputGPIOctl.cpp
+                src/LogicLevel.cpp
                 src/PinId.cpp
                 src/Pinout.cpp )
 
