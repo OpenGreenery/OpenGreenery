@@ -13,7 +13,8 @@ namespace relay
 class Relay : public IRelay
 {
 public:
-    Relay(std::shared_ptr<open_greenery::gpio::IOutputPin> _pin);
+    explicit Relay(std::shared_ptr<open_greenery::gpio::IOutputPin> _pin,
+                   open_greenery::gpio::LogicLevel active_level = open_greenery::gpio::LogicLevel::HIGH);
 
     ~Relay() override;
 
@@ -28,6 +29,7 @@ public:
 private:
     bool m_enabled;
     std::shared_ptr<open_greenery::gpio::IOutputPin> m_gpio;
+    const open_greenery::gpio::LogicLevel m_active_level;
 };
 
 }
