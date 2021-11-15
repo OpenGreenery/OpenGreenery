@@ -9,6 +9,10 @@ on:
       - 'src/android/**'
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: src/android
+
 jobs:
   build:
 
