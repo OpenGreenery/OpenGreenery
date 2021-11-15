@@ -4,7 +4,8 @@ on:
     paths:
       - 'src/device/**'
   pull_request:
-    branches: [ develop, master ]
+    paths:
+      - 'src/device/**'
 
   workflow_dispatch:
 
