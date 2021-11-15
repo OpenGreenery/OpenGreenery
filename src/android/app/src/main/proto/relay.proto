@@ -1,0 +1,40 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package open_greenery.rpc.relay;
+option java_package = "com.open_greenery.mobile";
+option java_outer_classname = "OpenGreeneryRelayProto";
+
+service Relay {
+  rpc SetConfig(Config) returns (google.protobuf.Empty) {}
+  rpc ManualControl(ManualControlRequest) returns (google.protobuf.Empty) {}
+  rpc SetMode(ModeSetting) returns (google.protobuf.Empty) {}
+  rpc GetStatus(google.protobuf.Empty) returns (Status) {}
+}
+
+message Config {
+  // msecs since start of day
+  int32 day_start = 1;
+  int32 day_end = 2;
+}
+
+message ManualControlRequest {
+  enum Control {
+    CONTROL_ENABLE = 0;
+    CONTROL_DISABLE = 1;
+    CONTROL_TOGGLE = 2;
+  }
+  Control control = 1;
+}
+
+message ModeSetting {
+  enum Mode {
+    MODE_MANUAL = 0;
+    MODE_AUTO = 1;
+  }
+  Mode mode = 1;
+}
+
+message Status {
+  bool is_enabled = 1;
+}
