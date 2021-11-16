@@ -1,14 +1,21 @@
 package com.open_greenery.mobile
 
 import android.os.Bundle
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 class RelaySettingsActivity : AppCompatActivity() {
+    private lateinit var relayStateSwitch: SwitchMaterial
+    private lateinit var relayModeAutoButton: MaterialButton
+    private lateinit var relayModeManualButton: MaterialButton
+    private lateinit var dayConfigurationLayout: LinearLayout
+    private lateinit var relayDayStartEdit: EditText
+    private lateinit var relayDayEndEdit: EditText
 
     var relay: RelayRpcClient? = null
 
@@ -17,21 +24,33 @@ class RelaySettingsActivity : AppCompatActivity() {
         setContentView(R.layout.relay_settings_activity)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        relayStateSwitch = findViewById(R.id.relay_state_switch)
+        relayModeAutoButton = findViewById(R.id.relay_mode_auto_button)
+        relayModeManualButton = findViewById(R.id.relay_mode_manual_button)
+        dayConfigurationLayout = findViewById(R.id.day_configuration_layout)
+        relayDayStartEdit = findViewById(R.id.relay_day_start_edit)
+        relayDayEndEdit = findViewById(R.id.relay_day_end_edit)
+
         val extras: Bundle = intent.extras!!
         title = extras.getString("title")
         relay = RelayRpcClient(
             address = extras.getString("host")!!,
             port = extras.getInt("port")
         )
+        val (mode, relayEnabled, config) = relay!!.service_status
+        selectModeToggle(mode)
+        relayStateSwitch.isChecked = relayEnabled
+        relayDayStartEdit.setText(config.dayStart.toString())
+        relayDayEndEdit.setText(config.dayEnd.toString())
 
-        findViewById<MaterialButton>(R.id.relay_mode_auto_button).setOnClickListener {
+        relayModeAutoButton.setOnClickListener {
             selectModeToggle(Mode.AUTO)
         }
-        findViewById<MaterialButton>(R.id.relay_mode_manual_button).setOnClickListener {
+        relayModeManualButton.setOnClickListener {
             selectModeToggle(Mode.MANUAL)
         }
 
-        findViewById<SwitchMaterial>(R.id.relay_state_switch).setOnCheckedChangeListener {
+        relayStateSwitch.setOnCheckedChangeListener {
                 _, isChecked ->
             if (isChecked) {
                 relay!!.enable()
@@ -48,25 +67,11 @@ class RelaySettingsActivity : AppCompatActivity() {
         }
     }
 
-    private enum class Mode {
-        MANUAL, AUTO
-    }
-
     private fun selectModeToggle(m: Mode) {
-        if (m == Mode.AUTO) {
-            findViewById<MaterialButton>(R.id.relay_mode_auto_button).isChecked = true
-            findViewById<MaterialButton>(R.id.relay_mode_manual_button).isChecked = false
-            setTimeInputFieldVisible(true)
-        }
-        else {
-            findViewById<MaterialButton>(R.id.relay_mode_auto_button).isChecked = false
-            findViewById<MaterialButton>(R.id.relay_mode_manual_button).isChecked = true
-            setTimeInputFieldVisible(false)
-        }
-    }
-
-    private fun setTimeInputFieldVisible(visible: Boolean) {
-        findViewById<MaterialButtonToggleGroup>(R.id.day_configuration_layout).isVisible = visible
+        val autoButtonSelected = (m == Mode.AUTO)
+        relayModeAutoButton.isChecked = autoButtonSelected
+        relayModeManualButton.isChecked = !autoButtonSelected
+        dayConfigurationLayout.isVisible = autoButtonSelected
     }
 
     override fun onSupportNavigateUp(): Boolean {

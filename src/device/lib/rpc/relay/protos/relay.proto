@@ -2,6 +2,8 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 
 package open_greenery.rpc.relay;
+option java_package = "com.open_greenery.mobile";
+option java_outer_classname = "RelayProto";
 
 service Relay {
   rpc SetConfig(Config) returns (google.protobuf.Empty) {}
