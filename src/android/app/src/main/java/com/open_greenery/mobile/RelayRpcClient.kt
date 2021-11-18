@@ -49,12 +49,44 @@ class RelayRpcClient(address: String, port: Int) {
         )
     }
 
+    var config: Config
+        get() = service_status.config
+        set(value) = updateConfig(value)
+
+    fun updateConfig(config: Config) {
+        val proto_config = RelayProto.Config.newBuilder()
+            .setDayStart(config.dayStart.toSecondOfDay() * 1000)
+            .setDayEnd(config.dayEnd.toSecondOfDay() * 1000)
+            .build()
+        stub.setConfig(proto_config)
+    }
+
+    fun updateDayStart(dayStart: LocalTime) {
+        config = Config(dayStart, config.dayEnd)
+    }
+
+    fun updateDayEnd(dayEnd: LocalTime) {
+        config = Config(config.dayStart, dayEnd)
+    }
+
+    var mode: Mode
+        get() = service_status.mode
+        set(m) {
+            val protoMode =
+                if (m == Mode.MANUAL)
+                    RelayProto.ModeSetting.Mode.MODE_MANUAL
+                else
+                    RelayProto.ModeSetting.Mode.MODE_AUTO
+            stub.setMode(RelayProto.ModeSetting.newBuilder().setMode(protoMode).build())
+        }
+
+
     private fun manualControl(control: RelayProto.ManualControlRequest.Control) {
         val request = RelayProto.ManualControlRequest
             .newBuilder()
             .setControl(control)
             .build()
-        val response = stub.manualControl(request)
+        stub.manualControl(request)
     }
 
 }
