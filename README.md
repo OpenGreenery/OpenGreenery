@@ -10,3 +10,26 @@ Plants growing automated system
 - Irrigation
   - Periodically
   - Soil moisture based
+
+## Hardware
+- Raspberry Pi 3B+
+- ADC ADS1115
+- 3500K LED phytolamp
+- Duct fan
+- Soil moisture sensors
+- Peristaltic pump
+- Solenoid valves
+- Relays
+- PSU 12V 10A
+- 12V to 5V DC-DC converter
+
+## Software stack
+### Device services
+- C++17
+- CMake
+- gRPC
+- SQLite
+- GoogleTest
+### Android application
+- Kotlin
+- gRPC
