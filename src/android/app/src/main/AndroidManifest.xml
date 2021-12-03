@@ -12,10 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenGreenery">
         <activity
-            android:name=".RelaySettingsActivity"
-            android:exported="true"
-            android:label="@string/title_activity_light_settings" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
