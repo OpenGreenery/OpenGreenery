@@ -2,8 +2,9 @@ package com.open_greenery.mobile
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.content.Intent
-import android.widget.Button
+import androidx.fragment.app.Fragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 
 
 class MainActivity : AppCompatActivity() {
@@ -15,25 +16,30 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         title = "OpenGreenery"
-        findViewById<Button>(R.id.light_menu_button).setOnClickListener {
-            startRelaySettingsActivity(
-                "Light Settings",
-                DEVICE_HOST, LIGHT_PORT
-            )
-        }
-        findViewById<Button>(R.id.ventilation_menu_button).setOnClickListener {
-            startRelaySettingsActivity(
-                "Ventilation Settings",
-                DEVICE_HOST, VENTILATION_PORT
-            )
+
+        val lightFragment = RelaySettingsFragment.newInstance(DEVICE_HOST, LIGHT_PORT)
+        val ventilationFragment = RelaySettingsFragment.newInstance(DEVICE_HOST, VENTILATION_PORT)
+
+        setCurrentFragment(lightFragment)
+
+        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_nav_view)
+        bottomNavigationView.setOnItemSelectedListener {
+            when(it.itemId) {
+                R.id.light -> setCurrentFragment(lightFragment)
+                R.id.ventilation -> setCurrentFragment(ventilationFragment)
+                R.id.irrigation -> Snackbar.make(
+                    findViewById(R.id.fragment_layout),
+                    "Not implemented",
+                    Snackbar.LENGTH_SHORT)
+                        .show()
+            }
+            true
         }
     }
 
-    private fun startRelaySettingsActivity(title: String, host: String, port: Int) {
-        val intent = Intent(this@MainActivity, RelaySettingsActivity::class.java)
-        intent.putExtra("title", title)
-        intent.putExtra("host", host)
-        intent.putExtra("port", port)
-        startActivity(intent)
-    }
+    private fun setCurrentFragment(fragment: Fragment) =
+        supportFragmentManager.beginTransaction().apply {
+            replace(R.id.fragment_layout, fragment)
+            commit()
+        }
 }

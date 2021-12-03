@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/light"
+        android:title="Light"
+        android:icon="@drawable/ic_lightbulb"/>
+    <item
+        android:id="@+id/ventilation"
+        android:title="Ventilation"
+        android:icon="@drawable/ic_fan"/>
+    <item
+        android:id="@+id/irrigation"
+        android:title="Irrigation"
+        android:icon="@drawable/ic_droplet"/>
+</menu>
