@@ -1,4 +1,4 @@
-package com.open_greenery.mobile
+package com.open_greenery.mobile.relay
 
 import android.app.TimePickerDialog
 import android.os.Bundle
@@ -12,9 +12,9 @@ import android.widget.TimePicker
 import androidx.core.view.isVisible
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.open_greenery.mobile.R
 import java.time.LocalTime
 
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_RPC_HOST = "rpcHost"
 private const val ARG_RPC_PORT = "rpcPort"
 

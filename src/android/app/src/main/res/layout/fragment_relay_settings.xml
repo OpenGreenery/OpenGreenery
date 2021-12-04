@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/light_background"
-    tools:context=".RelaySettingsFragment">
+    tools:context=".relay.RelaySettingsFragment">
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/relay_state_switch"
