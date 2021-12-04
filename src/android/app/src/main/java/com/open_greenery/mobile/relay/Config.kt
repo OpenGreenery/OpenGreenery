@@ -1,4 +1,4 @@
-package com.open_greenery.mobile
+package com.open_greenery.mobile.relay
 
 import java.time.LocalTime
 

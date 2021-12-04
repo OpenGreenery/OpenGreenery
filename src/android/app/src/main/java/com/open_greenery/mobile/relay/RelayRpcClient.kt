@@ -1,6 +1,8 @@
-package com.open_greenery.mobile
+package com.open_greenery.mobile.relay
 
 import com.google.protobuf.Empty
+import com.open_greenery.mobile.RelayGrpc
+import com.open_greenery.mobile.RelayProto
 import io.grpc.okhttp.OkHttpChannelBuilder
 import java.time.LocalTime
 
@@ -82,8 +84,7 @@ class RelayRpcClient(address: String, port: Int) {
 
 
     private fun manualControl(control: RelayProto.ManualControlRequest.Control) {
-        val request = RelayProto.ManualControlRequest
-            .newBuilder()
+        val request = RelayProto.ManualControlRequest.newBuilder()
             .setControl(control)
             .build()
         stub.manualControl(request)
